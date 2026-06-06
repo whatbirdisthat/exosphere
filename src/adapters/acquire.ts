@@ -21,7 +21,7 @@ const GIT_URL = /^(?:https?:\/\/|git@|ssh:\/\/|file:\/\/)|\.git$/;
 /** Classify a raw target as a git-url or local-dir (or throw AuditError). */
 export async function resolveInput(target: string | undefined): Promise<InputKind> {
   if (target === undefined || target.trim() === '') {
-    throw new AuditError('NO_TARGET', 'No target provided. Usage: exosphere-audit <git-url | local-dir>');
+    throw new AuditError('NO_TARGET', 'No target provided. Usage: skillsentry <git-url | local-dir>');
   }
   if (GIT_URL.test(target)) {
     return 'git-url';
@@ -50,7 +50,7 @@ export async function acquire(target: string): Promise<Acquisition> {
 }
 
 async function cloneHostile(url: string): Promise<Acquisition> {
-  const dir = await mkdtemp(join(tmpdir(), 'exosphere-clone-'));
+  const dir = await mkdtemp(join(tmpdir(), 'skillsentry-clone-'));
   let cleaned = false;
   const cleanup = async (): Promise<void> => {
     if (cleaned) {

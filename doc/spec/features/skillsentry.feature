@@ -3,7 +3,7 @@
 # (cucumber-style tags; no separate Cucumber runtime). ≥3 scenarios per EARS family:
 # happy / unhappy / abuse. Written in SMU domain language.
 
-Feature: exosphere-audit static supply-chain audit
+Feature: skillsentry static supply-chain audit
 
   # ── Input resolution ──────────────────────────────────────────────────────
 
@@ -236,71 +236,71 @@ Feature: exosphere-audit static supply-chain audit
     When it is scanned
     Then the scan core performs no network access
 
-  # ── R3: .exosphereignore parsing ──────────────────────────────────────────
+  # ── R3: .skillsentryignore parsing ──────────────────────────────────────────
 
   @EARS-024
   Scenario: An ignore file's comments and blank lines are ignored (happy)
-    Given a .exosphereignore containing a "# comment" line, a blank line, and "secrets.env"
+    Given a .skillsentryignore containing a "# comment" line, a blank line, and "secrets.env"
     When the ignore file is parsed
     Then only the "secrets.env" pattern is retained
 
   @EARS-024
   Scenario: A leading-hash pattern with indentation is treated as a comment (unhappy)
-    Given a .exosphereignore line "   # not a pattern"
+    Given a .skillsentryignore line "   # not a pattern"
     When the ignore file is parsed
     Then no pattern is retained from that line
 
   @EARS-024
   Scenario: An ignore file that is entirely comments and blanks excludes nothing (abuse)
-    Given a .exosphereignore that is only comments and blank lines
+    Given a .skillsentryignore that is only comments and blank lines
     When the tree is enumerated with that ignore file
     Then no file is excluded
 
   @EARS-025
   Scenario: A single-star glob excludes matching files in a directory (happy)
-    Given a .exosphereignore pattern "tests/*.env"
+    Given a .skillsentryignore pattern "tests/*.env"
     When matching "tests/a.env" and "tests/sub/b.env"
     Then "tests/a.env" is excluded and "tests/sub/b.env" is not
 
   @EARS-025
   Scenario: A double-star glob excludes across directory separators (happy)
-    Given a .exosphereignore pattern "corpus/**"
+    Given a .skillsentryignore pattern "corpus/**"
     When matching "corpus/x/y/evil.sh"
     Then the path is excluded
 
   @EARS-025
   Scenario: A root-anchored pattern does not match a same-named nested file (abuse)
-    Given a .exosphereignore pattern "/build.sh"
+    Given a .skillsentryignore pattern "/build.sh"
     When matching "build.sh" and "nested/build.sh"
     Then "build.sh" is excluded and "nested/build.sh" is not
 
   @EARS-025
   Scenario: A trailing-slash directory pattern excludes everything beneath it (happy)
-    Given a .exosphereignore pattern "fixtures/"
+    Given a .skillsentryignore pattern "fixtures/"
     When matching "fixtures/mal/install.sh"
     Then the path is excluded
 
   @EARS-025
   Scenario: A single-char wildcard matches exactly one character (unhappy)
-    Given a .exosphereignore pattern "a?.sh"
+    Given a .skillsentryignore pattern "a?.sh"
     When matching "ab.sh" and "abc.sh"
     Then "ab.sh" is excluded and "abc.sh" is not
 
   @EARS-026
   Scenario: A negation re-includes a file the previous pattern excluded (abuse)
-    Given a .exosphereignore with "tests/**" then "!tests/keepme.sh"
+    Given a .skillsentryignore with "tests/**" then "!tests/keepme.sh"
     When matching "tests/keepme.sh" and "tests/other.sh"
     Then "tests/keepme.sh" is NOT excluded and "tests/other.sh" is excluded
 
   @EARS-026
   Scenario: Last matching pattern wins when exclude follows a negation (abuse)
-    Given a .exosphereignore with "!keep.sh" then "keep.sh"
+    Given a .skillsentryignore with "!keep.sh" then "keep.sh"
     When matching "keep.sh"
     Then "keep.sh" is excluded
 
   @EARS-026
   Scenario: A negation that matches nothing leaves other exclusions intact (unhappy)
-    Given a .exosphereignore with "*.env" then "!nothing-here.txt"
+    Given a .skillsentryignore with "*.env" then "!nothing-here.txt"
     When matching "a.env"
     Then "a.env" is excluded
 
@@ -308,40 +308,40 @@ Feature: exosphere-audit static supply-chain audit
 
   @EARS-027
   Scenario: An excluded malicious file is never scanned (abuse)
-    Given a target whose .exosphereignore excludes "planted.sh" and "planted.sh" contains "curl x | sh"
+    Given a target whose .skillsentryignore excludes "planted.sh" and "planted.sh" contains "curl x | sh"
     When the auditor audits the target
     Then no finding cites "planted.sh"
     And the verdict is PASS
 
   @EARS-027
   Scenario: A non-excluded malicious file is still scanned (happy)
-    Given a target whose .exosphereignore excludes "docs/**" and a malicious "install.sh" at the root
+    Given a target whose .skillsentryignore excludes "docs/**" and a malicious "install.sh" at the root
     When the auditor audits the target
     Then a dangerous-bash finding cites "install.sh"
 
   @EARS-028
-  Scenario: The .exosphereignore manifest is itself never scanned (abuse)
-    Given a .exosphereignore that itself contains the text "curl x | sh" in a comment
+  Scenario: The .skillsentryignore manifest is itself never scanned (abuse)
+    Given a .skillsentryignore that itself contains the text "curl x | sh" in a comment
     When the auditor audits the target
-    Then no finding cites ".exosphereignore"
+    Then no finding cites ".skillsentryignore"
 
   # ── R3: transparency invariant ────────────────────────────────────────────
 
   @EARS-029
   Scenario: Excluding a malicious file discloses the exclusion in the report (abuse)
-    Given a target whose .exosphereignore excludes a planted malicious file
+    Given a target whose .skillsentryignore excludes a planted malicious file
     When the auditor renders the report
     Then both the markdown and JSON disclose the excluded-file count and the excluding pattern
 
   @EARS-029
   Scenario: Per-pattern exclusion counts are disclosed (happy)
-    Given a .exosphereignore excluding two files by one pattern
+    Given a .skillsentryignore excluding two files by one pattern
     When the auditor renders the report
     Then the report shows that pattern excluded two files
 
   @EARS-030
   Scenario: An audit with no exclusions reports zero excluded and an empty pattern list (unhappy)
-    Given a target with no .exosphereignore
+    Given a target with no .skillsentryignore
     When the auditor renders the report
     Then the excluded-file count is zero and the pattern list is empty
 
@@ -349,19 +349,19 @@ Feature: exosphere-audit static supply-chain audit
 
   @EARS-031
   Scenario: --no-ignore forces a full scan that re-surfaces a hidden finding (abuse)
-    Given a target whose permissive .exosphereignore would exclude a planted malicious file
+    Given a target whose permissive .skillsentryignore would exclude a planted malicious file
     When the auditor audits the target with --no-ignore
     Then the planted file is scanned and the verdict is BLOCK
 
   @EARS-031
   Scenario: --no-ignore on a clean target still passes (happy)
-    Given a benign target with a .exosphereignore
+    Given a benign target with a .skillsentryignore
     When the auditor audits the target with --no-ignore
     Then the verdict is PASS and no files are excluded
 
   @EARS-031
   Scenario: Without --no-ignore the ignore file is honoured (unhappy)
-    Given a target whose .exosphereignore excludes a planted malicious file
+    Given a target whose .skillsentryignore excludes a planted malicious file
     When the auditor audits the target without --no-ignore
     Then the planted file is excluded and the verdict is PASS
 
@@ -371,7 +371,7 @@ Feature: exosphere-audit static supply-chain audit
   Scenario: A PASS repo with --badge emits a markdown snippet and raw SVG (happy)
     Given a benign target that audits to PASS
     When the author audits it with --badge
-    Then a Markdown badge snippet with alt text "audited by exosphere-audit" is emitted
+    Then a Markdown badge snippet with alt text "audited by skillsentry" is emitted
     And the raw SVG source is emitted
     And the markdown image source is an inline data:image/svg+xml data-URI
 
@@ -420,21 +420,21 @@ Feature: exosphere-audit static supply-chain audit
 
   @EARS-036
   Scenario: A badge earned via an ignore exclusion still discloses the exclusion (abuse)
-    Given a target whose .exosphereignore excludes a planted malicious file so it audits to PASS
+    Given a target whose .skillsentryignore excludes a planted malicious file so it audits to PASS
     When the author audits it with --badge
     Then a badge is emitted
     And the report still discloses the excluded-file count and the excluding pattern
 
   @EARS-036
   Scenario: A malicious permissive ignore cannot launder a hidden finding under a badge (abuse)
-    Given an attacker ships a .exosphereignore that hides a malicious file to force a PASS
+    Given an attacker ships a .skillsentryignore that hides a malicious file to force a PASS
     When the repo is audited with --badge
     Then the badge is accompanied by the exclusion disclosure exposing what was hidden
     And the same target under --no-ignore emits no badge and BLOCKs
 
   @EARS-036
   Scenario: A PASS with no exclusions reports zero excluded alongside its badge (unhappy)
-    Given a benign target with no .exosphereignore that audits to PASS
+    Given a benign target with no .skillsentryignore that audits to PASS
     When the author audits it with --badge
     Then a badge is emitted
     And the report discloses an excluded-file count of zero
@@ -454,15 +454,15 @@ Feature: exosphere-audit static supply-chain audit
     Then the process exits zero
 
   @EARS-038
-  Scenario: --ci honours the target's .exosphereignore by default (abuse)
-    Given a target whose .exosphereignore excludes a planted malicious file
+  Scenario: --ci honours the target's .skillsentryignore by default (abuse)
+    Given a target whose .skillsentryignore excludes a planted malicious file
     When it is audited with --ci
     Then the planted file is excluded and the process exits zero
     And the exclusion is disclosed in the report
 
   @EARS-038
   Scenario: --ci with --no-ignore re-surfaces the hidden finding and gates (abuse)
-    Given a target whose permissive .exosphereignore would hide a malicious file
+    Given a target whose permissive .skillsentryignore would hide a malicious file
     When it is audited with --ci --no-ignore
     Then the planted file is scanned and the process exits non-zero
 

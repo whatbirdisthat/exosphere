@@ -1,9 +1,9 @@
-# Subject Matter Understanding — exosphere-audit
+# Subject Matter Understanding — skillsentry
 
 > *This document is the philosophical and domain foundation for all FOUNDRY
-> agents operating on exosphere-audit. Read it before taking any action.*
+> agents operating on skillsentry. Read it before taking any action.*
 >
-> Source IDEA package: `doc/idea/exosphere-audit/brief.md` (source of truth),
+> Source IDEA package: `doc/idea/skillsentry/brief.md` (source of truth),
 > `smu-seed.md`, `first-slice.md`, `handoff.md`. ROADMAP item under build: **R1**.
 
 ---
@@ -14,7 +14,7 @@ A FOSS command-line **security auditor for the Claude Code skill/plugin supply c
 "`npm audit` / Semgrep for agent skills." It statically analyses a skill / subagent / plugin
 (local directory, or fetched **read-only** from a git URL) and returns an explained trust
 verdict — **PASS / REVIEW / BLOCK** — *before* the user installs or runs it. Distributed as a
-zero-install one-liner: `npx exosphere-audit <git-url | local-dir>`.
+zero-install one-liner: `npx skillsentry <git-url | local-dir>`.
 
 ---
 
@@ -35,7 +35,7 @@ developer's shell with the developer's permissions. The publishing bar is near-z
 (a SKILL.md + a week-old GitHub account) and there is **no install-time review or sandbox by
 default**. The threat is live and current: real malware campaigns (ClawHub, 30+ malicious
 skills) and Snyk's ToxicSkills study (prompt injection in 36% of skills, 1,467 malicious
-payloads). exosphere-audit removes the friction of "is this skill safe?" by giving a
+payloads). skillsentry removes the friction of "is this skill safe?" by giving a
 frictionless, explainable, low-false-positive static verdict before execution.
 
 ---

@@ -1,4 +1,4 @@
-// Pure gitignore-subset matcher for `.exosphereignore` (R3). No IO — operates on the ignore-file
+// Pure gitignore-subset matcher for `.skillsentryignore` (R3). No IO — operates on the ignore-file
 // text and candidate root-relative path strings. Per ADR-002 this lives in `core/*` (depends only
 // on `core/types`) so it is fully unit-pinnable as coordinates; the filesystem read of the ignore
 // file happens in the `enumerate` adapter at the edge.
@@ -18,7 +18,7 @@ export interface IgnorePattern {
   readonly regex: RegExp;
 }
 
-/** Parse `.exosphereignore` text into ordered patterns, dropping blanks and `#` comments. */
+/** Parse `.skillsentryignore` text into ordered patterns, dropping blanks and `#` comments. */
 export function parseIgnore(text: string): IgnorePattern[] {
   const patterns: IgnorePattern[] = [];
   for (const rawLine of text.split('\n')) {

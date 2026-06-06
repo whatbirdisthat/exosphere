@@ -3,7 +3,7 @@
 // `core/types`); the CLI adapter decides WHEN to call it and appends its output to the report.
 //
 // Determinism (EARS-035): the PASS badge is a FIXED, hand-written static SVG with two fixed strings
-// ("audited by" / "exosphere-audit") and no timestamp, nonce, or environment-dependent content, so
+// ("audited by" / "skillsentry") and no timestamp, nonce, or environment-dependent content, so
 // base64-of-a-fixed-string is itself fixed and the snippet an author pastes is byte-stable.
 //
 // Zero runtime dependency (ADR-003): the SVG is ~hand-generated, not produced by a badge/SVG package.
@@ -11,13 +11,13 @@
 
 import type { AuditReport, BadgeResult, Verdict } from './types.js';
 
-const ALT_TEXT = 'audited by exosphere-audit';
+const ALT_TEXT = 'audited by skillsentry';
 
 // A small, static, shields-style two-segment badge. Fixed geometry, fixed text, green PASS colour.
-// Left segment: "audited by"; right segment: "exosphere-audit" on a green (#3fb950) field.
+// Left segment: "audited by"; right segment: "skillsentry" on a green (#3fb950) field.
 const PASS_SVG = [
-  '<svg xmlns="http://www.w3.org/2000/svg" width="186" height="20" role="img" aria-label="audited by: exosphere-audit">',
-  '<title>audited by: exosphere-audit</title>',
+  '<svg xmlns="http://www.w3.org/2000/svg" width="186" height="20" role="img" aria-label="audited by: skillsentry">',
+  '<title>audited by: skillsentry</title>',
   '<linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient>',
   '<clipPath id="r"><rect width="186" height="20" rx="3" fill="#fff"/></clipPath>',
   '<g clip-path="url(#r)">',
@@ -28,8 +28,8 @@ const PASS_SVG = [
   '<g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="110" text-rendering="geometricPrecision">',
   '<text x="345" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="570">audited by</text>',
   '<text x="345" y="140" transform="scale(.1)" textLength="570">audited by</text>',
-  '<text x="1255" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="1090">exosphere-audit</text>',
-  '<text x="1255" y="140" transform="scale(.1)" textLength="1090">exosphere-audit</text>',
+  '<text x="1255" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="1090">skillsentry</text>',
+  '<text x="1255" y="140" transform="scale(.1)" textLength="1090">skillsentry</text>',
   '</g>',
   '</svg>',
 ].join('');
@@ -50,7 +50,7 @@ export function makeBadge(report: AuditReport): BadgeResult {
 
 /** One-line reason explaining why no badge was issued for a non-PASS verdict. */
 function noBadgeReason(verdict: Exclude<Verdict, 'PASS'>): string {
-  return `No badge: the verdict is ${verdict}, not PASS. Resolve the findings (or disclose-and-exclude via .exosphereignore) to earn a badge.`;
+  return `No badge: the verdict is ${verdict}, not PASS. Resolve the findings (or disclose-and-exclude via .skillsentryignore) to earn a badge.`;
 }
 
 /** Deterministic base64 of a UTF-8 string. Uses Buffer in Node; no environment-dependent input. */

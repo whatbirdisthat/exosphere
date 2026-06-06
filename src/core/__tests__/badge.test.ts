@@ -28,8 +28,8 @@ describe('badge.makeBadge — PASS emits a badge (EARS-032)', () => {
     if (result.kind !== 'badge') return; // narrow
     expect(result.svg).toContain('<svg');
     expect(result.svg).toContain('audited by');
-    expect(result.svg).toContain('exosphere-audit');
-    expect(result.markdown).toContain('![audited by exosphere-audit]');
+    expect(result.svg).toContain('skillsentry');
+    expect(result.markdown).toContain('![audited by skillsentry]');
   });
 
   it('markdown image source is an inline data:image/svg+xml data-URI (offline, self-contained)', () => {

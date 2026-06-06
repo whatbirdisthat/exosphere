@@ -171,7 +171,7 @@ dependencies added** — consistent with ADR-002/003/004 and the FOSS/no-backend
   data. Do not change any rule's matching behaviour. `core/*` still imports only `core/types` and never
   `node:fs` / `node:child_process`.
 - STORY-AGENT: prove parity through the built CLI over the full corpus (identical verdicts), assert the
-  precision-budget guard runs in the suite, and keep `exosphere-audit .` PASS.
+  precision-budget guard runs in the suite, and keep `skillsentry .` PASS.
 
 ## Revision history
 

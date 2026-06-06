@@ -1,0 +1,1 @@
+- [Project: exosphere governance & cycle](project-exosphere.md) — pr-approval, Vitest+v8 100% floor, zero-runtime-dep; R1/R3/R2/R9a shipped, R4 PR #6 stacked on fix/ci-build-order (rules now DATA in src/core/rules + src/core/matchers, scanners/ gone); sentinel IS installed
