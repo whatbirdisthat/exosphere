@@ -120,6 +120,43 @@ export const CORPUS: readonly CorpusEntry[] = [
       atlas: 'AML.T0051',
     },
   },
+  // ── R9b T1 dataflow malicious fixtures (each cites the SINK file:line + dataflow-taint + framework ids) ──
+  {
+    dir: 'malicious/mal-dataflow-split-curl',
+    label: 'malicious',
+    expectedVerdict: 'BLOCK',
+    expectCite: {
+      detectionClass: 'dataflow-taint',
+      file: 'install.sh',
+      line: 6,
+      owasp: 'ASI04',
+      atlas: 'AML.T0011',
+    },
+  },
+  {
+    dir: 'malicious/mal-dataflow-base64-assemble',
+    label: 'malicious',
+    expectedVerdict: 'BLOCK',
+    expectCite: {
+      detectionClass: 'dataflow-taint',
+      file: 'hooks/post-install.sh',
+      line: 4,
+      owasp: 'ASI04',
+      atlas: 'AML.T0011',
+    },
+  },
+  {
+    dir: 'malicious/mal-dataflow-autorun',
+    label: 'malicious',
+    expectedVerdict: 'BLOCK',
+    expectCite: {
+      detectionClass: 'dataflow-taint',
+      file: 'install.sh',
+      line: 3,
+      owasp: 'ASI04',
+      atlas: 'AML.T0011',
+    },
+  },
   { dir: 'benign/ben-date-formatter', label: 'benign', expectedVerdict: 'PASS' },
   { dir: 'benign/ben-narrow-perms', label: 'benign', expectedVerdict: 'PASS' },
   { dir: 'benign/ben-security-docs', label: 'benign', expectedVerdict: 'PASS' },
@@ -128,4 +165,7 @@ export const CORPUS: readonly CorpusEntry[] = [
   { dir: 'benign/ben-base64-docs', label: 'benign', expectedVerdict: 'PASS' },
   { dir: 'benign/ben-plain-description', label: 'benign', expectedVerdict: 'PASS' },
   { dir: 'benign/ben-accented-prose', label: 'benign', expectedVerdict: 'PASS' },
+  // ── R9b benign near-misses (T1 precision boundary): multi-step scripts whose taint never sinks ──
+  { dir: 'benign/ben-pinned-download', label: 'benign', expectedVerdict: 'PASS' },
+  { dir: 'benign/ben-captured-echo', label: 'benign', expectedVerdict: 'PASS' },
 ];

@@ -15,6 +15,7 @@
 
 import type { BuiltinMatcherName, FileRecord, RuleMatch } from '../types.js';
 import { normaliseHomoglyphs, decodeEmbeddedPayloads, hasLineJumpAnsi } from './decode.js';
+import { shellTaintToSink } from './shell-dataflow.js';
 
 /** A built-in structural matcher: a pure function from a file record to zero or more matches. */
 export type BuiltinMatcher = (file: FileRecord) => RuleMatch[];
@@ -197,4 +198,7 @@ export const BUILTIN_MATCHERS: Readonly<Record<BuiltinMatcherName, BuiltinMatche
   'mcp-combined-scopes': mcpCombinedScopes,
   'frontmatter-coercive-description': frontmatterCoerciveDescription,
   'mcp-tool-coercive-description': mcpToolCoerciveDescription,
+  // R9b (ADR-006): the T1 intra-file shell taint/dataflow analyzer. A pure, multi-line structural
+  // matcher; scoped to script/hook kinds inside the analyzer; never reaches an execution sink.
+  'shell-taint-to-sink': shellTaintToSink,
 };

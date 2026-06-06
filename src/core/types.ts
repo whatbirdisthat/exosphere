@@ -8,15 +8,21 @@ export type DetectionClass =
   | 'prompt-injection'
   | 'over-broad-perms'
   | 'committed-secrets'
-  | 'tool-description-poisoning';
+  | 'tool-description-poisoning'
+  // R9b: intra-file taint/dataflow in bundled shell scripts (a tainted SOURCE reaching a dangerous
+  // SINK across lines). The T1-tier class — see ADR-006.
+  | 'dataflow-taint';
 
 /**
- * Detection tier (ADR-004). Only the deterministic, offline `T0` tier exists today. The union is
- * the documented extension point: a future opt-in semantic tier is added by widening this union
- * (e.g. `'T0' | 'T2'`) and gating the new rules at the adapter/CLI edge — no change to `Rule`,
- * the engine, or any existing rule. The default ruleset stays 100% deterministic + offline.
+ * Detection tier (ADR-004, extended by ADR-006/R9b). `T0` is the always-on pattern/structural tier.
+ * `T1` (R9b) is the intra-file shell taint/dataflow tier — a DEEPER static technique that is still
+ * deterministic + offline + never-executing, so it runs additively alongside T0 with no opt-in gate.
+ * The union remains the documented extension point: a future opt-in *semantic* tier (T2, which would
+ * break offline/deterministic) is added by widening this union again and gating those rules at the
+ * adapter/CLI edge — no change to `Rule`, the engine, or any existing rule. The default ruleset stays
+ * 100% deterministic + offline.
  */
-export type RuleTier = 'T0';
+export type RuleTier = 'T0' | 'T1';
 
 /**
  * Framework mapping carried by every rule (ADR-004 / R9a). Anchors each detection to a recognised
@@ -73,7 +79,10 @@ export type BuiltinMatcherName =
   | 'ansi-line-jumping'
   | 'mcp-combined-scopes'
   | 'frontmatter-coercive-description'
-  | 'mcp-tool-coercive-description';
+  | 'mcp-tool-coercive-description'
+  // R9b: the T1 intra-file shell taint/dataflow analyzer (ADR-006). A multi-line, stateful structural
+  // matcher that cannot be a single-line regex, so it joins the closed builtin registry by name.
+  | 'shell-taint-to-sink';
 
 /**
  * The declarative matcher vocabulary (ADR-005). A closed discriminated union so rule data can express
