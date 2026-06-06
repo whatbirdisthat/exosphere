@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED — historical artifact.** Round 2 adversarial pass; folded into the consolidated report.
+> The current single source of truth is [`../naming-report.md`](../naming-report.md). Do not cite this as current.
+
 # Naming Deep-Dive v2 — FOSS CLI for AI-Agent Skill Attestation
 
 **Version:** 2 (adversarial-challenge round)

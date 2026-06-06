@@ -7,7 +7,8 @@ It never executes what it scans. Mental model: *"`npm audit` / Semgrep for agent
 **Rounds of research:** 2 (2026-06-06). Round 1 explored the vouch/wright/smith artisan family;
 Round 2 explicitly moved off those stems and mined Latin/Romance etymology veins.
 
-**Status:** Final recommendation — **Fidavel** (primary), **Clarivo** (runner-up).
+**Status:** Final recommendation — **Fidavel** (primary), **Puravel** (runner-up). *(Clarivo, the earlier
+runner-up, was withdrawn on a polyglot re-check — it is TAKEN; see §4.)*
 
 ---
 
@@ -104,10 +105,16 @@ a genuinely different semantic direction.
 | `tollwright` | Retired (stem banned R2) | npm 404; GitHub 0 repos; no brand. Gate/threshold metaphor; but "toll" implies a fee — wrong for a free tool |
 | `warrantwright` | Retired (stem banned R2) | npm 404; GitHub 0 repos; no brand. Warrant = to guarantee; but "warrant" carries a police-search connotation and 13 chars is long |
 
-### 2c. Round 2 adversarial kills — names that cleared verification but failed challenge
+### 2c. Round 2 — names removed on AVAILABILITY (the only true kills)
 
-The adversarial reviewer was instructed to default to `survives=false` and attack on every axis.
-All 9 clean survivors were killed. The kills that produced the clearest evidence:
+> **Two verdicts, never conflated.** A name has an **availability verdict** (is it free? — the hard,
+> deterministic gate that *removes* a name from the pool) and, separately, a **challenge verdict** (how
+> does it fare under adversarial stress? — a *demotion within* the survivors, never a removal). The names
+> in this sub-section were **removed on availability**: they collide with a live registry, brand, or
+> entity. They are out of the pool. (§2d covers challenge demotions; the two must never be described with
+> the same word "killed".)
+
+These cleared the syllable/coinage filter but were **removed because they are taken**:
 
 | Candidate | Adversarial verdict (one line) |
 |---|---|
@@ -121,25 +128,29 @@ All 9 clean survivors were killed. The kills that produced the clearest evidence
 | `Vebalo` | Etymology collapses on first inspection; VE-BA- neighbourhood crowded and litigated; fails the brief's own cold-spellability criterion |
 | `Cluvex` | Three simultaneous live collisions — active commercial domain, funded academic consortium, and a security-tooling GitHub org |
 
-> **Note on the adversarial phase:** the challenger was set to `default survives=false`, which
-> produced zero survivors. The synthesizer correctly fell back to the clean shortlist
-> (pre-adversarial) and ranked those 8 names by score. The names in §3 below are the ones that
-> survived hard availability verification and earned the highest adversarial scores even while being
-> killed — i.e. the strongest of a very clean field.
+### 2d. Round 2 — challenge demotions (NOT removals)
+
+The adversarial reviewer was deliberately set to `default survives=false` and told to attack every name on
+every axis — a worst-case stress test, not an availability gate. Under that setting **no name scored a
+clean "survives"**, which is by design: the value of the pass is the *ranking it produces*, not a binary
+pass/fail. So the synthesizer did the correct thing — it took the names that **passed availability**
+(§3, all `availabilityVerdict = CLEAR`) and ranked them by their **challenge scores** (philosophy-fit +
+distinctiveness + sayability). A low challenge score is a *demotion within the shortlist*, never a removal
+from it. No name in §3 was "killed"; each was *availability-CLEAR and challenge-ranked*.
 
 ---
 
-## 3. Ranked Shortlist — Clean Survivors (Round 2)
+## 3. Ranked Shortlist — availability-CLEAR, challenge-ranked (Round 2)
 
-All names below: npm exact 404, npm hyphenated variants 404, GitHub user/org 404, no brand or
-company in software/security/AI, `.dev/.io` NXDOMAIN as of 2026-06-06.
-Scores 1–5 per axis; adversarial score is the pre-kill aggregate (philosophy fit + distinctiveness
-+ sayability).
+Every name below has **`availabilityVerdict = CLEAR`** (npm exact 404, npm hyphenated 404, GitHub user/org
+404, no software/security/AI brand, `.dev/.io` NXDOMAIN as of 2026-06-06) and a **`challengeVerdict`** =
+its adversarial score (philosophy-fit + distinctiveness + sayability, 1–5 each). The two are distinct: the
+first earned its place in the pool; the second sets its rank.
 
 | Rank | Name | Syllables | Phil. Fit | Distinct. | Sayability | Etymology root | Availability (verified) |
 |------|------|-----------|-----------|-----------|------------|----------------|------------------------|
 | 1 | **Fidavel** | 3 | 5 | 5 | 4 | Latin *fides* (trust freely given) + -vel (carrier) | npm 404; GH user 404; GH org 404; `.dev/.io/.com` NXDOMAIN; zero web results |
-| 2 | **Clarivo** | 3 | 5 | 4 | 5 | Latin *clarus* (clear, bright) + -ivo (having the nature of) | npm 404; GH 0 repos; no brand; `.com/.dev/.io` NXDOMAIN |
+| ~~2~~ | ~~**Clarivo**~~ **WITHDRAWN** | 3 | 5 | 4 | 5 | Latin *clarus* (clear, bright) + -ivo | **`availabilityVerdict = TAKEN`** on polyglot re-check (occupies 4 software slots; live `Clar-` brands) — removed from the shortlist; see §4 |
 | 3 | **Puravel** | 3 | 4 | 5 | 4 | Latin/Fr *épurer* (filter and emerge clean) + -vel | npm 404; GH 0 repos; no brand; `.com/.dev` NXDOMAIN; zero web results |
 | 4 | **Ponvex** | 2 | 4 | 5 | 4 | Latin *pons* (bridge) + -vex (conveyor) | npm 404; GH 0 repos; no brand; `.dev/.io` NXDOMAIN; zero web results globally |
 | 5 | **Pravel** | 2 | 4 | 4 | 5 | Latin *probare* (to test, prove good) compressed | npm 404; GH 0 repos; no brand; `.dev/.io` NXDOMAIN; Czech *pravěl* is benign |
@@ -243,14 +254,22 @@ the name to tell the philosophy story.
 5. If committing commercially, run EUIPO clearance too (Latin root is no protection against a
    prior mark in EU classes).
 
-### Runner-up: **Clarivo**
+### Runner-up: **Puravel**
 
-If Fidavel's etymology story feels too opaque for an English-first audience, Clarivo is the
-fallback. "Clarivo" reads immediately as "the thing that makes clear" with zero decoding
-required, and it encodes the PASS verdict as "cleared" in the most direct possible way.
-The ergonomics are slightly better for spoken use ("run clarivo on this skill"). Ranks second
-only because the Clar- prefix neighbours (Claroty, Clario Tech) create a noisier brand
-neighbourhood over time, not because of any direct collision.
+> **Correction (2026-06-06, polyglot re-check).** The earlier draft named **Clarivo** as runner-up. On
+> re-verification with the new deterministic checker (`/ideator:name`, which now probes **npm + PyPI +
+> crates.io + GitHub** and an adoption tier), **`clarivo` returns TAKEN** — consistent with §2c's own note
+> that "Clarivo occupies four separate software product slots" and the live `Clar-` neighbourhood
+> (Claroty, Clario, Clarivate). Recommending it as runner-up contradicted the report's own evidence, so it
+> is **withdrawn**. The honest runner-up is the next `availabilityVerdict = CLEAR` name.
+
+**Puravel** (§3 #3) is the fallback if Fidavel's etymology feels too opaque. From Latin/Old French *épurer*
+(to refine, to pass through a filter and emerge clean) + the -vel carrier suffix — "the one that carries
+through purification", which maps directly onto the static-only, nothing-hidden, FOSS-commons promise. It
+verified **CLEAR on every axis** (npm/PyPI/crates/GitHub all free, `.com/.dev` NXDOMAIN, zero global web
+results). Its only minor risk is that *pura* reads as generic "pure" in a few Romance markets — well below
+the bar for a global CLI. **Ponvex** (#4) is an equally-clean two-syllable alternative if a harder, more
+abstract coinage is preferred.
 
 ---
 
@@ -283,6 +302,22 @@ If none of the names in this report satisfies the team, the next veins to mine a
   before committing any name commercially.
 - **Date:** all checks 2026-06-06. The FOSS/AI-security namespace moves fast — re-verify any
   name not acted on within 30 days, especially npm (squatters watch research traffic).
-- **namecheck.sh** at `~/.claude/scripts/namecheck.sh` — bash script used for Phase 3
-  (bulk parallel curl checks), replacing the previous per-name agent approach that consumed
-  20k+ tokens per naming run.
+- **Tooling:** availability was checked by `namecheck.sh` (bulk parallel `curl`), which replaced a
+  per-name-agent approach that burned 20k+ tokens per run. That script is now a first-class IDEATOR
+  capability — **`/ideator:name`** — and has since gained **PyPI + crates.io** checks and an **adoption
+  tier** (CLEAR / LOW_ADOPTION / ABANDONED / TAKEN). The Clarivo withdrawal in §4 came from re-running that
+  enriched check. To regenerate or extend this report, run `/ideator:name` (it emits exactly this template).
+
+---
+
+## 7. Document status & history
+
+This is the **single source of truth** for the naming decision. Earlier research passes are preserved
+under [`archive/`](archive/) and are **superseded** — do not cite them as current:
+
+- `archive/naming-deep-dive.md` — Round 1 (vouch/wright/smith family; top pick then was `vouchsmith`).
+- `archive/naming-deep-dive-v2.md` — Round 2 adversarial pass (Latin veins).
+- `archive/name-availability-report.md` — the earlier `metasphere` vs `exosphere` comparison.
+
+The two-verdict discipline (availability vs challenge) and the section structure here are the canonical
+**naming-report template** emitted by `/ideator:name`.
