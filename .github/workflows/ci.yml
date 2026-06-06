@@ -6,22 +6,79 @@ on:
   pull_request:
 
 jobs:
-  build:
+  # ── Correctness: typecheck, build, 100%-coverage test gate, and the real CLI over the corpus ──
+  test:
+    name: test · node ${{ matrix.node }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['18', '20', '22'] # the npx audience runs everywhere — prove it
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ matrix.node }}
           cache: npm
       - run: npm ci
       - name: Typecheck
         run: npm run typecheck
       - name: Build
-        # Must precede the test step: the story suite spawns the built CLI (dist/bin.js),
-        # which does not exist until the project is built.
         run: npm run build
-      - name: Unit + integration + coverage (100% line+branch floor)
+      - name: Unit + integration + 100% coverage floor
         run: npm run test:cov
-      - name: Story / corpus gate
+      - name: Story / corpus gate (real CLI over the malicious + benign corpus)
         run: npx vitest run tests/story
+
+  # ── Dogfooding: the auditor audits itself, in the open, every commit ──
+  self-audit:
+    name: 🛡️ self-audit · we run our own tool on ourselves
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Audit this repo with its own CLI
+        run: |
+          set +e
+          node dist/bin.js . | tee audit.out
+          code=$?
+          NAME=$(node -p "require('./package.json').name")
+          {
+            echo "## 🛡️ ${NAME} self-audit"
+            echo ""
+            echo "_The auditor audits itself — every commit, in the open. Exclusions are disclosed below._"
+            echo ""
+            echo '```'
+            cat audit.out
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          # A non-zero (BLOCK) verdict on our own repo fails CI — we must always pass our own audit.
+          exit $code
+
+  # ── Release confidence: the thing we publish to npm actually installs and runs ──
+  pack-smoke:
+    name: 📦 npm-pack smoke · the published artifact runs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Pack, global-install the tarball, run the published bin
+        run: |
+          set -e
+          npm pack
+          npm i -g ./*.tgz
+          BIN=$(node -p "Object.keys(require('./package.json').bin)[0]")
+          mkdir -p /tmp/clean-skill
+          printf '# demo skill\n\nA harmless example skill.\n' > /tmp/clean-skill/SKILL.md
+          "$BIN" /tmp/clean-skill
+          echo "✅ published bin \`${BIN}\` installs and PASSes a clean skill" >> "$GITHUB_STEP_SUMMARY"
