@@ -8,6 +8,7 @@ export function renderMarkdown(report: AuditReport, target: string): string {
   lines.push(`- **Target:** ${target}`);
   lines.push(`- **Verdict:** ${report.verdict}`);
   lines.push('');
+  appendExclusions(lines, report);
   if (report.findings.length === 0) {
     lines.push('No findings.');
     return lines.join('\n') + '\n';
@@ -22,6 +23,24 @@ export function renderMarkdown(report: AuditReport, target: string): string {
   return lines.join('\n') + '\n';
 }
 
+/**
+ * Disclose `.exosphereignore` exclusions (R3 transparency invariant). When any file was excluded,
+ * the human report MUST show how many and by which patterns — an exclusion can never be silent.
+ */
+function appendExclusions(lines: string[], report: AuditReport): void {
+  const { excludedCount, patterns } = report.exclusions;
+  if (excludedCount === 0) {
+    return;
+  }
+  lines.push(`## Excluded by .exosphereignore (${excludedCount})`);
+  lines.push('');
+  lines.push(`> ${excludedCount} file(s) were excluded from the scan surface and NOT audited.`);
+  for (const p of patterns) {
+    lines.push(`- \`${p.pattern}\` — excluded ${p.count} file(s)`);
+  }
+  lines.push('');
+}
+
 /** Render the audit report as a machine-readable JSON string. */
 export function renderJson(report: AuditReport, target: string): string {
   return JSON.stringify(
@@ -29,6 +48,7 @@ export function renderJson(report: AuditReport, target: string): string {
       verdict: report.verdict,
       target,
       findings: report.findings,
+      exclusions: report.exclusions,
     },
     null,
     2,

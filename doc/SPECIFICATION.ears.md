@@ -93,6 +93,48 @@
 - **EARS-023** — WHILE scanning (after acquisition completes), THE SYSTEM SHALL make no network calls
   (offline-after-fetch).
 
+## R3 — `.exosphereignore` / self-exclusion convention
+
+> Source: ROADMAP R3; ADR-002. The audited target may declare paths to exclude from enumeration.
+> Load-bearing invariant: an exclusion can NEVER silently hide a finding — every exclusion is
+> disclosed in the report (transparency over trust).
+
+### Ignore-file parsing
+
+- **EARS-024** — WHEN a `.exosphereignore` file is present at the audited target root, THE SYSTEM
+  SHALL parse it as gitignore-style patterns: one pattern per line, ignoring blank lines and lines
+  whose first non-whitespace character is `#`.
+- **EARS-025** — WHEN parsing a `.exosphereignore` pattern, THE SYSTEM SHALL support a `*` wildcard
+  (matching any run of characters except `/`), a `**` wildcard (matching across path separators), a
+  `?` single-character wildcard, a leading `/` to anchor the pattern to the target root, a trailing
+  `/` to match a directory and everything beneath it, and an embedded `/` to anchor the pattern to
+  the root.
+- **EARS-026** — WHEN a `.exosphereignore` pattern begins with `!`, THE SYSTEM SHALL treat it as a
+  negation that re-includes an otherwise-excluded path, with the last matching pattern in file order
+  determining the final decision.
+
+### Exclusion from enumeration
+
+- **EARS-027** — WHILE enumerating the audited tree, THE SYSTEM SHALL exclude from the scan surface
+  every file whose root-relative path matches the effective `.exosphereignore` patterns, so excluded
+  files are never scanned by any detection class.
+- **EARS-028** — WHEN a `.exosphereignore` is present, THE SYSTEM SHALL itself exclude the
+  `.exosphereignore` file from the scan surface (the ignore manifest is not audited content).
+
+### Transparency invariant (load-bearing)
+
+- **EARS-029** — WHEN one or more files are excluded by `.exosphereignore`, THE SYSTEM SHALL disclose
+  in BOTH the markdown and JSON report the total count of excluded files and, per pattern, the
+  pattern text and how many files it excluded, so an exclusion can never silently hide a finding.
+- **EARS-030** — WHILE no file is excluded (no ignore file, or an ignore file that matches nothing),
+  THE SYSTEM SHALL report an excluded-file count of zero and an empty pattern list.
+
+### Override
+
+- **EARS-031** — WHEN the CLI is invoked with the `--no-ignore` flag, THE SYSTEM SHALL ignore any
+  `.exosphereignore` file entirely and scan the full tree, so an audit-the-auditor / CI run cannot be
+  weakened by a target-supplied ignore file.
+
 ## ID register
 
-Highest existing ID: **EARS-023**. Next new ID starts at EARS-024. IDs are permanent; never reuse.
+Highest existing ID: **EARS-031**. Next new ID starts at EARS-032. IDs are permanent; never reuse.

@@ -1,0 +1,24 @@
+# .exosphereignore — exosphere-audit auditing its own repository (R3).
+#
+# This repo IS a security scanner: its rule sources, test fixtures, and spec docs
+# legitimately CONTAIN the very attack patterns the tool detects. Excluding them lets
+# `exosphere-audit .` return an honest PASS on this repo. The exclusions are DISCLOSED
+# in every report (transparency invariant) and `--no-ignore` re-scans everything, so
+# nothing here can hide a real finding.
+
+# Labelled malicious/benign fixture corpus — the success oracle, intentionally hostile.
+tests/corpus/**
+
+# Test files that embed attack strings as inputs to the matchers.
+tests/integration/**
+src/**/__tests__/**
+
+# Rule-source files: the detection patterns themselves (scanners + match helpers).
+src/core/scanners/**
+
+# Specification and idea/opportunity docs that quote attack patterns as examples.
+doc/**
+ROADMAP.md
+
+# Build output (compiled copies of the rule sources).
+dist/**
