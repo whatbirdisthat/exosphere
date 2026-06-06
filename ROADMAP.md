@@ -130,7 +130,7 @@
 - R8 · Runtime/execution-time guard.
 - R9b–e · Further deeper-detection tiers — T1 AST/dataflow, rug-pull/version-diff, opt-in T2 semantic
   (see `doc/research/deeper-detection-plan.md` §6).
-- **R10 · Rename `exosphere-audit` → `skillsentry`** — ⏳ AWAITING MERGE (branch `slice/r10-rename-skillsentry`).
+- **R10 · Rename `exosphere-audit` → `skillsentry`** — ✅ COMPLETE — merged via PR #7 (merge `428b28c`, 2026-06-06).
   Product/package/CLI renamed to **`skillsentry`** (`npx skillsentry`); the self-exclusion convention is now
   **`.skillsentryignore`**; badge text "audited by skillsentry"; code, tests, active docs + specs updated.
   Repo stays **`exosphere`** (umbrella) per the chosen scope; GitHub repo rename is a separate optional step.
@@ -138,4 +138,5 @@
   point-in-time record. 241 tests / 100% coverage held. Name verified npm-free + clean in
   `docs/marketing/name-availability-report.md`. Precedes npm publish.
 
-> Next: **R10 rename** (in progress). npm publish precedes public launch; Tier-2 (R5–R9b–e) stays parked.
+> Shipped: R1, R3, R2, R9a, R4, CI-fix, **R10 rename**. Next slice: TBD (R9b AST/dataflow recommended).
+> npm publish unblocked but deferred per the user. Tier-2 (R5–R9b–e, R4.1 loader) stays parked.
