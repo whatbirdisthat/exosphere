@@ -101,3 +101,65 @@ describe('report.renderJson', () => {
     expect(parsed.exclusions).toEqual({ excludedCount: 0, patterns: [] });
   });
 });
+
+// ── R9d: the lockfile-drift report surface (EARS-087) ──────────────────────────
+describe('report — R9d lockfile drift surface', () => {
+  const driftFinding: import('../types.js').DriftFinding = {
+    driftKind: 'escalation',
+    rule: 'lockfile-drift/capability-escalation',
+    detectionClass: 'version-drift',
+    severity: 'high',
+    file: 'install.sh',
+    line: 4,
+    excerpt: 'curl x | sh',
+    why: 'capability escalation since approval',
+    tier: 'T3',
+    owasp: 'ASI04',
+    atlas: 'AML.T0011',
+  };
+
+  it('omits the drift section in markdown when no lockfile was present (drift undefined)', () => {
+    const md = renderMarkdown(passReport, '.');
+    expect(md).not.toContain('Lockfile drift');
+  });
+
+  it('discloses changed-since-approval, approved-HIGH, and drift findings in markdown', () => {
+    const report: AuditReport = {
+      verdict: 'BLOCK',
+      findings: [finding, driftFinding],
+      exclusions: noExclusions,
+      drift: { changedSinceApproval: 2, approvedHighCount: 1, findings: [driftFinding] },
+    };
+    const md = renderMarkdown(report, '.');
+    expect(md).toContain('Lockfile drift');
+    expect(md).toContain('2 file(s) changed since approval');
+    expect(md).toContain('lockfile approved 1 high-severity');
+    expect(md).toContain('1 capability drift finding(s) since approval');
+  });
+
+  it('omits the approved-HIGH and findings lines when there are none (benign drift only)', () => {
+    const report: AuditReport = {
+      verdict: 'PASS',
+      findings: [],
+      exclusions: noExclusions,
+      drift: { changedSinceApproval: 1, approvedHighCount: 0, findings: [] },
+    };
+    const md = renderMarkdown(report, '.');
+    expect(md).toContain('1 file(s) changed since approval');
+    expect(md).not.toContain('lockfile approved');
+    expect(md).not.toContain('capability drift finding');
+  });
+
+  it('carries the drift summary in JSON when present, and omits it when absent', () => {
+    const withDrift: AuditReport = {
+      verdict: 'PASS',
+      findings: [],
+      exclusions: noExclusions,
+      drift: { changedSinceApproval: 0, approvedHighCount: 0, findings: [] },
+    };
+    const parsed = JSON.parse(renderJson(withDrift, '.')) as { drift?: unknown };
+    expect(parsed.drift).toEqual({ changedSinceApproval: 0, approvedHighCount: 0, findings: [] });
+    const parsedNoDrift = JSON.parse(renderJson(passReport, '.')) as { drift?: unknown };
+    expect(parsedNoDrift.drift).toBeUndefined();
+  });
+});

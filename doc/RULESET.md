@@ -29,9 +29,12 @@ interface RuleSpec {
   id: string;                 // unique, namespaced: "<detection-class>/<short-name>"
   detectionClass: DetectionClass;   // one of the six classes (below)
   severity: 'low' | 'medium' | 'high';  // 'high' forces a BLOCK verdict
-  tier: 'T0' | 'T1';          // T0 = pattern/structural; T1 = shell dataflow/taint (ADR-006). Both are
-                              // deterministic + offline + never-executing and run by default. The union
-                              // is the ADR-004 extension point for a future opt-in semantic tier (T2).
+  tier: 'T0' | 'T1';          // T0 = pattern/structural; T1 = shell dataflow/taint (ADR-006/007). Both
+                              // are deterministic + offline + never-executing and run by default. The
+                              // union is the ADR-004 extension point. (T3 — the R9d temporal/drift tier,
+                              // ADR-008 — also exists, but is NOT a contributable rule: it is a temporal
+                              // pass over (freshScan, .skillsentry.lock) wired at the engine/adapter edge,
+                              // not a per-file matcher, so it never appears in a RuleSpec.)
   framework: { owasp: string; atlas: string };  // BOTH required — OWASP + MITRE ATLAS ids
   why: string;                // the human-readable reason a reviewer sees on the finding
   matcher: MatcherSpec;       // how the rule matches (the vocabulary below)
@@ -45,6 +48,8 @@ interface RuleFixture { kind: ComponentKind; content: string; }
 
 `detectionClass` is one of: `dangerous-bash`, `prompt-injection`, `over-broad-perms`,
 `committed-secrets`, `tool-description-poisoning`, `dataflow-taint` (R9b — the T1 shell taint class).
+(A seventh class, `version-drift`, exists for the R9d T3 temporal tier — ADR-008 — but it is raised by
+the drift pass, not by a contributable `RuleSpec`, so a rule author never sets it.)
 
 `framework.owasp` is an OWASP ASI / MCP / LLM Top-10 id (e.g. `ASI04`, `MCP-T01`, `LLM01`);
 `framework.atlas` is a MITRE ATLAS technique id (e.g. `AML.T0051`). Both are **required** — the type

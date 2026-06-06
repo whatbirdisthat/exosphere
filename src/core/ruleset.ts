@@ -24,6 +24,13 @@ export const RULESET_SCHEMA_VERSION = '1.0.0';
 export const RULESET_VERSION = '0.5.0';
 
 /**
+ * The SCHEMA version of the `.skillsentry.lock` approval baseline (R9d / ADR-008). Bumped only on a
+ * breaking change to the `LockFile` shape. `1.0.0` is the first temporal-tier lock schema. The lockfile
+ * is DATA the tool reads, never executes — same boundary as the ruleset data (EARS-088).
+ */
+export const LOCKFILE_SCHEMA_VERSION = '1.0.0';
+
+/**
  * The full curated ruleset as DECLARATIVE DATA (ADR-005 / R4, extended by ADR-006 / R9b): the union of
  * all detection-class rule-data modules. This is the externally-declared, contributable artefact — each
  * entry is a self-describing `RuleSpec`. The ruleset is DATA, never code (EARS-051): nothing here is

@@ -9,6 +9,7 @@ export function renderMarkdown(report: AuditReport, target: string): string {
   lines.push(`- **Verdict:** ${report.verdict}`);
   lines.push('');
   appendExclusions(lines, report);
+  appendDrift(lines, report);
   if (report.findings.length === 0) {
     lines.push('No findings.');
     return lines.join('\n') + '\n';
@@ -42,6 +43,31 @@ function appendExclusions(lines: string[], report: AuditReport): void {
   lines.push('');
 }
 
+/**
+ * Disclose the R9d lockfile drift surface (EARS-087, transparency carry-over). When a `.skillsentry.lock`
+ * baseline was present, the human report MUST show: how many files changed since approval (the benign
+ * "drift" note), and — load-bearing — how many HIGH-severity findings the lockfile recorded as approved
+ * (a lock cannot silently launder a HIGH). A lockfile can never silently suppress.
+ */
+function appendDrift(lines: string[], report: AuditReport): void {
+  const drift = report.drift;
+  if (drift === undefined) {
+    return;
+  }
+  lines.push(`## Lockfile drift (.skillsentry.lock)`);
+  lines.push('');
+  lines.push(`> ${drift.changedSinceApproval} file(s) changed since approval.`);
+  if (drift.approvedHighCount > 0) {
+    lines.push(
+      `> NOTE: the lockfile approved ${drift.approvedHighCount} high-severity finding(s) — a lockfile cannot lower a fresh verdict (additive-only).`,
+    );
+  }
+  if (drift.findings.length > 0) {
+    lines.push(`> ${drift.findings.length} capability drift finding(s) since approval (see below).`);
+  }
+  lines.push('');
+}
+
 /** Render the audit report as a machine-readable JSON string. */
 export function renderJson(report: AuditReport, target: string): string {
   return JSON.stringify(
@@ -50,6 +76,7 @@ export function renderJson(report: AuditReport, target: string): string {
       target,
       findings: report.findings,
       exclusions: report.exclusions,
+      ...(report.drift ? { drift: report.drift } : {}),
     },
     null,
     2,

@@ -6,6 +6,8 @@ import { classify } from './classify.js';
 
 const SKIP_DIRS: ReadonlySet<string> = new Set(['.git', 'node_modules']);
 const IGNORE_FILE = '.skillsentryignore';
+/** The R9d approval baseline — data the tool reads, never audited content (EARS-078). Always removed. */
+const LOCK_FILE = '.skillsentry.lock';
 
 /** Walk the audited tree (read-only) into an in-memory skill SBOM of FileRecords. */
 export async function enumerate(root: string): Promise<FileRecord[]> {
@@ -37,7 +39,9 @@ export async function enumerateWithIgnore(
   options: EnumerateOptions,
 ): Promise<EnumerationResult> {
   const all = await enumerate(root);
-  const candidates = all.filter((f) => f.path !== IGNORE_FILE);
+  // The ignore manifest and the approval lockfile are tool DATA, not audited content — both are always
+  // removed from the scan surface regardless of `noIgnore` (EARS-078, mirroring the R3 ignore rule).
+  const candidates = all.filter((f) => f.path !== IGNORE_FILE && f.path !== LOCK_FILE);
 
   if (options.noIgnore) {
     return { files: candidates, exclusions: NO_EXCLUSIONS };

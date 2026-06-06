@@ -1,12 +1,16 @@
 import { acquire } from './adapters/acquire.js';
 import { enumerateWithIgnore } from './adapters/enumerate.js';
+import { hashFiles, readLock, writeLock } from './adapters/lockfile.js';
 import { scan } from './core/engine.js';
 import { ruleset } from './core/ruleset.js';
 import { aggregate, exitCodeFor } from './core/verdict.js';
 import { renderJson, renderMarkdown } from './core/report.js';
 import { makeBadge } from './core/badge.js';
+import { diffCapabilities } from './core/drift.js';
+import { extractCapabilitySet } from './core/lock.js';
+import { LOCKFILE_SCHEMA_VERSION } from './core/ruleset.js';
 import { AuditError } from './core/types.js';
-import type { AuditReport } from './core/types.js';
+import type { AuditReport, DriftSummary, ExclusionSummary, FileRecord, Finding, LockFile, Verdict } from './core/types.js';
 
 export interface CliResult {
   readonly exitCode: number;
@@ -19,6 +23,7 @@ interface ParsedArgs {
   readonly noIgnore: boolean;
   readonly badge: boolean;
   readonly ci: boolean;
+  readonly approve: boolean;
 }
 
 function parseArgs(argv: readonly string[]): ParsedArgs {
@@ -27,6 +32,7 @@ function parseArgs(argv: readonly string[]): ParsedArgs {
   let noIgnore = false;
   let badge = false;
   let ci = false;
+  let approve = false;
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === '--format') {
@@ -39,11 +45,13 @@ function parseArgs(argv: readonly string[]): ParsedArgs {
       badge = true;
     } else if (arg === '--ci') {
       ci = true;
+    } else if (arg === '--approve') {
+      approve = true;
     } else if (target === undefined) {
       target = arg;
     }
   }
-  return { target, format, noIgnore, badge, ci };
+  return { target, format, noIgnore, badge, ci, approve };
 }
 
 /**
@@ -92,14 +100,36 @@ function appendCiStatus(reportStdout: string, report: AuditReport): string {
 
 /** Run the full audit pipeline for a target and return the report + exit code. */
 export async function runAudit(argv: readonly string[]): Promise<CliResult> {
-  const { target, format, noIgnore, badge, ci } = parseArgs(argv);
+  const { target, format, noIgnore, badge, ci, approve } = parseArgs(argv);
   try {
     const acquisition = await acquire(target as string);
     try {
       const { files, exclusions } = await enumerateWithIgnore(acquisition.root, { noIgnore });
       const findings = scan(files, ruleset);
-      const verdict = aggregate(findings);
-      const report: AuditReport = { verdict, findings, exclusions };
+      // The fresh deterministic T0/T1 scan ALWAYS sets the verdict floor. Drift findings can only be
+      // ADDED to this list (never subtracted) — the additive-only invariant is structural here.
+      const freshVerdict = aggregate(findings);
+
+      if (approve) {
+        // EARS-075: persist the approval baseline (capability fingerprint) and report the fresh scan.
+        await writeApprovalLock(acquisition.root, files, findings, freshVerdict, exclusions);
+      }
+
+      // EARS-079/086: the T3 temporal pass runs only when a baseline is present. Without one it is
+      // inert and `drift` stays undefined (a pre-R9d audit is byte-identical).
+      const drift = await computeDrift(acquisition.root, files, findings);
+
+      // EARS-084: verdict = max(freshVerdict, driftVerdict). `aggregate` over the UNION of fresh +
+      // drift findings is exactly that max — a lockfile can add a finding, never remove one.
+      const allFindings: Finding[] = drift ? [...findings, ...drift.findings] : [...findings];
+      const verdict = aggregate(allFindings);
+
+      const report: AuditReport = {
+        verdict,
+        findings: allFindings,
+        exclusions,
+        ...(drift ? { drift } : {}),
+      };
       let stdout =
         format === 'json' ? renderJson(report, target as string) : renderMarkdown(report, target as string);
       if (badge) {
@@ -118,4 +148,39 @@ export async function runAudit(argv: readonly string[]): Promise<CliResult> {
     }
     throw err;
   }
+}
+
+/**
+ * Write the `.skillsentry.lock` approval baseline (EARS-075). The capability fingerprint is computed by
+ * the SAME pure `extractCapabilitySet` the diff uses — the single source of truth that keeps approve and
+ * diff from drifting apart (a divergence would false-positive benign drift AND could slip an escalation).
+ */
+async function writeApprovalLock(
+  root: string,
+  files: readonly FileRecord[],
+  findings: readonly Finding[],
+  verdict: Verdict,
+  exclusions: ExclusionSummary,
+): Promise<void> {
+  const lock: LockFile = {
+    schemaVersion: LOCKFILE_SCHEMA_VERSION,
+    approvedVerdict: verdict,
+    fileHashes: hashFiles(files),
+    capabilities: extractCapabilitySet(findings),
+    exclusions,
+  };
+  await writeLock(root, lock);
+}
+
+/** Run the T3 temporal pass at the adapter edge: read the baseline (if any), diff, return the summary. */
+async function computeDrift(
+  root: string,
+  files: readonly FileRecord[],
+  findings: readonly Finding[],
+): Promise<DriftSummary | undefined> {
+  const lock = await readLock(root);
+  if (lock === undefined) {
+    return undefined;
+  }
+  return diffCapabilities(findings, hashFiles(files), lock);
 }

@@ -180,9 +180,15 @@
 > capability no incumbent one-shot scanner has). R7 (hosted platform) is explicitly NOT pursued now.
 
 ### R9d · T3 rug-pull / version-diff — approval-lockfile drift detection
-- **STATUS:** 🎯 ACTIVE NEXT SLICE — design agreed + pressure-tested to knowledge-parity (2026-06-07).
+- **STATUS:** 🟢 BUILT — GREEN + STORY-PROVEN on `slice/r9d-rugpull` (2026-06-07), AWAITING COMMIT/PR.
+  EARS-075–088 authored; ADR-008 landed; the temporal T3 tier shipped (lockfile `--approve` + drift
+  pass). Gates green: `npm run build` clean, `npm run test:cov` **100%/100%/100%/100%** (387 tests),
+  full corpus 100%/0%-FP, dogfood `skillsentry .` **PASS**. Both gating fixtures hold (benign-drift →
+  PASS+note; laundering → BLOCK+disclosed). Zero new runtime deps (`dependencies: {}`). Lint not run in
+  this env (eslint binary absent — CI gate); sentinel plugin unavailable in this env (CI dogfood is the
+  available security gate). NOT committed/merged per pr-approval governance — hand-back at green.
   **Build-ready IDEA package: `doc/idea/r9d-rugpull/`** (brief · smu-seed · first-slice · handoff;
-  discovery exit gate ✅). Awaiting FOUNDRY EARS → build.
+  discovery exit gate ✅).
 - **PRIORITY:** P0 (the differentiator + the npm-publish gate).
 - **STACK:** TypeScript / Node → `handler-js`. **New tier T3** (temporal); deterministic/offline.
 - **OBJECTIVE:** Detect the **rug-pull** — a skill/plugin that was clean when a user approved it and

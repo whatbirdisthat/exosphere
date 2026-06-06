@@ -11,18 +11,27 @@ export type DetectionClass =
   | 'tool-description-poisoning'
   // R9b: intra-file taint/dataflow in bundled shell scripts (a tainted SOURCE reaching a dangerous
   // SINK across lines). The T1-tier class — see ADR-006.
-  | 'dataflow-taint';
+  | 'dataflow-taint'
+  // R9d: a target's trust-relevant capability SET has GROWN since an approval baseline
+  // (`.skillsentry.lock`) — the rug-pull. The T3 (temporal) class — see ADR-008. Not produced by a
+  // `Rule`; raised by the temporal drift pass over (freshScanResult, lockfile).
+  | 'version-drift';
 
 /**
- * Detection tier (ADR-004, extended by ADR-006/R9b). `T0` is the always-on pattern/structural tier.
- * `T1` (R9b) is the intra-file shell taint/dataflow tier — a DEEPER static technique that is still
- * deterministic + offline + never-executing, so it runs additively alongside T0 with no opt-in gate.
- * The union remains the documented extension point: a future opt-in *semantic* tier (T2, which would
- * break offline/deterministic) is added by widening this union again and gating those rules at the
- * adapter/CLI edge — no change to `Rule`, the engine, or any existing rule. The default ruleset stays
+ * Detection tier (ADR-004, extended by ADR-006/R9b, ADR-008/R9d). `T0` is the always-on
+ * pattern/structural tier. `T1` (R9b) is the intra-file/cross-file shell taint/dataflow tier — a
+ * DEEPER static technique that is still deterministic + offline + never-executing, so it runs
+ * additively alongside T0 with no opt-in gate. `T3` (R9d) is the **temporal** tier: it reasons about a
+ * target across TWO points in time (an approval `.skillsentry.lock` baseline vs the current tree),
+ * flagging capability ESCALATION since approval (the rug-pull). T3 is **not** expressible as a `Rule`
+ * (no per-file matcher signature can take two target-level inputs) — it is a temporal pass at the
+ * engine/adapter edge (ADR-008). T3 ships BEFORE T2 on purpose: T3 holds deterministic + offline +
+ * never-execute, whereas the semantic T2 would break those, so T3 is a default-eligible tier and T2
+ * remains an unbuilt opt-in. The union remains the documented extension point — a future opt-in tier is
+ * added by widening it again and gating those rules at the adapter/CLI edge. The default ruleset stays
  * 100% deterministic + offline.
  */
-export type RuleTier = 'T0' | 'T1';
+export type RuleTier = 'T0' | 'T1' | 'T3';
 
 /**
  * Framework mapping carried by every rule (ADR-004 / R9a). Anchors each detection to a recognised
@@ -198,10 +207,83 @@ export interface ExclusionSummary {
   readonly patterns: readonly { readonly pattern: string; readonly count: number }[];
 }
 
+// ── R9d: T3 temporal tier — the approval lockfile + capability-fingerprint drift (ADR-008) ──────
+//
+// `.skillsentry.lock` is a deterministic, byte-stable, schema-versioned JSON baseline written by
+// `--approve`. It is DATA the tool reads, never executes (same boundary as the R4 ruleset data and the
+// R3 ignore file). The diff keys on the CAPABILITY SET (not raw byte hashes) so a benign edit (hash
+// changes, capability set unchanged) is not a finding; an escalation (the set grows) is.
+
+/**
+ * One trust-relevant capability present in a target at approval time — the unit of the capability SET.
+ * A capability is identified by its (rule, detectionClass, severity, file, line): a stable, structural
+ * key that survives benign byte drift but changes when a NEW sink/perm/hook/finding appears. The set of
+ * these IS the fingerprint the diff keys on. (Whitespace/reorder of the underlying file does not change
+ * any field here — that is the FP-line guarantee.)
+ */
+export interface Capability {
+  readonly rule: string;
+  readonly detectionClass: DetectionClass;
+  readonly severity: Severity;
+  readonly file: string;
+  readonly line: number;
+}
+
+/** The capability SET of a target — the order-independent fingerprint the drift diff keys on. */
+export type CapabilitySet = readonly Capability[];
+
+/**
+ * The deterministic, byte-stable, schema-versioned approval baseline (`.skillsentry.lock`, ADR-008).
+ * Written by `--approve` and committed alongside the skill. Read (never executed) on a later audit so
+ * the T3 pass can answer "what changed since I trusted this?".
+ */
+export interface LockFile {
+  /** Lockfile SCHEMA version — bumped only on a breaking change to this shape. */
+  readonly schemaVersion: string;
+  /** The approval verdict captured at lock time (informational; the fresh scan always re-decides). */
+  readonly approvedVerdict: Verdict;
+  /** Per-file sha256 at approval (POSIX rel path → hex). `.skillsentry.lock` is self-excluded. */
+  readonly fileHashes: Readonly<Record<string, string>>;
+  /** The approved capability SET (the fingerprint the diff keys on). */
+  readonly capabilities: CapabilitySet;
+  /** The `.skillsentryignore` exclusion provenance disclosed at approval (transparency carry-over). */
+  readonly exclusions: ExclusionSummary;
+}
+
+/** Why a `version-drift` finding was raised — the structured drift classification (ADR-008). */
+export type DriftKind = 'escalation' | 'approval-invalidation';
+
+/**
+ * A T3 temporal-pass finding: the capability set grew, or an approved file's bytes changed. Carries the
+ * same shape as a scan `Finding` (so it folds into the same list and report) plus the drift kind. Tier
+ * is always `'T3'`, class always `'version-drift'`.
+ */
+export interface DriftFinding extends Finding {
+  readonly driftKind: DriftKind;
+}
+
+/**
+ * The result of the T3 temporal pass — disclosed in both report formats (R3 transparency carry-over).
+ * `changedSinceApproval` is the benign-drift note count (files whose hash changed); it is informational
+ * and NEVER lowers a verdict. `approvedHighCount` is the load-bearing anti-laundering disclosure: how
+ * many HIGH-severity findings the lockfile recorded as approved (a lock that pre-approved a HIGH is
+ * itself exposed). `findings` are the escalation/invalidation drift findings folded into the verdict.
+ */
+export interface DriftSummary {
+  readonly changedSinceApproval: number;
+  readonly approvedHighCount: number;
+  readonly findings: readonly DriftFinding[];
+}
+
 export interface AuditReport {
   readonly verdict: Verdict;
   readonly findings: readonly Finding[];
   readonly exclusions: ExclusionSummary;
+  /**
+   * R9d: the T3 drift summary when a `.skillsentry.lock` baseline was present; `undefined` when no
+   * lockfile was read (the T3 pass is inert without a baseline, so a pre-R9d audit is byte-identical).
+   */
+  readonly drift?: DriftSummary;
 }
 
 /**
