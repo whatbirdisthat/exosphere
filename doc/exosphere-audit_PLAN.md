@@ -95,6 +95,9 @@ None. CLI only. No gesture tests. handler-playwright N/A.
 
 ## Completion
 
-- Commit hash: _(populated at Step 9)_
-- Date: _(populated at Step 9)_
-- PR: _(populated at Step 9)_
+- Commit hash: `c1533fa`
+- Date: 2026-06-06
+- PR: https://github.com/whatbirdisthat/exosphere/pull/1 (AWAITING MERGE — pr-approval)
+- Coverage: 100% line / 100% branch / 100% function (88 tests)
+- Corpus gate: 100% accuracy at 0.0% false-positive (≥90%/≤10%-FP gate cleared)
+- Security gate: PASS (0 real secrets; 0 production-dep vulnerabilities)
