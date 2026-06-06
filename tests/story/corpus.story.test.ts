@@ -54,8 +54,10 @@ describe('STORY: skillsentry over the labelled fixture corpus (unmocked CLI)', (
       );
       expect(hit, `${entry.dir} expected ${cite.detectionClass} at ${cite.file}:${cite.line}`).toBeDefined();
       expect(hit!.why.length).toBeGreaterThan(0);
-      // R9a: the cited finding carries its framework ids through the real CLI (md + JSON surface).
-      expect(hit!.tier).toBe('T0');
+      // R9a/R9b: the cited finding carries its framework ids through the real CLI (md + JSON surface).
+      // T0 is the default tier; the R9b dataflow-taint class is the T1 tier (EARS-059).
+      const expectedTier = cite.detectionClass === 'dataflow-taint' ? 'T1' : 'T0';
+      expect(hit!.tier, `${entry.dir} tier`).toBe(expectedTier);
       expect(hit!.owasp.length).toBeGreaterThan(0);
       expect(hit!.atlas.length).toBeGreaterThan(0);
       if (cite.owasp !== undefined) {
@@ -143,6 +145,44 @@ describe('STORY: externalised declarative ruleset, proven through the real CLI (
     // the rule-data files are scanned as ordinary text and surface as findings — they are NOT executed.
     const ruleDataHit = json.findings.some((f) => f.file.startsWith('src/core/rules/'));
     expect(ruleDataHit, 'rule-data files are scanned as text, proving they are data not code').toBe(true);
+  });
+});
+
+// ── R9b: T1 intra-file shell dataflow/taint, proven through the real built CLI ──────────────
+describe('STORY: T1 dataflow catches multi-line obfuscation the T0 regex misses (R9b)', () => {
+  // EARS-065 success gate (through the real CLI): the split payload BLOCKs citing tier T1 at the SINK.
+  it('BLOCKs a split source-to-sink payload citing dataflow-taint tier T1 at the sink file:line', async () => {
+    const { code, json } = await runCli(join(corpusRoot, 'malicious/mal-dataflow-split-curl'));
+    expect(json.verdict).toBe('BLOCK');
+    expect(code).toBeGreaterThan(0);
+    const hit = json.findings.find(
+      (f) => f.detectionClass === 'dataflow-taint' && f.file === 'install.sh' && f.line === 6,
+    );
+    expect(hit, 'T1 dataflow finding at install.sh:6').toBeDefined();
+    expect(hit!.tier).toBe('T1');
+    expect(hit!.severity).toBe('high');
+    expect(hit!.owasp.length).toBeGreaterThan(0);
+    expect(hit!.atlas.length).toBeGreaterThan(0);
+  });
+
+  // EARS-059: the markdown report surfaces "tier T1" on the finding line, with framework ids.
+  it('surfaces tier T1 and framework ids in the markdown report (EARS-059)', async () => {
+    const { stdout } = await exec('node', [
+      BIN,
+      join(corpusRoot, 'malicious/mal-dataflow-base64-assemble'),
+    ]).catch((e: { stdout: string }) => ({ stdout: e.stdout }));
+    expect(stdout).toContain('BLOCK');
+    expect(stdout).toContain('dataflow-taint');
+    expect(stdout).toContain('tier T1');
+    expect(stdout).toContain('post-install.sh:4');
+  });
+
+  // EARS-064 precision boundary: a benign pinned, hash-verified multi-step download PASSes.
+  it('PASSes a benign pinned, hash-verified multi-step download (EARS-064)', async () => {
+    const { code, json } = await runCli(join(corpusRoot, 'benign/ben-pinned-download'));
+    expect(json.verdict).toBe('PASS');
+    expect(code).toBe(0);
+    expect(json.findings).toEqual([]);
   });
 });
 

@@ -5,6 +5,7 @@ import { promptInjectionRules } from './rules/prompt-injection.rules.js';
 import { overBroadPermsRules } from './rules/over-broad-perms.rules.js';
 import { committedSecretsRules } from './rules/committed-secrets.rules.js';
 import { toolDescriptionPoisoningRules } from './rules/tool-description-poisoning.rules.js';
+import { dataflowTaintRules } from './rules/dataflow-taint.rules.js';
 
 /**
  * The version of the rule-DATA SCHEMA / matcher vocabulary (ADR-005 / R4, EARS-054). Bumped only on a
@@ -14,15 +15,19 @@ import { toolDescriptionPoisoningRules } from './rules/tool-description-poisonin
 export const RULESET_SCHEMA_VERSION = '1.0.0';
 
 /**
- * The version of the curated rule CONTENT (EARS-054). R4 externalises the rules into declarative data
- * (no detection-behaviour change), so the content version steps to `0.3.0`.
+ * The version of the curated rule CONTENT (EARS-054). R4 externalised the rules into declarative data
+ * (0.3.0); R9b adds the T1 `dataflow-taint` rule (new detection content), so the content version steps
+ * to `0.4.0`. The SCHEMA version is unchanged — the `RuleSpec` shape and matcher vocabulary additions
+ * (a new builtin name, a widened tier union) are backward-compatible extensions, not breaking changes.
  */
-export const RULESET_VERSION = '0.3.0';
+export const RULESET_VERSION = '0.4.0';
 
 /**
- * The full curated ruleset as DECLARATIVE DATA (ADR-005 / R4): the union of all five detection-class
- * rule-data modules. This is the externally-declared, contributable artefact — each entry is a
- * self-describing `RuleSpec`. The ruleset is DATA, never code (EARS-051): nothing here is executed.
+ * The full curated ruleset as DECLARATIVE DATA (ADR-005 / R4, extended by ADR-006 / R9b): the union of
+ * all detection-class rule-data modules. This is the externally-declared, contributable artefact — each
+ * entry is a self-describing `RuleSpec`. The ruleset is DATA, never code (EARS-051): nothing here is
+ * executed. R9b adds the T1 `dataflow-taint` rules ADDITIVELY — T0 rules are unchanged and still run
+ * always (EARS-058).
  */
 export const ruleSpecs: readonly RuleSpec[] = [
   ...dangerousBashRules,
@@ -30,6 +35,7 @@ export const ruleSpecs: readonly RuleSpec[] = [
   ...overBroadPermsRules,
   ...committedSecretsRules,
   ...toolDescriptionPoisoningRules,
+  ...dataflowTaintRules,
 ];
 
 /**

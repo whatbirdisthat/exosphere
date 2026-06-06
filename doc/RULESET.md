@@ -27,9 +27,11 @@ A rule is a plain TypeScript data object (validated by the compiler at load time
 ```ts
 interface RuleSpec {
   id: string;                 // unique, namespaced: "<detection-class>/<short-name>"
-  detectionClass: DetectionClass;   // one of the five classes (below)
+  detectionClass: DetectionClass;   // one of the six classes (below)
   severity: 'low' | 'medium' | 'high';  // 'high' forces a BLOCK verdict
-  tier: 'T0';                 // deterministic + offline (the only tier today; ADR-004 extension point)
+  tier: 'T0' | 'T1';          // T0 = pattern/structural; T1 = shell dataflow/taint (ADR-006). Both are
+                              // deterministic + offline + never-executing and run by default. The union
+                              // is the ADR-004 extension point for a future opt-in semantic tier (T2).
   framework: { owasp: string; atlas: string };  // BOTH required — OWASP + MITRE ATLAS ids
   why: string;                // the human-readable reason a reviewer sees on the finding
   matcher: MatcherSpec;       // how the rule matches (the vocabulary below)
@@ -42,7 +44,7 @@ interface RuleFixture { kind: ComponentKind; content: string; }
 ```
 
 `detectionClass` is one of: `dangerous-bash`, `prompt-injection`, `over-broad-perms`,
-`committed-secrets`, `tool-description-poisoning`.
+`committed-secrets`, `tool-description-poisoning`, `dataflow-taint` (R9b — the T1 shell taint class).
 
 `framework.owasp` is an OWASP ASI / MCP / LLM Top-10 id (e.g. `ASI04`, `MCP-T01`, `LLM01`);
 `framework.atlas` is a MITRE ATLAS technique id (e.g. `AML.T0051`). Both are **required** — the type
@@ -88,6 +90,7 @@ The vocabulary today:
 | `mcp-combined-scopes` | an MCP server combining filesystem + network + secret scopes |
 | `frontmatter-coercive-description` | a coercive directive in a `skill`/`agent` frontmatter `description:` |
 | `mcp-tool-coercive-description` | a coercive directive in an MCP tool `description` field |
+| `shell-taint-to-sink` *(T1)* | a tainted SOURCE (command-sub / fetch / decode / sensitive env / stdin) flowing **across lines** into a dangerous SINK (pipe-to-shell, `eval`/`exec`, `source`, autorun write) in a `script`/`hook` — multi-line obfuscation the single-line regex misses (ADR-006). A rule using it sets `tier: 'T1'`. |
 
 **Adding a new builtin is a code change** (write a new pure, vetted, code-reviewed matcher function and
 register it under its name), not a data change. That is the security boundary: data selects from vetted

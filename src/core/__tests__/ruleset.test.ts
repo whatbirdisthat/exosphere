@@ -25,7 +25,7 @@ describe('ruleset', () => {
     }
   });
 
-  it('includes rules from all five detection classes', () => {
+  it('includes rules from all six detection classes (R9b adds dataflow-taint)', () => {
     const classes = new Set<DetectionClass>(ruleset.map((r) => r.detectionClass));
     expect(classes).toEqual(
       new Set<DetectionClass>([
@@ -34,6 +34,7 @@ describe('ruleset', () => {
         'over-broad-perms',
         'committed-secrets',
         'tool-description-poisoning',
+        'dataflow-taint',
       ]),
     );
   });
@@ -50,18 +51,27 @@ describe('ruleset', () => {
     }
   });
 
-  // @EARS-039 — every rule (existing four classes + new) carries tier T0 + OWASP + ATLAS
-  it('gives every rule tier T0 and a non-empty OWASP + MITRE ATLAS framework mapping', () => {
+  // @EARS-039 @EARS-059 — every rule carries a valid tier (T0 or the R9b T1) + OWASP + ATLAS
+  it('gives every rule a valid tier and a non-empty OWASP + MITRE ATLAS framework mapping', () => {
     for (const r of ruleset) {
-      expect(r.tier, `${r.id} tier`).toBe('T0');
+      expect(['T0', 'T1'], `${r.id} tier`).toContain(r.tier);
       expect(r.framework.owasp.length, `${r.id} owasp`).toBeGreaterThan(0);
       expect(r.framework.atlas.length, `${r.id} atlas`).toBeGreaterThan(0);
     }
   });
 
-  // @EARS-039 — the new fifth detection class is present in the ruleset
+  // @EARS-039 — the tool-description-poisoning detection class is present
   it('includes the tool-description-poisoning detection class', () => {
     const classes = new Set<DetectionClass>(ruleset.map((r) => r.detectionClass));
     expect(classes.has('tool-description-poisoning')).toBe(true);
+  });
+
+  // @EARS-058 — the T1 dataflow-taint class is present and every dataflow-taint rule is tier T1
+  it('includes the T1 dataflow-taint detection class with tier T1 (R9b)', () => {
+    const t1 = ruleset.filter((r) => r.detectionClass === 'dataflow-taint');
+    expect(t1.length).toBeGreaterThan(0);
+    for (const r of t1) {
+      expect(r.tier, `${r.id} tier`).toBe('T1');
+    }
   });
 });

@@ -123,13 +123,34 @@
   self-describing record (`id · owasp/atlas mapping · severity · rationale · tier · pass/fail fixtures ·
   precision-budget`). A rule that regresses corpus FP is reverted, not merged.
 
+### R9b · T1 deterministic dataflow/taint detection for bundled shell scripts
+- **STATUS:** ⏳ AWAITING MERGE — branch `slice/r9b-dataflow` (base `main`). 300 tests / 100% coverage
+  (stmts/branches/funcs/lines). Corpus 100% accuracy / 0% FP across 23 fixtures. Self-scan PASS. Zero new
+  runtime deps. DELIVERY pending PR approval (pure library — line ends at DELIVERY).
+- **PRIORITY:** P1 (closes the bundled-script dataflow gap named in `deeper-detection-plan.md` §1).
+- **OBJECTIVE:** Add the **T1 tier** — deterministic, offline, never-executing **intra-file taint/dataflow
+  analysis** for bundled shell scripts (`install.sh`, hooks, bundled `*.sh`/`*.bash`). Track tainted
+  SOURCES (command substitution, network fetch, decode, sensitive env, stdin) flowing **across lines**
+  through variable assignments into dangerous SINKS (pipe-to-shell, `eval`/`exec`, `source`, autorun
+  locations) — catching multi-line obfuscation the single-line T0 regex provably misses (e.g.
+  `URL=$(get_secret); PAYLOAD=$(curl "$URL"); echo "$PAYLOAD" | sh`). T1 is **additive** (T0 stays the
+  always-on default) and labelled `tier:'T1'` per finding, carrying OWASP+ATLAS like T0.
+- **DESIGN:** ADR-006. New detection class `dataflow-taint`; new closed-registry builtin
+  `shell-taint-to-sink` (the analyzer is dependency-free, line/token-structured — NOT an external
+  parser); `RuleTier` widened `'T0'`→`'T0'|'T1'` (the ADR-004 extension point, used as designed).
+  **Dependency decision:** zero new runtime deps; a JS/shell **AST parser** was deliberately NOT added —
+  the JS-AST taint case is recorded as a **deferred opt-in future slice** (provisionally R9c). New
+  benign near-miss fixtures (pinned hash-verified download; captured value only echoed) hold the
+  precision line. EARS-058–066.
+
 ## Tier 2 — Backlog (parked; not now)
 - R5 · Spec/quality drift checks.
 - R6 · Cross-harness support (Cursor/Codex/Gemini instruction files).
 - R7 · Hosted registry / continuous monitoring (the platform play).
 - R8 · Runtime/execution-time guard.
-- R9b–e · Further deeper-detection tiers — T1 AST/dataflow, rug-pull/version-diff, opt-in T2 semantic
-  (see `doc/research/deeper-detection-plan.md` §6).
+- R9c–e · Further deeper-detection tiers — **JS-AST dataflow (opt-in, needs a parser dep — deferred per
+  ADR-006)**, rug-pull/version-diff, opt-in T2 semantic (see `doc/research/deeper-detection-plan.md` §6).
+  (R9b — T1 shell dataflow — is now in Tier 1c, AWAITING MERGE.)
 - **R10 · Rename `exosphere-audit` → `skillsentry`** — ✅ COMPLETE — merged via PR #7 (merge `428b28c`, 2026-06-06).
   Product/package/CLI renamed to **`skillsentry`** (`npx skillsentry`); the self-exclusion convention is now
   **`.skillsentryignore`**; badge text "audited by skillsentry"; code, tests, active docs + specs updated.
@@ -138,5 +159,6 @@
   point-in-time record. 241 tests / 100% coverage held. Name verified npm-free + clean in
   `docs/marketing/name-availability-report.md`. Precedes npm publish.
 
-> Shipped: R1, R3, R2, R9a, R4, CI-fix, **R10 rename**. Next slice: TBD (R9b AST/dataflow recommended).
-> npm publish unblocked but deferred per the user. Tier-2 (R5–R9b–e, R4.1 loader) stays parked.
+> Shipped: R1, R3, R2, R9a, R4, CI-fix, **R10 rename**. In flight: **R9b — T1 shell dataflow (AWAITING
+> MERGE)**. Next slice: TBD (R9c JS-AST dataflow opt-in, or rug-pull/version-diff). npm publish unblocked
+> but deferred per the user. Tier-2 (R5–R8, R9c–e, R4.1 loader) stays parked.

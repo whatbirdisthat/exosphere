@@ -44,14 +44,20 @@ async function current(label: string, d: string): Promise<OracleEntry> {
 }
 
 describe('parity: externalised ruleset reproduces the compiled-in baseline (EARS-055)', () => {
-  it('covers every baseline fixture (no fixture silently dropped)', () => {
+  // Every fixture in the R4 baseline oracle must still exist on disk (none silently dropped). R9b ADDS
+  // new T1 fixtures that are not in the pre-R9b baseline — the parity contract is that no BASELINE
+  // fixture regressed, so the oracle keys must be a SUBSET of what is on disk, and every oracle key is
+  // re-checked finding-for-finding below.
+  it('covers every baseline fixture (no baseline fixture silently dropped)', () => {
     const onDisk = new Set<string>();
     for (const label of ['malicious', 'benign']) {
       for (const d of readdirSync(join(corpusRoot, label))) {
         onDisk.add(`${label}/${d}`);
       }
     }
-    expect(new Set(Object.keys(oracle))).toEqual(onDisk);
+    for (const key of Object.keys(oracle)) {
+      expect(onDisk.has(key), `baseline fixture ${key} must still exist on disk`).toBe(true);
+    }
   });
 
   it.each(Object.keys(oracle))('fixture %s yields identical verdict and findings', async (key) => {

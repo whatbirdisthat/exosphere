@@ -81,11 +81,18 @@ corpus false-positive rate is reverted, not merged. This is the open artefact th
 
 ## 6 · Phased roadmap
 
-1. **R9a** — framework mapping + encoding/obfuscation + tool-description poisoning (all T0; low risk, high value).
-2. **R9b** — externalise the ruleset (= R4) with per-rule fixtures + framework IDs.
-3. **R9c** — T1 AST/dataflow for bundled scripts.
-4. **R9d** — T3 rug-pull / version-diff.
-5. **R9e** — opt-in T2 semantic tier.
+> **Sequencing note (2026-06-06):** the externalise-the-ruleset work shipped under its own id **R4**
+> (PR #6), so the slice labels were re-used: **R9b is the T1 shell dataflow/taint slice** (this is the
+> "T1 AST/dataflow for bundled scripts" item below), delivered dependency-free per **ADR-006**. The
+> JS-AST sub-case (which would need a parser runtime dependency) is **deferred to an opt-in future
+> slice** (provisionally R9c). The authoritative sequencing is `ROADMAP.md`.
+
+1. **R9a** — framework mapping + encoding/obfuscation + tool-description poisoning (all T0; low risk, high value). ✅
+2. **R4** — externalise the ruleset with per-rule fixtures + framework IDs. ✅
+3. **R9b** — **T1 dataflow/taint for bundled shell scripts (dependency-free; ADR-006).** ← this slice.
+4. **R9c** — JS-AST dataflow (opt-in; needs a parser dep — deferred per ADR-006) + further tiers.
+5. **R9d** — T3 rug-pull / version-diff.
+6. **R9e** — opt-in T2 semantic tier.
 
 ## 7 · Open questions — RESOLVED (product-owner sign-off, 2026-06-06)
 

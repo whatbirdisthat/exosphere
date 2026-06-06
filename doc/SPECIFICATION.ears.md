@@ -290,6 +290,63 @@
   across the full benign corpus and SHALL fail validation IF that rate exceeds the rule's declared
   `precisionBudget`, so a rule that regresses corpus false-positives is rejected rather than merged.
 
+## R9b — T1 deterministic dataflow/taint detection for bundled shell scripts (ADR-006)
+
+> R9b adds the **T1 tier**: deterministic, offline, never-executing **intra-file taint/dataflow
+> analysis** for bundled shell scripts (`install.sh`, hooks, bundled `*.sh`/`*.bash`). It tracks
+> tainted SOURCES flowing across lines into dangerous SINKS — catching multi-line obfuscation the
+> single-line T0 regex provably misses. T1 is additive (T0 stays the always-on default) and labelled
+> `tier:'T1'` per finding. The analysis is dependency-free; the JS-AST case is a deferred opt-in
+> slice (ADR-006).
+
+### The T1 tier exists and is labelled
+
+- **EARS-058** — WHILE auditing any artefact, THE SYSTEM SHALL run the T1 dataflow rules **in addition
+  to** the always-on T0 rules in the default ruleset (T1 is additive, never replacing T0), since T1 is
+  deterministic and offline and therefore needs no opt-in gate.
+- **EARS-059** — WHEN a T1 dataflow rule raises a finding, THE SYSTEM SHALL label that finding
+  `tier: "T1"` and SHALL carry its OWASP and MITRE ATLAS framework ids exactly as a T0 finding does,
+  so a T1 detection is distinguishable in the report yet citation-complete.
+
+### Intra-file shell taint → sink (the core detection)
+
+- **EARS-060** — WHILE analysing a bundled shell script (a `script` or `hook` component), THE SYSTEM
+  SHALL treat as a tainted **SOURCE** any value produced by command substitution (`$(...)` or
+  backticks), a network fetch (`curl`/`wget`/`fetch`), a decode (`base64 -d`, `xxd`, `openssl ... -d`),
+  a read of a sensitive environment variable, or `read` from standard input.
+- **EARS-061** — WHILE analysing a bundled shell script, THE SYSTEM SHALL propagate taint across lines:
+  a variable assigned from a tainted SOURCE becomes tainted, and a variable assigned from a right-hand
+  side that references an already-tainted variable becomes tainted (transitive, intra-file).
+- **EARS-062** — WHEN a tainted variable reaches a dangerous **SINK** on a later line — piped into a
+  shell (`sh`/`bash`/`zsh`), passed to `eval`/`exec`, `source`d, or written to an autorun location
+  (`~/.bashrc`, `~/.profile`, `crontab`, a systemd unit, `authorized_keys`) — THE SYSTEM SHALL raise a
+  high-severity `dataflow-taint` finding citing the **sink** line (`file:line`) and naming the tainted
+  variable in its excerpt.
+- **EARS-063** — WHILE analysing a shell script, THE SYSTEM SHALL ignore `#`-comment lines and SHALL
+  NOT treat a SOURCE or SINK appearing only inside a comment as live, so documentation of a dangerous
+  pattern does not raise a finding.
+
+### Precision boundary (benign multi-step scripts pass)
+
+- **EARS-064** — WHILE analysing a benign multi-step shell script in which no tainted value reaches a
+  dangerous SINK (e.g. a pinned, hash-verified asset download, or a captured value only printed or
+  written to a non-autorun file), THE SYSTEM SHALL raise no T1 finding, keeping the false-positive rate
+  within the rule's precision budget.
+
+### The detection the T0 regex provably misses
+
+- **EARS-065** — WHEN a malicious payload is split across lines such that no single line matches a T0
+  `dangerous-bash` pattern (a tainted SOURCE captured into a variable on one line and that variable
+  piped to a shell on a later line), THE SYSTEM SHALL still raise a T1 `dataflow-taint` BLOCK, whereas
+  the T0 ruleset alone raises no finding for that script.
+
+### Safety invariant (carried, not re-stated)
+
+- **EARS-066** — WHILE performing T1 dataflow analysis, THE SYSTEM SHALL operate entirely in pure
+  string space and SHALL NEVER pass any part of the analysed script to a shell, `eval`, `Function`,
+  `child_process`, or any other execution sink (the never-execute invariant, EARS-006, extended to the
+  taint analyzer).
+
 ## ID register
 
-Highest existing ID: **EARS-057**. Next new ID starts at EARS-058. IDs are permanent; never reuse.
+Highest existing ID: **EARS-066**. Next new ID starts at EARS-067. IDs are permanent; never reuse.
