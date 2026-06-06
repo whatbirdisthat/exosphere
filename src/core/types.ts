@@ -7,7 +7,28 @@ export type DetectionClass =
   | 'dangerous-bash'
   | 'prompt-injection'
   | 'over-broad-perms'
-  | 'committed-secrets';
+  | 'committed-secrets'
+  | 'tool-description-poisoning';
+
+/**
+ * Detection tier (ADR-004). Only the deterministic, offline `T0` tier exists today. The union is
+ * the documented extension point: a future opt-in semantic tier is added by widening this union
+ * (e.g. `'T0' | 'T2'`) and gating the new rules at the adapter/CLI edge — no change to `Rule`,
+ * the engine, or any existing rule. The default ruleset stays 100% deterministic + offline.
+ */
+export type RuleTier = 'T0';
+
+/**
+ * Framework mapping carried by every rule (ADR-004 / R9a). Anchors each detection to a recognised
+ * standard so a finding cites an ID a security team already tracks. Both ids are required — a rule
+ * that omits a mapping does not compile, making framework coverage a compile-time invariant.
+ */
+export interface FrameworkMapping {
+  /** OWASP ASI / MCP / LLM Top-10 identifier, e.g. "ASI04", "MCP-T01", "LLM01". */
+  readonly owasp: string;
+  /** MITRE ATLAS technique id, e.g. "AML.T0051". */
+  readonly atlas: string;
+}
 
 export type Verdict = 'PASS' | 'REVIEW' | 'BLOCK';
 
@@ -19,6 +40,10 @@ export interface Rule {
   readonly detectionClass: DetectionClass;
   readonly severity: Severity;
   readonly why: string;
+  /** Detection tier (ADR-004). T0 today; the extension point for a future opt-in tier. */
+  readonly tier: RuleTier;
+  /** OWASP + MITRE ATLAS mapping (required — framework coverage is a compile-time invariant). */
+  readonly framework: FrameworkMapping;
   /** Given one file record, return zero or more matches (1-based line + matched excerpt). */
   readonly detect: (file: FileRecord) => RuleMatch[];
 }
@@ -56,6 +81,10 @@ export interface Finding {
   readonly line: number;
   readonly excerpt: string;
   readonly why: string;
+  /** R9a framework metadata copied from the raising rule (ADR-004). */
+  readonly tier: RuleTier;
+  readonly owasp: string;
+  readonly atlas: string;
 }
 
 /**

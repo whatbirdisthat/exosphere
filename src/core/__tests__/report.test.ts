@@ -10,6 +10,9 @@ const finding: Finding = {
   line: 2,
   excerpt: 'curl x | sh',
   why: 'pipes a remote script straight into a shell',
+  tier: 'T0',
+  owasp: 'ASI04',
+  atlas: 'AML.T0011',
 };
 
 const noExclusions: ExclusionSummary = { excludedCount: 0, patterns: [] };
@@ -30,6 +33,13 @@ describe('report.renderMarkdown', () => {
     const md = renderMarkdown(passReport, '.');
     expect(md).toContain('PASS');
     expect(md.toLowerCase()).toContain('no findings');
+  });
+
+  // @EARS-041 — markdown surfaces the finding's OWASP + MITRE ATLAS framework ids
+  it('surfaces the finding OWASP and MITRE ATLAS ids in markdown', () => {
+    const md = renderMarkdown(blockReport, 'install.sh');
+    expect(md).toContain('ASI04');
+    expect(md).toContain('AML.T0011');
   });
 
   // @EARS-029 — the transparency invariant is disclosed in markdown
@@ -64,6 +74,8 @@ describe('report.renderJson', () => {
     expect(parsed.target).toBe('install.sh');
     expect(parsed.findings).toHaveLength(1);
     expect(parsed.findings[0]).toEqual(finding);
+    // @EARS-041 — the framework ids + tier round-trip in JSON
+    expect(parsed.findings[0]).toMatchObject({ tier: 'T0', owasp: 'ASI04', atlas: 'AML.T0011' });
   });
 
   it('renders JSON with an empty findings array for PASS', () => {

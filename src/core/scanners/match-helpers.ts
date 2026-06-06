@@ -1,4 +1,4 @@
-import type { FileRecord, Rule, RuleMatch } from '../types.js';
+import type { FileRecord, FrameworkMapping, Rule, RuleMatch, RuleTier } from '../types.js';
 
 /** Build a per-line regex rule. `appliesTo` restricts the rule to certain component kinds. */
 export function lineRule(opts: {
@@ -6,15 +6,19 @@ export function lineRule(opts: {
   detectionClass: Rule['detectionClass'];
   severity: Rule['severity'];
   why: string;
+  tier: RuleTier;
+  framework: FrameworkMapping;
   pattern: RegExp;
   appliesTo?: ReadonlySet<FileRecord['kind']>;
 }): Rule {
-  const { id, detectionClass, severity, why, pattern, appliesTo } = opts;
+  const { id, detectionClass, severity, why, tier, framework, pattern, appliesTo } = opts;
   return {
     id,
     detectionClass,
     severity,
     why,
+    tier,
+    framework,
     detect: (file: FileRecord): RuleMatch[] => {
       if (appliesTo && !appliesTo.has(file.kind)) {
         return [];

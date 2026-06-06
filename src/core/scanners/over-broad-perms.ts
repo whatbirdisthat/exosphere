@@ -1,9 +1,13 @@
-import type { FileRecord, Rule, RuleMatch } from '../types.js';
+import type { FileRecord, FrameworkMapping, Rule, RuleMatch } from '../types.js';
 import { lineRule } from './match-helpers.js';
 
 const C = 'over-broad-perms' as const;
 
 const PERM_KINDS: ReadonlySet<FileRecord['kind']> = new Set(['settings', 'mcp-config', 'hook'] as const);
+
+// Framework mapping (ADR-004): over-broad permissions are Agent Identity & Privilege Abuse
+// (OWASP ASI03) realised via plugin/tool compromise (MITRE ATLAS LLM Plugin Compromise).
+const PRIV_ABUSE: FrameworkMapping = { owasp: 'ASI03', atlas: 'AML.T0053' };
 
 /**
  * An MCP server that combines filesystem + network + secret scopes in a single server is
@@ -15,6 +19,8 @@ const mcpCombinedScopesRule: Rule = {
   detectionClass: C,
   severity: 'high',
   why: 'An MCP server combines filesystem, network, and secret access in one scope — a broad blast radius.',
+  tier: 'T0',
+  framework: PRIV_ABUSE,
   detect: (file: FileRecord): RuleMatch[] => {
     if (file.kind !== 'mcp-config') {
       return [];
@@ -40,6 +46,8 @@ export const overBroadPermsRules: readonly Rule[] = [
     detectionClass: C,
     severity: 'high',
     why: 'Grants unrestricted Bash execution (Bash(*)) — equivalent to full shell access.',
+    tier: 'T0',
+    framework: PRIV_ABUSE,
     // Bash(*) but NOT Bash(ls:*) / Bash(specific:*) — the wildcard must be the whole argument.
     pattern: /["']Bash\(\*\)["']/,
     appliesTo: PERM_KINDS,
@@ -49,6 +57,8 @@ export const overBroadPermsRules: readonly Rule[] = [
     detectionClass: C,
     severity: 'high',
     why: 'A hook runs a network command, allowing silent outbound calls at lifecycle events.',
+    tier: 'T0',
+    framework: PRIV_ABUSE,
     pattern: /"command"\s*:\s*"[^"]*\b(?:curl|wget|nc|ncat)\b/,
     appliesTo: PERM_KINDS,
   }),

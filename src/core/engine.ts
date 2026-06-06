@@ -14,6 +14,9 @@ export function scan(files: readonly FileRecord[], rules: readonly Rule[]): Find
           line: match.line,
           excerpt: match.excerpt,
           why: rule.why,
+          tier: rule.tier,
+          owasp: rule.framework.owasp,
+          atlas: rule.framework.atlas,
         });
       }
     }

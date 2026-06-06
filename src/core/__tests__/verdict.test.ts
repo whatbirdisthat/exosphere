@@ -10,6 +10,9 @@ const finding = (severity: Severity): Finding => ({
   line: 1,
   excerpt: 'e',
   why: 'w',
+  tier: 'T0',
+  owasp: 'ASI04',
+  atlas: 'AML.T0011',
 });
 
 describe('verdict.aggregate', () => {

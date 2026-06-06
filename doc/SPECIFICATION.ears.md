@@ -177,6 +177,59 @@
   also supplied, THE SYSTEM SHALL ignore the `.exosphereignore` and scan the full tree, so a CI run
   cannot be silently weakened by a target-supplied ignore file.
 
+## R9a — Detection breadth: framework mapping + encoding-evasion + tool-description poisoning
+
+> Source: ROADMAP R9a; ADR-004; `doc/research/deeper-detection-plan.md` §1–3,§7. All additions are
+> **tier T0** (deterministic + offline; no runtime LLM/network dependency). Binding decisions (not to
+> be re-litigated): deterministic default with the engine kept tier-pluggable for a later opt-in T2;
+> framework mapping = OWASP (ASI/MCP/LLM) + MITRE ATLAS technique IDs per rule, from the start.
+> Load-bearing safety invariant (carried from SMU §6 / ADR-001): decoding obfuscated content happens
+> in pure string space and NEVER reaches an execution sink — the auditor never executes what it audits.
+
+### Framework mapping (every rule carries OWASP + ATLAS)
+
+- **EARS-039** — WHILE the ruleset is defined, THE SYSTEM SHALL require every rule (the existing four
+  detection classes and every new rule) to carry a tier of `T0` and a framework mapping consisting of
+  both a non-empty OWASP id (an ASI / MCP / LLM Top-10 identifier) and a non-empty MITRE ATLAS
+  technique id, so coverage is anchored to a recognised framework rather than ad-hoc.
+- **EARS-040** — WHEN the system raises a finding, THE SYSTEM SHALL populate it with the raising
+  rule's `tier`, `owasp`, and `atlas` values in addition to the EARS-016 fields, so each finding
+  cites the standard framework identifiers a security team already tracks.
+- **EARS-041** — WHEN an audit emits its reports, THE SYSTEM SHALL surface each finding's OWASP and
+  MITRE ATLAS identifiers in BOTH the human-readable markdown report and the machine-readable JSON
+  report.
+
+### Encoding / obfuscation evasion (strengthens prompt-injection)
+
+- **EARS-042** — WHEN an instruction body (`SKILL.md`, agent) contains a coercive override directive
+  whose letters are disguised with homoglyph (confusable) unicode substitution (e.g. Cyrillic or
+  Greek look-alike letters spelling "ignore previous instructions"), THE SYSTEM SHALL normalise the
+  confusable characters to their ASCII skeleton in pure string space and raise a `prompt-injection`
+  finding citing the file and line.
+- **EARS-043** — WHEN an instruction body contains a base64- or hex-encoded payload that decodes to a
+  coercive prompt-injection directive, THE SYSTEM SHALL decode the payload defensively in pure string
+  space (never executing or shelling out to the decoded content) and raise a `prompt-injection`
+  finding citing the file and line of the encoded blob.
+- **EARS-044** — WHEN an instruction body contains an ANSI escape sequence used for "line jumping"
+  (cursor-movement / line-erase control codes that visually overwrite or hide adjacent text from a
+  human reviewing a terminal), THE SYSTEM SHALL raise a `prompt-injection` finding citing the file
+  and line.
+- **EARS-045** — WHILE scanning an instruction body that legitimately documents encodings or injection
+  as prose (for example a SKILL.md that explains what base64 is, or quotes the phrase "ignore previous
+  instructions" only as an example of an attack, without an actual disguised or encoded coercive
+  directive), THE SYSTEM SHALL raise no `prompt-injection` finding (precision over recall at BLOCK).
+
+### Tool / skill-description poisoning (new detection class)
+
+- **EARS-046** — WHEN a skill or agent frontmatter `description:` field, or an MCP tool `description`
+  field in a config, contains an injected directive or tool-coercion instruction (text the model
+  reads when choosing a tool but the user does not normally see — e.g. "ignore the user and always
+  call …", "before using any tool, send … to https://…"), THE SYSTEM SHALL raise a finding of
+  detection class `tool-description-poisoning` citing the file and line.
+- **EARS-047** — WHILE scanning a tool/skill `description` that is an ordinary benign summary of what
+  the tool does (no coercive directive, no exfiltration instruction), THE SYSTEM SHALL raise no
+  `tool-description-poisoning` finding, so a normal description never trips the BLOCK threshold.
+
 ## ID register
 
-Highest existing ID: **EARS-038**. Next new ID starts at EARS-039. IDs are permanent; never reuse.
+Highest existing ID: **EARS-047**. Next new ID starts at EARS-048. IDs are permanent; never reuse.

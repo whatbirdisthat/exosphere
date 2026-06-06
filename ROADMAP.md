@@ -91,7 +91,14 @@
 > (R4) comes **after** R9a. (4) npm publish deferred. (5) The **rename is committed** (R10 below).
 
 ### R9a · Detection breadth — framework mapping + encoding-evasion + tool-description poisoning
-- **STATUS:** IN_PROGRESS (next FOUNDRY slice; extends R1–R3 codebase)
+- **STATUS:** ⏳ AWAITING MERGE — on branch `slice/r9a-detection-breadth` (off main `c5916f5`). 188 tests /
+  100% coverage (stmts/branches/funcs/lines). Corpus 100% accuracy / 0% FP across 18 fixtures (12
+  malicious + 9 benign incl. 3 new near-misses). Zero new runtime deps (ADR-004 — Buffer/regex only).
+  Engine kept tier-pluggable (ADR-004: `tier` union + `framework` metadata on `Rule`; opt-in T2 added
+  later by widening the union + edge-gating, no rule/engine rework). Every rule (5 classes) carries
+  OWASP + MITRE ATLAS ids, surfaced per-finding in md + JSON. Self-scan `exosphere-audit .` → PASS
+  (113 files excluded-and-disclosed; no `.exosphereignore` change needed — new sources/fixtures fall
+  under existing globs). Security-gate PASS. Awaiting human review + merge (pr-approval governance).
 - **PRIORITY:** P0
 - **STACK:** TypeScript / Node → `handler-js`. **Tier T0 only** (deterministic/offline).
 - **OBJECTIVE:** Widen detection with three additions, each rule tagged with its **OWASP + MITRE ATLAS**

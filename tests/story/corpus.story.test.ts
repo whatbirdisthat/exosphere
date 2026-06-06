@@ -54,7 +54,27 @@ describe('STORY: exosphere-audit over the labelled fixture corpus (unmocked CLI)
       );
       expect(hit, `${entry.dir} expected ${cite.detectionClass} at ${cite.file}:${cite.line}`).toBeDefined();
       expect(hit!.why.length).toBeGreaterThan(0);
+      // R9a: the cited finding carries its framework ids through the real CLI (md + JSON surface).
+      expect(hit!.tier).toBe('T0');
+      expect(hit!.owasp.length).toBeGreaterThan(0);
+      expect(hit!.atlas.length).toBeGreaterThan(0);
+      if (cite.owasp !== undefined) {
+        expect(hit!.owasp, `${entry.dir} owasp`).toBe(cite.owasp);
+        expect(hit!.atlas, `${entry.dir} atlas`).toBe(cite.atlas);
+      }
     }
+  });
+
+  // R9a success gate: a BLOCK markdown report cites the OWASP + MITRE ATLAS ids on the finding
+  it('surfaces OWASP and MITRE ATLAS ids in the markdown report for a R9a fixture (EARS-041)', async () => {
+    const { stdout } = await exec('node', [
+      BIN,
+      join(corpusRoot, 'malicious/mal-skill-desc-poisoning'),
+    ]).catch((e: { stdout: string }) => ({ stdout: e.stdout }));
+    expect(stdout).toContain('BLOCK');
+    expect(stdout).toContain('tool-description-poisoning');
+    expect(stdout).toContain('MCP-T01');
+    expect(stdout).toContain('AML.T0051');
   });
 
   it('classifies every benign fixture as PASS with exit zero and zero findings', async () => {
