@@ -7,7 +7,7 @@ describe('ruleset', () => {
     expect(RULESET_VERSION).toMatch(/^\d+\.\d+\.\d+$/);
   });
 
-  it('includes rules from all four detection classes', () => {
+  it('includes rules from all five detection classes', () => {
     const classes = new Set<DetectionClass>(ruleset.map((r) => r.detectionClass));
     expect(classes).toEqual(
       new Set<DetectionClass>([
@@ -15,6 +15,7 @@ describe('ruleset', () => {
         'prompt-injection',
         'over-broad-perms',
         'committed-secrets',
+        'tool-description-poisoning',
       ]),
     );
   });
@@ -29,5 +30,20 @@ describe('ruleset', () => {
       expect(r.why.length).toBeGreaterThan(0);
       expect(['low', 'medium', 'high']).toContain(r.severity);
     }
+  });
+
+  // @EARS-039 — every rule (existing four classes + new) carries tier T0 + OWASP + ATLAS
+  it('gives every rule tier T0 and a non-empty OWASP + MITRE ATLAS framework mapping', () => {
+    for (const r of ruleset) {
+      expect(r.tier, `${r.id} tier`).toBe('T0');
+      expect(r.framework.owasp.length, `${r.id} owasp`).toBeGreaterThan(0);
+      expect(r.framework.atlas.length, `${r.id} atlas`).toBeGreaterThan(0);
+    }
+  });
+
+  // @EARS-039 — the new fifth detection class is present in the ruleset
+  it('includes the tool-description-poisoning detection class', () => {
+    const classes = new Set<DetectionClass>(ruleset.map((r) => r.detectionClass));
+    expect(classes.has('tool-description-poisoning')).toBe(true);
   });
 });

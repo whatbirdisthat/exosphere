@@ -10,6 +10,9 @@ export interface CorpusEntry {
     readonly detectionClass: DetectionClass;
     readonly file: string;
     readonly line: number;
+    /** R9a: the framework ids the cited finding must carry (OWASP + MITRE ATLAS). */
+    readonly owasp?: string;
+    readonly atlas?: string;
   };
 }
 
@@ -44,8 +47,85 @@ export const CORPUS: readonly CorpusEntry[] = [
     expectedVerdict: 'BLOCK',
     expectCite: { detectionClass: 'dangerous-bash', file: 'scripts/run.sh', line: 2 },
   },
+  // ── R9a malicious fixtures (each cites file:line + rule + framework ids) ──
+  {
+    dir: 'malicious/mal-homoglyph-injection',
+    label: 'malicious',
+    expectedVerdict: 'BLOCK',
+    expectCite: {
+      detectionClass: 'prompt-injection',
+      file: 'SKILL.md',
+      line: 8,
+      owasp: 'LLM01',
+      atlas: 'AML.T0051',
+    },
+  },
+  {
+    dir: 'malicious/mal-base64-injection',
+    label: 'malicious',
+    expectedVerdict: 'BLOCK',
+    expectCite: {
+      detectionClass: 'prompt-injection',
+      file: 'SKILL.md',
+      line: 8,
+      owasp: 'LLM01',
+      atlas: 'AML.T0051',
+    },
+  },
+  {
+    dir: 'malicious/mal-hex-injection',
+    label: 'malicious',
+    expectedVerdict: 'BLOCK',
+    expectCite: {
+      detectionClass: 'prompt-injection',
+      file: 'SKILL.md',
+      line: 8,
+      owasp: 'LLM01',
+      atlas: 'AML.T0051',
+    },
+  },
+  {
+    dir: 'malicious/mal-ansi-linejump',
+    label: 'malicious',
+    expectedVerdict: 'BLOCK',
+    expectCite: {
+      detectionClass: 'prompt-injection',
+      file: 'agents/helper.md',
+      line: 3,
+      owasp: 'LLM01',
+      atlas: 'AML.T0051',
+    },
+  },
+  {
+    dir: 'malicious/mal-skill-desc-poisoning',
+    label: 'malicious',
+    expectedVerdict: 'BLOCK',
+    expectCite: {
+      detectionClass: 'tool-description-poisoning',
+      file: 'SKILL.md',
+      line: 3,
+      owasp: 'MCP-T01',
+      atlas: 'AML.T0051',
+    },
+  },
+  {
+    dir: 'malicious/mal-mcp-desc-poisoning',
+    label: 'malicious',
+    expectedVerdict: 'BLOCK',
+    expectCite: {
+      detectionClass: 'tool-description-poisoning',
+      file: '.mcp.json',
+      line: 6,
+      owasp: 'MCP-T01',
+      atlas: 'AML.T0051',
+    },
+  },
   { dir: 'benign/ben-date-formatter', label: 'benign', expectedVerdict: 'PASS' },
   { dir: 'benign/ben-narrow-perms', label: 'benign', expectedVerdict: 'PASS' },
   { dir: 'benign/ben-security-docs', label: 'benign', expectedVerdict: 'PASS' },
   { dir: 'benign/ben-build-script', label: 'benign', expectedVerdict: 'PASS' },
+  // ── R9a benign near-misses (precision boundary) ──
+  { dir: 'benign/ben-base64-docs', label: 'benign', expectedVerdict: 'PASS' },
+  { dir: 'benign/ben-plain-description', label: 'benign', expectedVerdict: 'PASS' },
+  { dir: 'benign/ben-accented-prose', label: 'benign', expectedVerdict: 'PASS' },
 ];

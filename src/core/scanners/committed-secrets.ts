@@ -1,7 +1,11 @@
-import type { Rule } from '../types.js';
+import type { FrameworkMapping, Rule } from '../types.js';
 import { lineRule } from './match-helpers.js';
 
 const C = 'committed-secrets' as const;
+
+// Framework mapping (ADR-004): a committed credential is a supply-chain exposure of unsecured
+// credentials (OWASP ASI04 / MITRE ATLAS Unsecured Credentials).
+const CREDS: FrameworkMapping = { owasp: 'ASI04', atlas: 'AML.T0055' };
 
 /**
  * Rules for the committed-secrets detection class. Precision-first: each pattern matches a
@@ -18,6 +22,8 @@ export const committedSecretsRules: readonly Rule[] = [
     detectionClass: C,
     severity: 'high',
     why: 'Contains an AWS access key id (AKIA…) — a committed long-lived credential.',
+    tier: 'T0',
+    framework: CREDS,
     pattern: /\bAKIA[0-9A-Z]{16}\b/,
   }),
   lineRule({
@@ -25,6 +31,8 @@ export const committedSecretsRules: readonly Rule[] = [
     detectionClass: C,
     severity: 'high',
     why: 'Contains a PEM private-key header — a committed private key.',
+    tier: 'T0',
+    framework: CREDS,
     pattern: /-----BEGIN (?:RSA |EC |OPENSSH |DSA |PGP )?PRIVATE KEY-----/,
   }),
   lineRule({
@@ -32,6 +40,8 @@ export const committedSecretsRules: readonly Rule[] = [
     detectionClass: C,
     severity: 'high',
     why: 'Contains a GitHub personal access token (ghp_…).',
+    tier: 'T0',
+    framework: CREDS,
     pattern: /\bghp_[0-9A-Za-z]{36,255}\b/,
   }),
 ];

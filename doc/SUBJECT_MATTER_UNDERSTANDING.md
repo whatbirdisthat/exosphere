@@ -50,9 +50,11 @@ differs from everyday usage, it is defined explicitly.
 | **Audited artefact** | A Claude Code skill / subagent / plugin / marketplace: SKILL.md frontmatter + body, agent definitions, `plugin.json`, `settings.json`, hooks, bundled scripts, MCP server configs. The thing under audit. |
 | **Read-only fetch** | For a git URL: shallow `git clone --depth 1` into a temp dir with hooks **disabled** and **no** build/install/post-install step ever run. The source is treated as **hostile**. |
 | **Skill SBOM** | The enumerated inventory of files/components the auditor identifies in the tree (skills, agents, manifests, hooks, scripts, MCP configs) — the scan surface. |
-| **Detection class** | A family of checks. v1 has exactly four: `dangerous-bash`, `prompt-injection`, `over-broad-perms`, `committed-secrets`. Each maps to a set of rules. |
-| **Rule** | A single named, **versioned** matcher (pattern / AST / heuristic) carrying a `severity` and a human `why`. The curated, community-contributable collection is the **ruleset**. |
-| **Finding** | One rule hit: `{ rule, severity, file, line, excerpt, why }`. Every finding must cite `file:line`. |
+| **Detection class** | A family of checks. v1 shipped four: `dangerous-bash`, `prompt-injection`, `over-broad-perms`, `committed-secrets`. R9a adds a fifth: `tool-description-poisoning` (malicious instructions hidden in tool/skill descriptions the model reads but the user doesn't). Each maps to a set of rules. |
+| **Rule** | A single named, **versioned** matcher (pattern / AST / heuristic) carrying a `severity`, a human `why`, a `tier` (R9a/ADR-004 — `T0` deterministic+offline today; the union is the extension point for a future opt-in semantic tier), and a `framework` mapping (OWASP ASI/MCP/LLM id + MITRE ATLAS technique id, required). The curated, community-contributable collection is the **ruleset**. |
+| **Finding** | One rule hit: `{ rule, severity, file, line, excerpt, why, tier, owasp, atlas }` (R9a added `tier`/`owasp`/`atlas`). Every finding must cite `file:line` and its framework ids. |
+| **Tier** | A rule's detection depth (R9a/ADR-004). `T0` = pattern/structural, deterministic + offline — the always-on default. Higher tiers (T1 AST, T2 opt-in semantic) are future additions; the engine is shaped so they plug in without reworking the rule record or engine. No runtime LLM/network dependency in the default. |
+| **Framework mapping** | The OWASP (ASI/MCP/LLM) + MITRE ATLAS technique ids every rule carries (R9a), anchoring each detection to a recognised standard a security team already tracks. |
 | **Severity** | The weight of a finding (e.g. low / medium / high). A **high** finding forces BLOCK. |
 | **Verdict** | The aggregate trust decision: **PASS** (no findings) · **REVIEW** (low–medium findings; human judgement) · **BLOCK** (any high-severity finding → non-zero exit). |
 | **False positive (FP)** | A finding raised against a benign artefact. The product's central risk; precision is favoured over recall at the BLOCK threshold. |
@@ -116,3 +118,4 @@ These are the tie-breakers, **in order**, when trade-offs arise:
 | Date | Change | Reason |
 |---|---|---|
 | 2026-06-06 | Initial creation from `smu-seed.md` | FOUNDRY cycle start (R1) |
+| 2026-06-06 | Added `tool-description-poisoning` class; `tier`/`framework` on Rule + Finding; Tier/Framework-mapping concepts | FOUNDRY cycle R9a (detection breadth; ADR-004) |

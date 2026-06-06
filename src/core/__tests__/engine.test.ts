@@ -7,14 +7,16 @@ const alwaysLine1: Rule = {
   detectionClass: 'dangerous-bash',
   severity: 'high',
   why: 'test rule',
+  tier: 'T0',
+  framework: { owasp: 'ASI04', atlas: 'AML.T0011' },
   detect: (f) => (f.content.includes('HIT') ? [{ line: 1, excerpt: 'HIT' }] : []),
 };
 
 const file = (content: string, path = 'a.txt'): FileRecord => ({ path, content, kind: 'other' });
 
 describe('engine.scan', () => {
-  // @EARS-016 — shapes a finding from a rule match with all fields
-  it('shapes a finding carrying rule, class, severity, file, line, excerpt, why', () => {
+  // @EARS-016 / @EARS-040 — shapes a finding from a rule match with all fields incl. framework ids
+  it('shapes a finding carrying rule, class, severity, file, line, excerpt, why, tier, owasp, atlas', () => {
     const findings = scan([file('HIT')], [alwaysLine1]);
     expect(findings).toEqual([
       {
@@ -25,6 +27,9 @@ describe('engine.scan', () => {
         line: 1,
         excerpt: 'HIT',
         why: 'test rule',
+        tier: 'T0',
+        owasp: 'ASI04',
+        atlas: 'AML.T0011',
       },
     ]);
   });

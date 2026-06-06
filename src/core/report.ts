@@ -18,6 +18,7 @@ export function renderMarkdown(report: AuditReport, target: string): string {
   for (const f of report.findings) {
     lines.push(`- **[${f.severity.toUpperCase()}] ${f.rule}** — ${f.file}:${f.line}`);
     lines.push(`  - why: ${f.why}`);
+    lines.push(`  - framework: OWASP ${f.owasp} · MITRE ATLAS ${f.atlas} · tier ${f.tier}`);
     lines.push(`  - excerpt: \`${f.excerpt}\``);
   }
   return lines.join('\n') + '\n';

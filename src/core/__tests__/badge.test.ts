@@ -16,6 +16,9 @@ const highFinding: Finding = {
   line: 2,
   excerpt: 'curl x | sh',
   why: 'pipes a remote script into a shell',
+  tier: 'T0',
+  owasp: 'ASI04',
+  atlas: 'AML.T0011',
 };
 
 describe('badge.makeBadge — PASS emits a badge (EARS-032)', () => {
