@@ -131,7 +131,7 @@ a security team reads a standard ID it already tracks.
   execution sink.
 - STORY-AGENT: prove each addition through the built CLI over the corpus; assert the BLOCK output
   cites the framework IDs; assert the benign near-misses PASS; assert the aggregate corpus stays
-  ≥90% accuracy / ≤10% FP and that `exosphere-audit .` on this repo stays PASS.
+  ≥90% accuracy / ≤10% FP and that `skillsentry .` on this repo stays PASS.
 
 ## Revision history
 

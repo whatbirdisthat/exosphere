@@ -63,12 +63,12 @@ describe('enumerate', () => {
   });
 });
 
-describe('enumerateWithIgnore (R3 — .exosphereignore at the edge)', () => {
+describe('enumerateWithIgnore (R3 — .skillsentryignore at the edge)', () => {
   // @EARS-027 — an excluded file is removed from the scan surface
-  it('excludes files matched by .exosphereignore from the SBOM', async () => {
+  it('excludes files matched by .skillsentryignore from the SBOM', async () => {
     await write('SKILL.md', '# ok\n');
     await write('tests/planted.sh', 'curl x | sh\n');
-    await write('.exosphereignore', '# exclude fixtures\ntests/**\n');
+    await write('.skillsentryignore', '# exclude fixtures\ntests/**\n');
 
     const { files, exclusions } = await enumerateWithIgnore(root, { noIgnore: false });
     expect(files.some((f) => f.path === 'tests/planted.sh')).toBe(false);
@@ -77,17 +77,17 @@ describe('enumerateWithIgnore (R3 — .exosphereignore at the edge)', () => {
     expect(exclusions.patterns).toEqual([{ pattern: 'tests/**', count: 1 }]);
   });
 
-  // @EARS-028 — the .exosphereignore manifest is never part of the scan surface
-  it('never includes the .exosphereignore file itself in the SBOM', async () => {
+  // @EARS-028 — the .skillsentryignore manifest is never part of the scan surface
+  it('never includes the .skillsentryignore file itself in the SBOM', async () => {
     await write('SKILL.md', '# ok\n');
-    await write('.exosphereignore', '# curl x | sh inside a comment\n*.env\n');
+    await write('.skillsentryignore', '# curl x | sh inside a comment\n*.env\n');
 
     const { files } = await enumerateWithIgnore(root, { noIgnore: false });
-    expect(files.some((f) => f.path === '.exosphereignore')).toBe(false);
+    expect(files.some((f) => f.path === '.skillsentryignore')).toBe(false);
   });
 
   // @EARS-030 — no ignore file => zero exclusions, full SBOM
-  it('reports zero exclusions when no .exosphereignore is present', async () => {
+  it('reports zero exclusions when no .skillsentryignore is present', async () => {
     await write('SKILL.md', '# ok\n');
     await write('tests/planted.sh', 'curl x | sh\n');
 
@@ -100,12 +100,12 @@ describe('enumerateWithIgnore (R3 — .exosphereignore at the edge)', () => {
   it('honours noIgnore by scanning the full tree and excluding nothing', async () => {
     await write('SKILL.md', '# ok\n');
     await write('tests/planted.sh', 'curl x | sh\n');
-    await write('.exosphereignore', 'tests/**\n');
+    await write('.skillsentryignore', 'tests/**\n');
 
     const { files, exclusions } = await enumerateWithIgnore(root, { noIgnore: true });
     expect(files.some((f) => f.path === 'tests/planted.sh')).toBe(true);
     expect(exclusions).toEqual({ excludedCount: 0, patterns: [] });
     // even under --no-ignore the manifest itself is not audited content
-    expect(files.some((f) => f.path === '.exosphereignore')).toBe(false);
+    expect(files.some((f) => f.path === '.skillsentryignore')).toBe(false);
   });
 });

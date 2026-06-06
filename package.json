@@ -1,11 +1,11 @@
 {
-  "name": "exosphere-audit",
+  "name": "skillsentry",
   "version": "0.1.0",
   "description": "Static supply-chain safety auditor for Claude Code skills & plugins — npm-audit/Semgrep for agent skills.",
   "license": "MIT",
   "type": "module",
   "bin": {
-    "exosphere-audit": "dist/bin.js"
+    "skillsentry": "dist/bin.js"
   },
   "files": [
     "dist"

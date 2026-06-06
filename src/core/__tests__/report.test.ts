@@ -58,7 +58,7 @@ describe('report.renderMarkdown', () => {
   // @EARS-030 — no exclusions => no exclusion section noise
   it('omits the exclusion section in markdown when nothing was excluded', () => {
     const md = renderMarkdown(passReport, '.');
-    expect(md.toLowerCase()).not.toContain('excluded by .exosphereignore');
+    expect(md.toLowerCase()).not.toContain('excluded by .skillsentryignore');
   });
 });
 

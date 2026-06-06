@@ -1,4 +1,4 @@
-# Contributing rules to the exosphere-audit ruleset
+# Contributing rules to the skillsentry ruleset
 
 > The detection ruleset is **data, not code** (ADR-005 / ROADMAP R4). You add a rule by writing a
 > self-describing `RuleSpec` record and its fixtures — **without touching the engine**. This document

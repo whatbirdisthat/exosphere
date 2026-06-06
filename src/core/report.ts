@@ -3,7 +3,7 @@ import type { AuditReport } from './types.js';
 /** Render the audit report as human-readable markdown. */
 export function renderMarkdown(report: AuditReport, target: string): string {
   const lines: string[] = [];
-  lines.push(`# exosphere-audit report`);
+  lines.push(`# skillsentry report`);
   lines.push('');
   lines.push(`- **Target:** ${target}`);
   lines.push(`- **Verdict:** ${report.verdict}`);
@@ -25,7 +25,7 @@ export function renderMarkdown(report: AuditReport, target: string): string {
 }
 
 /**
- * Disclose `.exosphereignore` exclusions (R3 transparency invariant). When any file was excluded,
+ * Disclose `.skillsentryignore` exclusions (R3 transparency invariant). When any file was excluded,
  * the human report MUST show how many and by which patterns — an exclusion can never be silent.
  */
 function appendExclusions(lines: string[], report: AuditReport): void {
@@ -33,7 +33,7 @@ function appendExclusions(lines: string[], report: AuditReport): void {
   if (excludedCount === 0) {
     return;
   }
-  lines.push(`## Excluded by .exosphereignore (${excludedCount})`);
+  lines.push(`## Excluded by .skillsentryignore (${excludedCount})`);
   lines.push('');
   lines.push(`> ${excludedCount} file(s) were excluded from the scan surface and NOT audited.`);
   for (const p of patterns) {

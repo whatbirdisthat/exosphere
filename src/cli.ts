@@ -50,7 +50,7 @@ function parseArgs(argv: readonly string[]): ParsedArgs {
  * Append the R2 badge block to a markdown report. On PASS the author earns a trust badge
  * (markdown data-URI snippet + raw SVG); on REVIEW/BLOCK no badge is issued, only a one-line
  * reason. The exclusion disclosure lives upstream in the report itself (transparency carry-over),
- * so a badge can never launder a hidden `.exosphereignore` exclusion.
+ * so a badge can never launder a hidden `.skillsentryignore` exclusion.
  */
 function appendBadge(reportStdout: string, report: AuditReport): string {
   const badge = makeBadge(report);
@@ -79,7 +79,7 @@ function appendBadge(reportStdout: string, report: AuditReport): string {
 /**
  * A terse CI status line for `--ci` (an author's GitHub Action). It restates the verdict and
  * whether the run gates the build, preserving the EARS-022 exit-code contract (non-zero only on
- * BLOCK). `--ci` runs the normal pipeline, so it honours `.exosphereignore` by default and
+ * BLOCK). `--ci` runs the normal pipeline, so it honours `.skillsentryignore` by default and
  * `--no-ignore` still overrides it (EARS-038).
  */
 function appendCiStatus(reportStdout: string, report: AuditReport): string {

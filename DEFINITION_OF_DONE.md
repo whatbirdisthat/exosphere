@@ -1,7 +1,7 @@
 # Definition Of Done
 
 Date: 2026-06-06
-Scope: IDEATOR-originated items processed through the Development System (Steps 0-9) — current cycle: **R1 (exosphere-audit CLI, first vertical slice)**
+Scope: IDEATOR-originated items processed through the Development System (Steps 0-9) — current cycle: **R1 (skillsentry CLI, first vertical slice)**
 Owner: Development System Orchestrator (lifecycle-orchestrator)
 
 ## Purpose
@@ -87,7 +87,7 @@ The target value is not "code exists". The target value is:
 ## Stage-Specific Done Criteria
 
 ### Step 0 — Plan
-- Plan at `doc/exosphere-audit_PLAN.md`; `DEFINITION_OF_DONE.md` at root; ADR written; checklist
+- Plan at `doc/skillsentry_PLAN.md`; `DEFINITION_OF_DONE.md` at root; ADR written; checklist
   for Steps 0-9 + story present; resumption section present.
 
 ### Step 1 — EARS
@@ -131,15 +131,15 @@ The target value is not "code exists". The target value is:
 > Extends R1+R3; all R1+R3 gates above remain in force. R2 adds the `--badge` and `--ci` surfaces.
 
 - **PASS → badge:** a PASS-fixture repo, audited with `--badge`, emits a valid, **byte-stable** badge
-  snippet — BOTH a Markdown snippet (`![audited by exosphere-audit](<inline data-URI svg>)`) and the
+  snippet — BOTH a Markdown snippet (`![audited by skillsentry](<inline data-URI svg>)`) and the
   raw SVG source. Determinism is asserted across two runs (identical bytes).
 - **BLOCK/REVIEW → no badge:** a BLOCK-fixture repo, audited with `--badge`, emits **no badge** plus a
   clear one-line reason, and preserves the normal report + the non-zero exit code on BLOCK.
 - **`--ci` gates correctly:** non-zero exit on BLOCK gates the author's PR; `--ci` respects the R3
-  `.exosphereignore` by default and `--no-ignore` still overrides it.
-- **Transparency carry-over (load-bearing):** a repo that earns a badge via `.exosphereignore`
+  `.skillsentryignore` by default and `--no-ignore` still overrides it.
+- **Transparency carry-over (load-bearing):** a repo that earns a badge via `.skillsentryignore`
   exclusions STILL discloses those exclusions in the report — a badge cannot launder a hidden
-  exclusion. Tested with an abuse fixture (a malicious `.exosphereignore` hiding a finding).
+  exclusion. Tested with an abuse fixture (a malicious `.skillsentryignore` hiding a finding).
 - **Zero new runtime dependency** (ADR-003): the SVG is hand-generated; no SVG/badge package added.
 - **Offline:** no hosted/dynamic badge endpoint; the badge is a self-contained inline data-URI.
 - 100% coverage floor (stmts/branches/funcs/lines) held; all R1+R3 tests remain green.
@@ -148,7 +148,7 @@ The target value is not "code exists". The target value is:
 
 - The built CLI proves, over real fixtures on real disk: `--badge` on PASS emits a byte-stable md+svg
   (verified across two spawns); `--badge` on a BLOCK fixture emits no badge + a reason + non-zero exit;
-  `--ci` gates on BLOCK and passes on PASS; a badge earned via `.exosphereignore` still discloses the
+  `--ci` gates on BLOCK and passes on PASS; a badge earned via `.skillsentryignore` still discloses the
   exclusion. `STORY_PROVEN` requires all of these.
 
 ## Orchestrator Exit Condition

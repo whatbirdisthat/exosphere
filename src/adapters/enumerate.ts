@@ -5,7 +5,7 @@ import { applyIgnore } from '../core/ignore.js';
 import { classify } from './classify.js';
 
 const SKIP_DIRS: ReadonlySet<string> = new Set(['.git', 'node_modules']);
-const IGNORE_FILE = '.exosphereignore';
+const IGNORE_FILE = '.skillsentryignore';
 
 /** Walk the audited tree (read-only) into an in-memory skill SBOM of FileRecords. */
 export async function enumerate(root: string): Promise<FileRecord[]> {
@@ -15,7 +15,7 @@ export async function enumerate(root: string): Promise<FileRecord[]> {
 }
 
 export interface EnumerateOptions {
-  /** When true, ignore any `.exosphereignore` and scan the full tree (audit-the-auditor). */
+  /** When true, ignore any `.skillsentryignore` and scan the full tree (audit-the-auditor). */
   readonly noIgnore: boolean;
 }
 
@@ -27,9 +27,9 @@ export interface EnumerationResult {
 const NO_EXCLUSIONS: ExclusionSummary = { excludedCount: 0, patterns: [] };
 
 /**
- * Enumerate the tree, applying `.exosphereignore` at the IO edge (R3). The matcher itself is the
+ * Enumerate the tree, applying `.skillsentryignore` at the IO edge (R3). The matcher itself is the
  * pure `core/ignore` module; this adapter only reads the manifest and threads the result through.
- * The `.exosphereignore` manifest is always removed from the scan surface (it is not audited
+ * The `.skillsentryignore` manifest is always removed from the scan surface (it is not audited
  * content) regardless of `noIgnore`.
  */
 export async function enumerateWithIgnore(
@@ -56,7 +56,7 @@ export async function enumerateWithIgnore(
   return { files: candidates.filter((f) => keptSet.has(f.path)), exclusions: summary };
 }
 
-/** Read the optional `.exosphereignore` at the root; undefined if absent. */
+/** Read the optional `.skillsentryignore` at the root; undefined if absent. */
 async function readIgnoreFile(root: string): Promise<string | undefined> {
   try {
     return await readFile(join(root, IGNORE_FILE), 'utf8');

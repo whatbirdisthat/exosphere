@@ -1,7 +1,7 @@
-# EARS Specification — exosphere-audit (R1)
+# EARS Specification — skillsentry (R1)
 
 > EARS (Easy Approach to Requirements Syntax) requirements for ROADMAP-1, the first vertical slice.
-> Source of truth: `doc/idea/exosphere-audit/brief.md`; domain: `doc/SUBJECT_MATTER_UNDERSTANDING.md`.
+> Source of truth: `doc/idea/skillsentry/brief.md`; domain: `doc/SUBJECT_MATTER_UNDERSTANDING.md`.
 > Each statement is uniquely IDed, independently testable, and covers exactly one behaviour.
 > Actors (SMU §2): cautious installer (primary), skill/plugin author (secondary), CI/automation (system).
 
@@ -93,7 +93,7 @@
 - **EARS-023** — WHILE scanning (after acquisition completes), THE SYSTEM SHALL make no network calls
   (offline-after-fetch).
 
-## R3 — `.exosphereignore` / self-exclusion convention
+## R3 — `.skillsentryignore` / self-exclusion convention
 
 > Source: ROADMAP R3; ADR-002. The audited target may declare paths to exclude from enumeration.
 > Load-bearing invariant: an exclusion can NEVER silently hide a finding — every exclusion is
@@ -101,29 +101,29 @@
 
 ### Ignore-file parsing
 
-- **EARS-024** — WHEN a `.exosphereignore` file is present at the audited target root, THE SYSTEM
+- **EARS-024** — WHEN a `.skillsentryignore` file is present at the audited target root, THE SYSTEM
   SHALL parse it as gitignore-style patterns: one pattern per line, ignoring blank lines and lines
   whose first non-whitespace character is `#`.
-- **EARS-025** — WHEN parsing a `.exosphereignore` pattern, THE SYSTEM SHALL support a `*` wildcard
+- **EARS-025** — WHEN parsing a `.skillsentryignore` pattern, THE SYSTEM SHALL support a `*` wildcard
   (matching any run of characters except `/`), a `**` wildcard (matching across path separators), a
   `?` single-character wildcard, a leading `/` to anchor the pattern to the target root, a trailing
   `/` to match a directory and everything beneath it, and an embedded `/` to anchor the pattern to
   the root.
-- **EARS-026** — WHEN a `.exosphereignore` pattern begins with `!`, THE SYSTEM SHALL treat it as a
+- **EARS-026** — WHEN a `.skillsentryignore` pattern begins with `!`, THE SYSTEM SHALL treat it as a
   negation that re-includes an otherwise-excluded path, with the last matching pattern in file order
   determining the final decision.
 
 ### Exclusion from enumeration
 
 - **EARS-027** — WHILE enumerating the audited tree, THE SYSTEM SHALL exclude from the scan surface
-  every file whose root-relative path matches the effective `.exosphereignore` patterns, so excluded
+  every file whose root-relative path matches the effective `.skillsentryignore` patterns, so excluded
   files are never scanned by any detection class.
-- **EARS-028** — WHEN a `.exosphereignore` is present, THE SYSTEM SHALL itself exclude the
-  `.exosphereignore` file from the scan surface (the ignore manifest is not audited content).
+- **EARS-028** — WHEN a `.skillsentryignore` is present, THE SYSTEM SHALL itself exclude the
+  `.skillsentryignore` file from the scan surface (the ignore manifest is not audited content).
 
 ### Transparency invariant (load-bearing)
 
-- **EARS-029** — WHEN one or more files are excluded by `.exosphereignore`, THE SYSTEM SHALL disclose
+- **EARS-029** — WHEN one or more files are excluded by `.skillsentryignore`, THE SYSTEM SHALL disclose
   in BOTH the markdown and JSON report the total count of excluded files and, per pattern, the
   pattern text and how many files it excluded, so an exclusion can never silently hide a finding.
 - **EARS-030** — WHILE no file is excluded (no ignore file, or an ignore file that matches nothing),
@@ -132,22 +132,22 @@
 ### Override
 
 - **EARS-031** — WHEN the CLI is invoked with the `--no-ignore` flag, THE SYSTEM SHALL ignore any
-  `.exosphereignore` file entirely and scan the full tree, so an audit-the-auditor / CI run cannot be
+  `.skillsentryignore` file entirely and scan the full tree, so an audit-the-auditor / CI run cannot be
   weakened by a target-supplied ignore file.
 
 ## R2 — author self-audit + README trust-badge
 
-> Source: ROADMAP R2; ADR-003 (embedded in `doc/exosphere-audit-r2_PLAN.md`). The skill/plugin author
+> Source: ROADMAP R2; ADR-003 (embedded in `doc/skillsentry-r2_PLAN.md`). The skill/plugin author
 > self-audits their repo and, on a PASS verdict, earns a deterministic, OFFLINE, shareable trust badge.
-> Load-bearing invariant (carried over from R3): a PASS earned via `.exosphereignore` exclusions still
+> Load-bearing invariant (carried over from R3): a PASS earned via `.skillsentryignore` exclusions still
 > discloses those exclusions — a badge can never launder a hidden exclusion. Badge text is fixed:
-> "audited by exosphere-audit". Actors (SMU §2): skill/plugin author (secondary), CI/automation (system).
+> "audited by skillsentry". Actors (SMU §2): skill/plugin author (secondary), CI/automation (system).
 
 ### Badge emission
 
 - **EARS-032** — WHEN the CLI is invoked with `--badge` and the resulting verdict is **PASS**, THE
   SYSTEM SHALL emit a trust badge consisting of BOTH a Markdown snippet (whose alt text is
-  "audited by exosphere-audit" and whose image source is an inline, self-contained `data:image/svg+xml`
+  "audited by skillsentry" and whose image source is an inline, self-contained `data:image/svg+xml`
   data-URI) AND the raw SVG source, in addition to the normal report.
 - **EARS-033** — WHEN the CLI is invoked with `--badge` and the resulting verdict is **REVIEW** or
   **BLOCK**, THE SYSTEM SHALL emit NO badge and SHALL instead emit a single clear one-line reason
@@ -163,7 +163,7 @@
 
 ### Transparency carry-over (load-bearing)
 
-- **EARS-036** — WHEN the verdict is PASS **and** one or more files were excluded by `.exosphereignore`,
+- **EARS-036** — WHEN the verdict is PASS **and** one or more files were excluded by `.skillsentryignore`,
   THE SYSTEM SHALL still disclose the exclusion summary (count + per-pattern provenance, per EARS-029)
   in the report alongside the emitted badge, so a badge can never launder a hidden exclusion.
 
@@ -172,9 +172,9 @@
 - **EARS-037** — WHEN the CLI is invoked with `--ci`, THE SYSTEM SHALL exit non-zero if and only if the
   verdict is BLOCK (preserving the EARS-022 exit-code contract), so an author's GitHub Action gates a
   pull request on a BLOCK verdict.
-- **EARS-038** — WHEN the CLI is invoked with `--ci`, THE SYSTEM SHALL honour any `.exosphereignore` at
+- **EARS-038** — WHEN the CLI is invoked with `--ci`, THE SYSTEM SHALL honour any `.skillsentryignore` at
   the target root by default (the same enumeration path as a normal audit); and WHEN `--no-ignore` is
-  also supplied, THE SYSTEM SHALL ignore the `.exosphereignore` and scan the full tree, so a CI run
+  also supplied, THE SYSTEM SHALL ignore the `.skillsentryignore` and scan the full tree, so a CI run
   cannot be silently weakened by a target-supplied ignore file.
 
 ## R9a — Detection breadth: framework mapping + encoding-evasion + tool-description poisoning
