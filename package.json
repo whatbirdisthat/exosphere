@@ -20,13 +20,13 @@
     "devsecops"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/whatbirdisthat/exosphere#readme",
+  "homepage": "https://github.com/whatbirdisthat/skillsentry#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/whatbirdisthat/exosphere.git"
+    "url": "git+https://github.com/whatbirdisthat/skillsentry.git"
   },
   "bugs": {
-    "url": "https://github.com/whatbirdisthat/exosphere/issues"
+    "url": "https://github.com/whatbirdisthat/skillsentry/issues"
   },
   "type": "module",
   "bin": {

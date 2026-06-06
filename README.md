@@ -6,7 +6,7 @@
 
 **`npm audit` / Semgrep, but for AI agent skills.** One command. Zero install. Never executes what it scans.
 
-[![CI](https://github.com/whatbirdisthat/exosphere/actions/workflows/ci.yml/badge.svg)](https://github.com/whatbirdisthat/exosphere/actions/workflows/ci.yml)
+[![CI](https://github.com/whatbirdisthat/skillsentry/actions/workflows/ci.yml/badge.svg)](https://github.com/whatbirdisthat/skillsentry/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![runtime deps: 0](https://img.shields.io/badge/runtime%20deps-0-brightgreen.svg)](#why-you-can-trust-it)
 [![coverage: 100%](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](#why-you-can-trust-it)
@@ -133,4 +133,4 @@ that pushes the corpus false‑positive rate over budget is rejected, not merged
 
 [MIT](./LICENSE) — free, forever. Because security this important shouldn't have a price tag.
 
-<div align="center"><sub>part of the <b>exosphere</b> project · the exosphere will not be televised 🛸</sub></div>
+<div align="center"><sub><b>skillsentry</b> · audit before you trust · the supply chain will not be compromised 🛸</sub></div>
