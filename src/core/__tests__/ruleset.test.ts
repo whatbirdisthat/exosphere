@@ -1,10 +1,28 @@
 import { describe, it, expect } from 'vitest';
-import { ruleset, RULESET_VERSION } from '../ruleset.js';
+import { ruleset, ruleSpecs, RULESET_VERSION, RULESET_SCHEMA_VERSION } from '../ruleset.js';
 import type { DetectionClass } from '../types.js';
 
 describe('ruleset', () => {
   it('exposes a versioned ruleset', () => {
     expect(RULESET_VERSION).toMatch(/^\d+\.\d+\.\d+$/);
+  });
+
+  // @EARS-054 — publishes both a schema version and a content version, each semantic-version strings
+  it('exposes a RULESET_SCHEMA_VERSION and a RULESET_VERSION as semver strings', () => {
+    expect(RULESET_SCHEMA_VERSION).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(RULESET_VERSION).toMatch(/^\d+\.\d+\.\d+$/);
+  });
+
+  // @EARS-048 — each rule is a self-describing DATA record with matcher + own fixtures + budget
+  it('expresses every rule as a self-describing data spec (matcher, fixtures, budget)', () => {
+    expect(ruleSpecs.length).toBe(ruleset.length);
+    for (const s of ruleSpecs) {
+      expect(s.id.length, `${s.id} id`).toBeGreaterThan(0);
+      expect(['line-pattern', 'builtin']).toContain(s.matcher.kind);
+      expect(Array.isArray(s.passFixtures)).toBe(true);
+      expect(Array.isArray(s.failFixtures)).toBe(true);
+      expect(typeof s.precisionBudget).toBe('number');
+    }
   });
 
   it('includes rules from all five detection classes', () => {

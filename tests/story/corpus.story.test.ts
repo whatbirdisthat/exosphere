@@ -120,6 +120,32 @@ describe('STORY: exosphere-audit over the labelled fixture corpus (unmocked CLI)
   });
 });
 
+// ── R4: the externalised ruleset proven through the real built CLI ──────────────
+describe('STORY: externalised declarative ruleset, proven through the real CLI (R4)', () => {
+  // The CLI uses the compiled-from-DATA ruleset; a malicious fixture still BLOCKs with the same
+  // file:line + rule + framework ids the compiled-in ruleset produced (behaviour preserved, EARS-055).
+  it('still BLOCKs a malicious fixture citing rule + OWASP/ATLAS from the data-driven ruleset', async () => {
+    const { code, json } = await runCli(join(corpusRoot, 'malicious/mal-homoglyph-injection'));
+    expect(json.verdict).toBe('BLOCK');
+    expect(code).toBeGreaterThan(0);
+    const hit = json.findings.find((f) => f.rule === 'prompt-injection/homoglyph-override');
+    expect(hit, 'data-driven homoglyph rule fires through the CLI').toBeDefined();
+    expect(hit!.owasp).toBe('LLM01');
+    expect(hit!.atlas).toBe('AML.T0051');
+    expect(hit!.tier).toBe('T0');
+  });
+
+  // The ruleset is DATA, never code: the rule-data files contain attack patterns but the audit of
+  // this repo PASSes (excluded-and-disclosed), and a full --no-ignore scan treats them as inert text
+  // findings — never executing them (the run completing at all proves nothing in the data ran).
+  it('treats its own rule-DATA files as inert text under --no-ignore (no execution, EARS-051)', async () => {
+    const { json } = await runCli(repoRoot, ['--no-ignore']);
+    // the rule-data files are scanned as ordinary text and surface as findings — they are NOT executed.
+    const ruleDataHit = json.findings.some((f) => f.file.startsWith('src/core/rules/'));
+    expect(ruleDataHit, 'rule-data files are scanned as text, proving they are data not code').toBe(true);
+  });
+});
+
 describe('STORY: hostile git acquisition never executes the audited payload (EARS-005/006)', () => {
   let work: string;
   beforeEach(async () => {
@@ -229,7 +255,11 @@ describe('STORY: exosphere-audit audits its OWN repository and PASSES (R1 residu
     expect(json.exclusions.excludedCount).toBeGreaterThan(0);
     const patterns = json.exclusions.patterns.map((p) => p.pattern);
     expect(patterns).toContain('tests/corpus/**');
-    expect(patterns).toContain('src/core/scanners/**');
+    // R4: the rule sources are now externalised DATA under src/core/rules/** (+ named structural
+    // matchers under src/core/matchers/**); they carry the attack patterns the former
+    // src/core/scanners/** held, excluded-and-disclosed identically.
+    expect(patterns).toContain('src/core/rules/**');
+    expect(patterns).toContain('src/core/matchers/**');
   });
 
   it('BLOCKS its own repo under --no-ignore (proving the ignore file is what earns the PASS)', async () => {

@@ -118,7 +118,20 @@
   IDs; benign near-misses→PASS); existing corpus still 100%/≤10%-FP; 100% coverage floor held.
 
 ### R4 · Externalise the community ruleset
-- **STATUS:** BLOCKED-BY R9a
+- **STATUS:** ⏳ AWAITING MERGE — on branch `slice/r4-external-ruleset`, **stacked on `fix/ci-build-order`**
+  (PR base = `fix/ci-build-order`; auto-retargets to main when PR #5 merges). 241 tests / 100% coverage
+  (stmts/branches/funcs/lines). Rules externalised into declarative DATA (`src/core/rules/**` =
+  `RuleSpec[]`) + a closed registry of named structural matchers (`src/core/matchers/builtins.ts`),
+  compiled by `src/core/compile.ts`. The ruleset is DATA, never code — no eval/Function/dynamic-require
+  of rule content (ADR-005, EARS-051). **Parity proven:** all 18 corpus fixtures yield identical
+  verdicts + findings (file:line, rule, severity, owasp, atlas) vs the compiled-in baseline
+  (`tests/corpus/parity-baseline.json`). Corpus 100% accuracy / 0% FP. **Precision-budget guard**
+  enforced mechanically (every rule's own pass/fail fixtures + per-rule corpus-FP ≤ budget) with a
+  deliberately-loose-rule catch proving the guard bites. Schema versioned (`RULESET_SCHEMA_VERSION` +
+  `RULESET_VERSION`); contribution workflow in `doc/RULESET.md`. Zero new runtime deps (ADR-005). Self-scan
+  `exosphere-audit .` → PASS (`.exosphereignore` updated: `src/core/scanners/**` → `src/core/rules/**` +
+  `src/core/matchers/**`, excluded-and-disclosed). Security-gate (self-audit + secret/dep sweep) PASS.
+  Awaiting human review + merge (pr-approval governance).
 - **PRIORITY:** P1 (turns "my tool" into "the ecosystem's ruleset" — reach compounding)
 - **OBJECTIVE:** Move rules out of compiled code into a **versioned, contributable ruleset**; each rule a
   self-describing record (`id · owasp/atlas mapping · severity · rationale · tier · pass/fail fixtures ·

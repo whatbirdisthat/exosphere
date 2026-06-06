@@ -230,6 +230,66 @@
   the tool does (no coercive directive, no exfiltration instruction), THE SYSTEM SHALL raise no
   `tool-description-poisoning` finding, so a normal description never trips the BLOCK threshold.
 
+## R4 — Externalise the community ruleset (declarative, contributable, versioned)
+
+> Source: ROADMAP R4; ADR-005; `doc/research/deeper-detection-plan.md` §4. The detection rules move
+> out of compiled scanner code into a **versioned, externally-declared, contributable** ruleset the
+> engine loads. Each rule is a self-describing **data** record. Binding decisions (not re-litigated):
+> deterministic + offline default; engine kept tier-pluggable (ADR-004); every rule carries OWASP +
+> MITRE ATLAS (ADR-004). Load-bearing safety invariant (extends SMU §6 / ADR-001 never-execute): the
+> ruleset is DATA, never code — rule content is never `eval`'d, `Function`-constructed, dynamically
+> `require`d, or otherwise executed; a rule "matcher" only *matches* text, it never runs it.
+
+### Declarative rule record (self-describing data)
+
+- **EARS-048** — WHILE the ruleset is defined, THE SYSTEM SHALL express each rule as a self-describing
+  **data** record carrying an `id`, `detectionClass`, `severity`, `tier`, `framework` (OWASP + MITRE
+  ATLAS), human `why`, a `matcher` specification, its own `passFixtures` and `failFixtures`, and a
+  `precisionBudget`, so a rule is contributable as data without modifying engine code.
+- **EARS-049** — WHILE compiling a rule whose `matcher` is a `line-pattern`, THE SYSTEM SHALL build a
+  per-line `RegExp` from the matcher's pattern source string (and optional flags) and apply it only to
+  files whose component kind is in the matcher's `appliesTo` set (or to all files when `appliesTo` is
+  omitted), reproducing the previously compiled-in line-pattern behaviour exactly.
+- **EARS-050** — WHILE compiling a rule whose `matcher` is a `builtin`, THE SYSTEM SHALL resolve the
+  matcher's `name` against a fixed, closed registry of named structural matchers and use the resolved
+  pure function, so structural detections (JSON scope parsing, frontmatter-description extraction,
+  homoglyph/encoded-payload decode-and-match, ANSI line-jump, HTML-comment, zero-width unicode) that
+  cannot be expressed as a single line pattern remain available by name.
+
+### The ruleset is DATA, never executable code (load-bearing safety invariant)
+
+- **EARS-051** — WHILE loading or compiling the ruleset, THE SYSTEM SHALL NEVER execute rule content:
+  it SHALL NOT pass any rule field to `eval`, `Function`, `new Function`, a dynamic `require`/`import`,
+  or any shell — a `line-pattern` source is only ever compiled to a matching `RegExp` and a `builtin`
+  name only ever selects a pre-existing vetted function, so a contributed rule-data file that attempts
+  code execution is structurally inert.
+- **EARS-052** — IF a rule's `line-pattern` source is not a valid regular expression, THEN THE SYSTEM
+  SHALL reject it at load time with a typed `RulesetError` naming the offending rule, and SHALL NOT
+  throw a raw error mid-scan.
+- **EARS-053** — IF a rule's `builtin` matcher names a matcher absent from the closed registry, THEN
+  THE SYSTEM SHALL reject it at load time with a typed `RulesetError` naming the offending rule and the
+  unknown matcher name.
+
+### Versioned, schema-stable, behaviour-preserving
+
+- **EARS-054** — WHILE exposing the ruleset, THE SYSTEM SHALL publish both a `RULESET_SCHEMA_VERSION`
+  (the version of the rule-data schema / matcher vocabulary) and a `RULESET_VERSION` (the version of the
+  curated rule content), each a semantic-version string, so a contributor can target a stable schema.
+- **EARS-055** — WHILE auditing any artefact, THE SYSTEM SHALL produce verdicts and findings from the
+  externally-declared ruleset that are identical (same verdict, same findings citing the same
+  file:line, rule, severity, and framework ids) to those the previously compiled-in ruleset produced
+  for every existing corpus fixture (behaviour-preserving externalisation).
+
+### Precision-budget discipline (mechanically enforced)
+
+- **EARS-056** — WHILE validating the ruleset, THE SYSTEM SHALL run each rule against its own
+  `failFixtures` (each of which SHALL produce at least one match) and its own `passFixtures` (each of
+  which SHALL produce zero matches), so a rule ships with proof it fires on its intended attack and
+  stays silent on its intended near-miss.
+- **EARS-057** — WHILE validating the ruleset, THE SYSTEM SHALL measure each rule's false-positive rate
+  across the full benign corpus and SHALL fail validation IF that rate exceeds the rule's declared
+  `precisionBudget`, so a rule that regresses corpus false-positives is rejected rather than merged.
+
 ## ID register
 
-Highest existing ID: **EARS-047**. Next new ID starts at EARS-048. IDs are permanent; never reuse.
+Highest existing ID: **EARS-057**. Next new ID starts at EARS-058. IDs are permanent; never reuse.

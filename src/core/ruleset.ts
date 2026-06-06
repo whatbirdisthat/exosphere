@@ -1,19 +1,41 @@
-import type { Rule } from './types.js';
-import { dangerousBashRules } from './scanners/dangerous-bash.js';
-import { promptInjectionRules } from './scanners/prompt-injection.js';
-import { overBroadPermsRules } from './scanners/over-broad-perms.js';
-import { committedSecretsRules } from './scanners/committed-secrets.js';
-import { toolDescriptionPoisoningRules } from './scanners/tool-description-poisoning.js';
+import type { Rule, RuleSpec } from './types.js';
+import { compileRuleset } from './compile.js';
+import { dangerousBashRules } from './rules/dangerous-bash.rules.js';
+import { promptInjectionRules } from './rules/prompt-injection.rules.js';
+import { overBroadPermsRules } from './rules/over-broad-perms.rules.js';
+import { committedSecretsRules } from './rules/committed-secrets.rules.js';
+import { toolDescriptionPoisoningRules } from './rules/tool-description-poisoning.rules.js';
 
-/** The curated, versioned ruleset version. R9a widens detection breadth (framework mapping,
- *  encoding-evasion, tool-description poisoning) — all tier T0 (deterministic + offline). */
-export const RULESET_VERSION = '0.2.0';
+/**
+ * The version of the rule-DATA SCHEMA / matcher vocabulary (ADR-005 / R4, EARS-054). Bumped only on a
+ * breaking change to the `RuleSpec` shape or the matcher vocabulary — the stable contract a contributor
+ * targets. `1.0.0` is the first externalised schema.
+ */
+export const RULESET_SCHEMA_VERSION = '1.0.0';
 
-/** The full curated ruleset: the union of all five detection-class rule modules. */
-export const ruleset: readonly Rule[] = [
+/**
+ * The version of the curated rule CONTENT (EARS-054). R4 externalises the rules into declarative data
+ * (no detection-behaviour change), so the content version steps to `0.3.0`.
+ */
+export const RULESET_VERSION = '0.3.0';
+
+/**
+ * The full curated ruleset as DECLARATIVE DATA (ADR-005 / R4): the union of all five detection-class
+ * rule-data modules. This is the externally-declared, contributable artefact — each entry is a
+ * self-describing `RuleSpec`. The ruleset is DATA, never code (EARS-051): nothing here is executed.
+ */
+export const ruleSpecs: readonly RuleSpec[] = [
   ...dangerousBashRules,
   ...promptInjectionRules,
   ...overBroadPermsRules,
   ...committedSecretsRules,
   ...toolDescriptionPoisoningRules,
 ];
+
+/**
+ * The compiled runtime ruleset the engine applies. `compileRuleset` turns each `RuleSpec` (data) into
+ * a runtime `Rule` by building a matching `RegExp` for line-patterns or selecting a named builtin —
+ * never by executing rule content. A malformed spec is rejected here at load time with a typed
+ * `RulesetError` (EARS-052/053), not mid-scan.
+ */
+export const ruleset: readonly Rule[] = compileRuleset(ruleSpecs);

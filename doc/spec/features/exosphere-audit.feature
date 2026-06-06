@@ -561,3 +561,107 @@ Feature: exosphere-audit static supply-chain audit
     Given a SKILL.md whose frontmatter description plainly says "Formats your code nicely"
     When the auditor scans it
     Then no tool-description-poisoning finding is raised
+
+  # ── R4: externalise the community ruleset (declarative, contributable data) ──
+  # Source: ROADMAP R4; ADR-005. The rules are DATA, never executable code.
+
+  @EARS-048
+  Scenario: A rule is a self-describing data record (happy)
+    Given the externalised ruleset
+    When a rule is inspected
+    Then it carries an id, detection class, severity, tier, framework mapping, why, a matcher spec, its own pass and fail fixtures, and a precision budget
+
+  @EARS-048
+  Scenario: A contributor adds a pattern rule as data only (happy)
+    Given a new line-pattern rule supplied as a data record with its own pass and fail fixtures
+    When the ruleset is compiled
+    Then the new rule participates in scanning without any change to engine code
+
+  @EARS-049
+  Scenario: A line-pattern rule reproduces compiled-in behaviour exactly (happy)
+    Given a line-pattern rule whose pattern source matches the previously compiled-in pattern
+    And a file whose component kind is in the rule's appliesTo set
+    When the compiled rule scans the file
+    Then it raises the same finding at the same line as the compiled-in rule did
+
+  @EARS-049
+  Scenario: A line-pattern rule does not apply outside its appliesTo set (unhappy)
+    Given a line-pattern rule restricted to settings and mcp-config kinds
+    And a matching string sitting in a plain script file
+    When the compiled rule scans the file
+    Then no finding is raised because the file kind is out of scope
+
+  @EARS-050
+  Scenario: A builtin matcher is resolved by name from the closed registry (happy)
+    Given a rule whose matcher is a builtin named "mcp-combined-scopes"
+    When the ruleset is compiled
+    Then the rule uses the registered structural matcher and flags an MCP server combining filesystem, network, and secret scopes
+
+  @EARS-050
+  Scenario: Each named builtin preserves its structural detection (happy)
+    Given rules referencing the builtins for zero-width unicode, html-comment instructions, homoglyph override, encoded override payload, ansi line jumping, frontmatter coercive description, and mcp tool coercive description
+    When the compiled rules scan their matching inputs
+    Then each raises the same finding its compiled-in predecessor raised
+
+  @EARS-051
+  Scenario: Rule data carrying a code-execution string is treated as inert pattern data (abuse)
+    Given a line-pattern rule whose pattern source is a string crafted to look like executable code
+    When the ruleset is compiled and the rule scans a file
+    Then the string is only ever compiled to a matching RegExp and never executed
+    And no shell, eval, Function, or dynamic require is invoked on any rule field
+
+  @EARS-051
+  Scenario: A malicious rule-data file cannot run code during load (abuse)
+    Given a ruleset loaded from declarative data records
+    When the ruleset is compiled
+    Then compilation only builds RegExps and selects named builtins
+    And the audited code path contains no eval, no Function constructor, and no dynamic require of rule content
+
+  @EARS-052
+  Scenario: An invalid regex source is rejected at load time, not mid-scan (unhappy/abuse)
+    Given a line-pattern rule whose pattern source is not a valid regular expression
+    When the ruleset is compiled
+    Then a typed RulesetError is raised at load time naming the offending rule
+    And no raw error is thrown during a later scan
+
+  @EARS-053
+  Scenario: An unknown builtin matcher name is rejected at load time (unhappy/abuse)
+    Given a rule whose matcher is a builtin naming a matcher absent from the registry
+    When the ruleset is compiled
+    Then a typed RulesetError is raised naming the offending rule and the unknown matcher name
+
+  @EARS-054
+  Scenario: The ruleset publishes a schema version and a content version (happy)
+    Given the externalised ruleset
+    When its version metadata is read
+    Then both a RULESET_SCHEMA_VERSION and a RULESET_VERSION are exposed as semantic-version strings
+
+  @EARS-055
+  Scenario: Every existing corpus fixture yields identical verdicts from the external ruleset (happy/parity)
+    Given the labelled fixture corpus and the baseline verdicts of the previously compiled-in ruleset
+    When each fixture is audited with the externally-declared ruleset
+    Then every verdict and every finding (file, line, rule, severity, owasp, atlas) is identical to the baseline
+
+  @EARS-055
+  Scenario: A benign near-miss still passes under the external ruleset (unhappy/parity)
+    Given a benign corpus fixture that the compiled-in ruleset classified PASS
+    When it is audited with the externally-declared ruleset
+    Then the verdict is still PASS with zero findings
+
+  @EARS-056
+  Scenario: Every rule fires on its own fail fixtures and stays silent on its pass fixtures (happy)
+    Given a rule with its own pass fixtures and fail fixtures
+    When the ruleset is validated
+    Then each fail fixture produces at least one match and each pass fixture produces zero matches
+
+  @EARS-057
+  Scenario: A rule within its precision budget passes validation (happy)
+    Given a precise rule whose corpus false-positive rate is within its declared precision budget
+    When the ruleset is validated against the benign corpus
+    Then validation succeeds
+
+  @EARS-057
+  Scenario: A deliberately-loose rule that regresses corpus FP is caught by the budget guard (abuse)
+    Given a deliberately-loose rule whose pattern fires on benign corpus files beyond its precision budget
+    When the ruleset is validated against the benign corpus
+    Then validation fails and the rule is rejected rather than merged
