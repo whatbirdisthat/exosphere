@@ -36,13 +36,12 @@
   existing incumbents (Sentry/AgentShield/Repello; Snyk researching). Objective is **reach & reputation**,
   FOSS/$0 — not a defended moat. Win on craft + distribution + native fit.
 
-## Tier 2 — Backlog (after the slice ships green; not now)
-## Tier 1b — NEXT SLICES (build now, in order: R3 → R2)
+## Tier 1b — SHIPPED SLICES (R3, R2 — ✅ complete)
 
 ### R3 · `.exosphereignore` / self-exclusion convention
-- **STATUS:** AWAITING MERGE — branch `slice/r3-exosphereignore` (pr-approval; → COMPLETE on human merge).
-  128 tests / 100% coverage (stmts/branches/funcs/lines). Zero new runtime deps (ADR-002). Self-scan
-  `exosphere-audit .` → PASS with 90 files excluded-and-disclosed (R1 residual resolved). Security-gate PASS.
+- **STATUS:** ✅ COMPLETE — merged via PR #2 (merge `2948f48`, 2026-06-06). 128 tests / 100% coverage.
+  Zero new runtime deps (ADR-002). Self-scan `exosphere-audit .` → PASS with files excluded-and-disclosed
+  (R1 residual resolved). Security-gate PASS. DELIVERY_COMPLETE.
 - **PRIORITY:** P0 (unblocks R2; resolves the R1 accepted residual — the tool BLOCKs its own repo)
 - **STACK:** TypeScript / Node → `handler-js` (extends the R1 codebase).
 - **OBJECTIVE:** Let an audited target declare paths the scan should exclude, so a repo that legitimately
@@ -64,8 +63,7 @@
   must be visible, not invisible.
 
 ### R2 · Author self-audit + README trust-badge
-- **STATUS:** AWAITING MERGE — branch `slice/r2-author-badge`, **stacked on `slice/r3-exosphereignore`**
-  (pr-approval; → COMPLETE on human merge). 151 tests / 100% coverage (stmts/branches/funcs/lines).
+- **STATUS:** ✅ COMPLETE — merged via PR #3 (merge `b372896`, 2026-06-06). 151 tests / 100% coverage.
   Zero new runtime deps (ADR-003 — hand-generated static SVG). `--badge` emits a deterministic,
   offline, byte-stable trust snippet (md + raw SVG) on PASS; no badge + reason on REVIEW/BLOCK.
   `--ci` gates on BLOCK and respects `.exosphereignore` (`--no-ignore` overrides). Transparency
