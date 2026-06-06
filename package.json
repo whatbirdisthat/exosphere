@@ -1,0 +1,29 @@
+{
+  "name": "exosphere-audit",
+  "version": "0.1.0",
+  "description": "Static supply-chain safety auditor for Claude Code skills & plugins — npm-audit/Semgrep for agent skills.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "exosphere-audit": "dist/bin.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:cov": "vitest run --coverage",
+    "lint": "eslint . --max-warnings=0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@vitest/coverage-v8": "^2.1.9",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.9"
+  }
+}

@@ -6,7 +6,7 @@
 ## Tier 1 — FIRST VERTICAL SLICE (build now)
 
 ### R1 · `exosphere-audit` CLI — static supply-chain auditor (v1 slice)
-- **STATUS:** IN_PROGRESS
+- **STATUS:** AWAITING MERGE (DoD-satisfied on branch `slice/exosphere-audit-v1`; PR open for human merge per pr-approval governance. → COMPLETE on merge.)
 - **PRIORITY:** P0 (the slice that proves the whole thesis end-to-end)
 - **STACK:** TypeScript / Node → `handler-js`. Distributed as `npx exosphere-audit`.
 - **OBJECTIVE:** A FOSS CLI `npx exosphere-audit <git-url | local-dir>` that fetches the source
