@@ -17,9 +17,11 @@ jobs:
       - run: npm ci
       - name: Typecheck
         run: npm run typecheck
+      - name: Build
+        # Must precede the test step: the story suite spawns the built CLI (dist/bin.js),
+        # which does not exist until the project is built.
+        run: npm run build
       - name: Unit + integration + coverage (100% line+branch floor)
         run: npm run test:cov
-      - name: Build
-        run: npm run build
       - name: Story / corpus gate
         run: npx vitest run tests/story
