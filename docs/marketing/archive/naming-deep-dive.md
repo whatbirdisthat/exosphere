@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED — historical artifact.** Round 1 naming research; its then-top-pick `vouchsmith` was retired in Round 2.
+> The current single source of truth is [`../naming-report.md`](../naming-report.md). Do not cite this as current.
+
 # Naming Deep-Dive: A FOSS CLI for Auditing AI-Agent Skills
 
 **Product:** a free, MIT-licensed command-line tool that **statically audits AI-agent "skills"/plugins** (Claude Code skills, MCP servers, etc.) for supply-chain attacks — dangerous bash, prompt-injection, over-broad permissions, committed secrets, description poisoning, taint/dataflow — and returns a **PASS / REVIEW / BLOCK** verdict *before* you install or run the skill. It never executes what it scans. Mental model: **"`npm audit` / Semgrep, but for AI-agent skills."**

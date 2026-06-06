@@ -1,3 +1,6 @@
+> ⚠️ **SUPERSEDED — historical artifact.** Earlier `metasphere` vs `exosphere` comparison; the product is now named via `/ideator:name`.
+> The current single source of truth is [`../naming-report.md`](../naming-report.md). Do not cite this as current.
+
 # Name-Availability & Branding Report: `metasphere` vs `exosphere`
 
 **Product:** FOSS CLI security tool that audits Claude Code skills/plugins for supply-chain risk ("npm audit / Semgrep for agent skills").
