@@ -13,7 +13,12 @@
 
 import type { FileRecord, MatcherSpec, Rule, RuleMatch, RuleSpec } from './types.js';
 import { RulesetError } from './types.js';
-import { BUILTIN_MATCHERS } from './matchers/builtins.js';
+import {
+  BUILTIN_MATCHERS,
+  CROSSFILE_BUILTIN_MATCHERS,
+  type BuiltinMatcher,
+  type CrossFileBuiltinMatcher,
+} from './matchers/builtins.js';
 
 /** Build a per-line regex matcher from a `line-pattern` matcher spec. */
 function compileLinePattern(
@@ -49,12 +54,38 @@ function compileLinePattern(
   };
 }
 
-/** Resolve a `builtin` matcher spec to its named structural matcher (closed registry). */
+/**
+ * The compiled matcher channels for a `builtin` spec. A per-file builtin populates `detect` only. A
+ * CROSS-FILE builtin (ADR-007 / R9b.1) populates BOTH: `detectCrossFile` (the full pass over the file
+ * set, used by the engine) and `detect` (the same analyzer over a singleton set — so the per-file
+ * channel still catches single-file-decidable cases like a path-traversal include, which keeps the
+ * precision-budget guard, that calls `detect`, honest).
+ */
+interface CompiledBuiltin {
+  readonly detect: (file: FileRecord) => RuleMatch[];
+  readonly detectCrossFile?: (file: FileRecord, files: readonly FileRecord[]) => RuleMatch[];
+}
+
+/** Resolve a `builtin` matcher spec to its named structural matcher(s) (closed registries). */
 function compileBuiltin(
   ruleId: string,
   spec: Extract<MatcherSpec, { kind: 'builtin' }>,
-): (file: FileRecord) => RuleMatch[] {
-  const builtin = BUILTIN_MATCHERS[spec.name];
+): CompiledBuiltin {
+  const appliesTo = spec.appliesTo ? new Set(spec.appliesTo) : undefined;
+  const inScope = (file: FileRecord): boolean => !appliesTo || appliesTo.has(file.kind);
+
+  if (Object.prototype.hasOwnProperty.call(CROSSFILE_BUILTIN_MATCHERS, spec.name)) {
+    // A cross-file builtin: route the whole-set pass to `detectCrossFile`; the per-file `detect` runs
+    // the same analyzer over a singleton set (catches single-file-decidable cases, e.g. an escape).
+    const crossFile = (CROSSFILE_BUILTIN_MATCHERS as Record<string, CrossFileBuiltinMatcher>)[spec.name]!;
+    return {
+      detect: (file: FileRecord): RuleMatch[] => (inScope(file) ? crossFile(file, [file]) : []),
+      detectCrossFile: (file: FileRecord, files: readonly FileRecord[]): RuleMatch[] =>
+        inScope(file) ? crossFile(file, files) : [],
+    };
+  }
+
+  const builtin = (BUILTIN_MATCHERS as Record<string, BuiltinMatcher>)[spec.name];
   if (builtin === undefined) {
     throw new RulesetError(
       'UNKNOWN_BUILTIN',
@@ -62,22 +93,27 @@ function compileBuiltin(
       `rule "${ruleId}" references an unknown builtin matcher "${spec.name}"`,
     );
   }
-  const appliesTo = spec.appliesTo ? new Set(spec.appliesTo) : undefined;
   // A builtin already enforces its own kind scope; an optional `appliesTo` narrows it further.
-  return (file: FileRecord): RuleMatch[] => {
-    if (appliesTo && !appliesTo.has(file.kind)) {
-      return [];
-    }
-    return builtin(file);
+  return {
+    detect: (file: FileRecord): RuleMatch[] => (inScope(file) ? builtin(file) : []),
   };
 }
 
 /** Compile one declarative `RuleSpec` (data) into the runtime `Rule` the engine applies. */
 export function compileRule(spec: RuleSpec): Rule {
-  const detect =
-    spec.matcher.kind === 'line-pattern'
-      ? compileLinePattern(spec.id, spec.matcher)
-      : compileBuiltin(spec.id, spec.matcher);
+  if (spec.matcher.kind === 'line-pattern') {
+    const detect = compileLinePattern(spec.id, spec.matcher);
+    return {
+      id: spec.id,
+      detectionClass: spec.detectionClass,
+      severity: spec.severity,
+      why: spec.why,
+      tier: spec.tier,
+      framework: spec.framework,
+      detect,
+    };
+  }
+  const compiled = compileBuiltin(spec.id, spec.matcher);
   return {
     id: spec.id,
     detectionClass: spec.detectionClass,
@@ -85,7 +121,8 @@ export function compileRule(spec: RuleSpec): Rule {
     why: spec.why,
     tier: spec.tier,
     framework: spec.framework,
-    detect,
+    detect: compiled.detect,
+    ...(compiled.detectCrossFile ? { detectCrossFile: compiled.detectCrossFile } : {}),
   };
 }
 

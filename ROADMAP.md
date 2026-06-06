@@ -143,6 +143,34 @@
   benign near-miss fixtures (pinned hash-verified download; captured value only echoed) hold the
   precision line. EARS-058–066.
 
+### R9b.1 · T1 CROSS-FILE shell dataflow/taint within the audited target
+- **STATUS:** ⏳ AWAITING MERGE — branch `slice/r9b1-crossfile-dataflow` (base `main`). 349 tests / 100%
+  coverage (stmts/branches/funcs/lines). Corpus 100% accuracy / 0% FP across 28 fixtures. Self-scan
+  `skillsentry .` PASS. Zero new runtime deps. DELIVERY pending PR approval (pure library — line ends at
+  DELIVERY).
+- **PRIORITY:** P1 (closes ADR-006 residual #1 — cross-file `source` taint was OUT of R9b's intra-file scope).
+- **OBJECTIVE:** Extend the R9b T1 analyzer to be **cross-file WITHIN the audited target**: when a
+  bundled shell script `source`s/`. `-includes a sibling shipped in the same target, resolve that include
+  **path-safely, in pure string space, never executing and never fetching** and track tainted SOURCES
+  that flow from one file into dangerous SINKS in another — catching a payload split across FILES that
+  R9b's intra-file pass provably misses (`lib.sh` sets `URL=$(get_secret)`; `install.sh` does
+  `source ./lib.sh` then `curl "$URL" | sh`). An include that escapes the target root (path traversal)
+  is itself flagged and never followed (refusal + disclosure). Stays tier T1; OWASP ASI04 + ATLAS
+  AML.T0011; low-FP (benign multi-file bundles that source a helper + pin a hash-verified download PASS).
+- **DESIGN:** ADR-007. New cross-file builtin `shell-crossfile-taint-to-sink`; new optional
+  `Rule.detectCrossFile?` channel (additive — existing rules + the line-pattern path byte-unchanged);
+  the engine uses the cross-file channel when present. Include resolution is a hand-written POSIX
+  path-string normaliser (NOT `node:path` reaching disk); siblings resolved by in-memory lookup against
+  the enumerator's already-read `FileRecord[]`. **Zero new runtime deps.** EARS-067–074.
+- **SUCCESS GATE:** new corpus fixtures — split-across-files malicious → BLOCK citing tier T1 + the SINK
+  file:line (noting the source file) + OWASP/ATLAS; include-escape → BLOCK at the source line; benign
+  multi-file near-misses → PASS; a test proving the intra-file analysis MISSES it but cross-file catches
+  it; full corpus 100%/0%-FP; 100% coverage; `skillsentry .` stays PASS. ✅ all met.
+- **ACCEPTED RESIDUALS (deferred, recorded in ADR-007):** deep interprocedural function-scope dataflow
+  across files (taint through shell function *parameters*) not modelled — one-hop+ transitive `source`
+  chains ARE handled (cycle-guarded); JS/TS cross-file dataflow stays deferred to the opt-in parser slice
+  (R9c per ADR-006).
+
 ## Tier 2 — Backlog (parked; not now)
 - R5 · Spec/quality drift checks.
 - R6 · Cross-harness support (Cursor/Codex/Gemini instruction files).
@@ -159,6 +187,7 @@
   point-in-time record. 241 tests / 100% coverage held. Name verified npm-free + clean in
   `docs/marketing/name-availability-report.md`. Precedes npm publish.
 
-> Shipped: R1, R3, R2, R9a, R4, CI-fix, **R10 rename**. In flight: **R9b — T1 shell dataflow (AWAITING
-> MERGE)**. Next slice: TBD (R9c JS-AST dataflow opt-in, or rug-pull/version-diff). npm publish unblocked
-> but deferred per the user. Tier-2 (R5–R8, R9c–e, R4.1 loader) stays parked.
+> Shipped: R1, R3, R2, R9a, R4, CI-fix, **R10 rename**, **R9b — T1 intra-file shell dataflow** (merged
+> via PR #9). In flight: **R9b.1 — T1 CROSS-FILE shell dataflow (AWAITING MERGE)**. Next slice: TBD
+> (R9c JS-AST dataflow opt-in, or rug-pull/version-diff). npm publish unblocked but deferred per the
+> user. Tier-2 (R5–R8, R9c–e, R4.1 loader) stays parked.

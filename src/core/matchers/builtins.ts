@@ -13,12 +13,20 @@
 // Behaviour preservation (R4): the bodies below are the R9a scanner logic relocated verbatim — only
 // their home and selection mechanism changed (compiled-in module export → named builtin).
 
-import type { BuiltinMatcherName, FileRecord, RuleMatch } from '../types.js';
+import type { CrossFileBuiltinName, FileRecord, PerFileBuiltinName, RuleMatch } from '../types.js';
 import { normaliseHomoglyphs, decodeEmbeddedPayloads, hasLineJumpAnsi } from './decode.js';
 import { shellTaintToSink } from './shell-dataflow.js';
+import { shellCrossfileTaintToSink } from './shell-crossfile-dataflow.js';
 
 /** A built-in structural matcher: a pure function from a file record to zero or more matches. */
 export type BuiltinMatcher = (file: FileRecord) => RuleMatch[];
+
+/**
+ * A CROSS-FILE built-in matcher (ADR-007 / R9b.1): a pure function from one file record PLUS the whole
+ * in-memory file set to zero or more matches. It resolves `source`d siblings IN MEMORY — never fs/exec/
+ * fetch. Routed by the compiler to the engine's `detectCrossFile` channel, never the per-file one.
+ */
+export type CrossFileBuiltinMatcher = (file: FileRecord, files: readonly FileRecord[]) => RuleMatch[];
 
 /** Instruction bodies that prompt-injection / description matchers apply to. */
 const INSTRUCTION_KINDS: ReadonlySet<FileRecord['kind']> = new Set(['skill', 'agent'] as const);
@@ -185,11 +193,12 @@ const mcpToolCoerciveDescription: BuiltinMatcher = (file) => {
 };
 
 /**
- * The closed registry: a rule's `{ kind: 'builtin', name }` selects one of these by name. An unknown
- * name is rejected at compile time (EARS-053). Adding a builtin is a code change (a new vetted matcher),
- * never a data change — that is the security boundary.
+ * The closed registry of PER-FILE builtins: a rule's `{ kind: 'builtin', name }` selects one of these
+ * by name (when the name is a per-file matcher). An unknown name is rejected at compile time
+ * (EARS-053). Adding a builtin is a code change (a new vetted matcher), never a data change — that is
+ * the security boundary. The cross-file matcher lives in its OWN map below (different signature).
  */
-export const BUILTIN_MATCHERS: Readonly<Record<BuiltinMatcherName, BuiltinMatcher>> = {
+export const BUILTIN_MATCHERS: Readonly<Record<PerFileBuiltinName, BuiltinMatcher>> = {
   'zero-width-unicode': zeroWidthUnicode,
   'html-comment-instruction': htmlCommentInstruction,
   'homoglyph-override': homoglyphOverride,
@@ -201,4 +210,17 @@ export const BUILTIN_MATCHERS: Readonly<Record<BuiltinMatcherName, BuiltinMatche
   // R9b (ADR-006): the T1 intra-file shell taint/dataflow analyzer. A pure, multi-line structural
   // matcher; scoped to script/hook kinds inside the analyzer; never reaches an execution sink.
   'shell-taint-to-sink': shellTaintToSink,
+};
+
+/**
+ * The closed registry of CROSS-FILE builtins (ADR-007 / R9b.1). A rule whose builtin name is one of
+ * these resolves to the engine's `detectCrossFile` channel (it needs the whole file set). Same security
+ * boundary: a contributor selects by name; the analyzer logic is vetted code, never data.
+ */
+export const CROSSFILE_BUILTIN_MATCHERS: Readonly<
+  Record<CrossFileBuiltinName, CrossFileBuiltinMatcher>
+> = {
+  // R9b.1 (ADR-007): the T1 cross-file shell taint/dataflow analyzer. Resolves a `source`d sibling's
+  // taint in pure string space over in-memory records; never reads disk, executes, or fetches.
+  'shell-crossfile-taint-to-sink': shellCrossfileTaintToSink,
 };
