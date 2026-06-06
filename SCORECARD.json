@@ -1,0 +1,22 @@
+{
+  "schema": "product-scorecard/1.0",
+  "generated_ts": "2026-06-07T00:00:00Z",
+  "project": "exosphere",
+  "coverage": {
+    "branch_pct": 100,
+    "line_pct": 100,
+    "function_pct": 100,
+    "statement_pct": 100
+  },
+  "corpus": { "fixtures": 18, "false_positive_pct": null },
+  "rules": 6,
+  "tests": "22 files",
+  "security_gate": "n/a",
+  "cost": {
+    "tokens_total": null,
+    "elapsed_s": null,
+    "regressions_introduced": null,
+    "estimation_accuracy_pct": null,
+    "note": "no IDEA_COST.jsonl — token/wall-clock omitted (only a real FOUNDRY cycle records them)"
+  }
+}
