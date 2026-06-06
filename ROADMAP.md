@@ -170,14 +170,62 @@
   chains ARE handled (cycle-guarded); JS/TS cross-file dataflow stays deferred to the opt-in parser slice
   (R9c per ADR-006).
 
+## Tier 1d — NEXT SLICE (active)
+
+> **Strategy sign-off (2026-06-07):** north-star = **differentiated depth that EXTENDS the thesis**
+> (not depth that spends a trust pillar). Of the parked depth candidates, R9c needs a parser dep
+> (spends zero-deps) and R9e needs an LLM (spends determinism/offline) — both fight the thesis. **R9d
+> alone buys differentiation while spending nothing**, so it is promoted to the active next slice.
+> **npm publish is gated on R9d** — shipping the rug-pull detector IS the launch milestone (the
+> capability no incumbent one-shot scanner has). R7 (hosted platform) is explicitly NOT pursued now.
+
+### R9d · T3 rug-pull / version-diff — approval-lockfile drift detection
+- **STATUS:** 🎯 ACTIVE NEXT SLICE (design agreed 2026-06-07; awaiting EARS → build).
+- **PRIORITY:** P0 (the differentiator + the npm-publish gate).
+- **STACK:** TypeScript / Node → `handler-js`. **New tier T3** (temporal); deterministic/offline.
+- **OBJECTIVE:** Detect the **rug-pull** — a skill/plugin that was clean when a user approved it and
+  has since mutated to gain dangerous capability. Compare the target's current **trust-relevant
+  surface** against a previously-approved baseline recorded in a committed **`.skillsentry.lock`**,
+  and flag capability ESCALATION (not benign drift). The lockfile is a second viral artifact (like
+  the R2 badge) and a recurring CI ritual one-shot scanners structurally cannot offer.
+- **BASELINE MODEL (decided — approval lockfile, NOT git-ref diffing):**
+  - `skillsentry <target> --approve` writes a deterministic, byte-stable **`.skillsentry.lock`**:
+    schema version · per-file content hash (**sha256 via `node:crypto` — no new dep**) · the
+    **detection fingerprint** (findings + verdict at approval, i.e. what was knowingly accepted) ·
+    the **capability surface** (declared perms / allow-lists, MCP scope combos, hooks, bundled-script
+    inventory) · disclosed `.skillsentryignore` exclusions (R3 provenance carried over).
+  - A subsequent `skillsentry <target>` with a lockfile present runs the **T3 diff** and classifies
+    mutations: **benign drift** (docs / version bump / no capability change) → noted, **PASS** (the FP
+    line that must hold); **capability escalation** (new `curl|sh`, broadened perms, a script that
+    gained a sink, a new hook) → the rug-pull signal → **REVIEW/BLOCK**, `tier:'T3'`, OWASP **ASI04** +
+    MITRE ATLAS; **approval invalidation** (a previously-accepted file's hash changed) → re-surface.
+- **SECURITY NOTE (load-bearing — mirrors R3's ignore-file rule):** an attacker could ship a permissive
+  `.skillsentry.lock` that "pre-approves" malicious state. A lockfile that approves HIGH findings is
+  itself **flagged and disclosed** — you **cannot launder a BLOCK through a committed lockfile** without
+  the report saying so. Transparency over trust, by construction.
+- **ARCHITECTURE:** widen `RuleTier` `'T0'|'T1'` → add **`'T3'`** (T2 semantic stays deliberately
+  unbuilt — note in an ADR that T3 ships before T2 by design, since T3 holds the deterministic/offline
+  invariant and T2 would break it). New detection class `version-drift`; new closed-registry builtin
+  `lockfile-drift`. **Zero new runtime deps** (sha256 + structural diff only); never-execute / offline.
+- **OUT-OF-SCOPE:** hosted/remote baseline trust policies; git-ref `--since` diffing (rejected in favour
+  of the offline lockfile); signing the lockfile (cryptographic provenance is a later slice); the T2
+  semantic tier.
+- **SUCCESS GATE:** new corpus fixtures — approved-then-escalated target → BLOCK citing tier T3 + the
+  escalated file:line + OWASP/ATLAS + the lockfile delta; benign drift (doc edit, version bump,
+  reordered files) → PASS; a permissive/laundering lockfile → flagged-and-disclosed, never silent; full
+  corpus 100%/≤10%-FP; 100% coverage floor held; `skillsentry .` stays PASS.
+
 ## Tier 2 — Backlog (parked; not now)
 - R5 · Spec/quality drift checks.
 - R6 · Cross-harness support (Cursor/Codex/Gemini instruction files).
 - R7 · Hosted registry / continuous monitoring (the platform play).
 - R8 · Runtime/execution-time guard.
-- R9c–e · Further deeper-detection tiers — **JS-AST dataflow (opt-in, needs a parser dep — deferred per
-  ADR-006)**, rug-pull/version-diff, opt-in T2 semantic (see `doc/research/deeper-detection-plan.md` §6).
-  (R9b — T1 shell dataflow — is now in Tier 1c, AWAITING MERGE.)
+- R9c · JS-AST dataflow (opt-in, needs a parser dep — deferred per ADR-006). Parked: spends the
+  zero-deps trust pillar.
+- R9e · opt-in T2 semantic ("claims-vs-behaviour" LLM judge). Parked: spends the determinism/offline
+  pillar; never default (see `doc/research/deeper-detection-plan.md` §6).
+  (**R9d — T3 rug-pull/version-diff — promoted to Tier 1d, ACTIVE NEXT SLICE.** R9b/R9b.1 — T1 shell
+  dataflow — shipped in Tier 1c.)
 - **R10 · Rename `exosphere-audit` → `skillsentry`** — ✅ COMPLETE — merged via PR #7 (merge `428b28c`, 2026-06-06).
   Product/package/CLI renamed to **`skillsentry`** (`npx skillsentry`); the self-exclusion convention is now
   **`.skillsentryignore`**; badge text "audited by skillsentry"; code, tests, active docs + specs updated.
@@ -186,7 +234,7 @@
   point-in-time record. 241 tests / 100% coverage held. Name verified npm-free + clean in
   `docs/marketing/name-availability-report.md`. Precedes npm publish.
 
-> Shipped: R1, R3, R2, R9a, R4, CI-fix, **R10 rename**, **R9b — T1 intra-file shell dataflow** (merged
-> via PR #9). In flight: **R9b.1 — T1 CROSS-FILE shell dataflow (AWAITING MERGE)**. Next slice: TBD
-> (R9c JS-AST dataflow opt-in, or rug-pull/version-diff). npm publish unblocked but deferred per the
-> user. Tier-2 (R5–R8, R9c–e, R4.1 loader) stays parked.
+> Shipped: R1, R3, R2, R9a, R4, CI-fix, **R10 rename**, **R9b — T1 intra-file shell dataflow** (PR #9),
+> **R9b.1 — T1 CROSS-FILE shell dataflow** (PR #11). **ACTIVE next slice: R9d — T3 rug-pull/version-diff
+> (approval-lockfile model)** — the differentiator and the npm-publish gate (publish ships behind R9d).
+> Tier-2 (R5–R8, R9c, R9e, R4.1 loader) stays parked. R7 hosted platform explicitly not pursued now.
