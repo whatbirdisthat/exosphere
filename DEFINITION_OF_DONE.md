@@ -126,6 +126,31 @@ The target value is not "code exists". The target value is:
 - Governance = **pr-approval**: branch pushed + PR opened; roadmap STATUS: AWAITING MERGE
   (→ COMPLETE on human merge). Never self-merge to main.
 
+## Project-Specific Success Gate (R2 — author self-audit + README trust-badge)
+
+> Extends R1+R3; all R1+R3 gates above remain in force. R2 adds the `--badge` and `--ci` surfaces.
+
+- **PASS → badge:** a PASS-fixture repo, audited with `--badge`, emits a valid, **byte-stable** badge
+  snippet — BOTH a Markdown snippet (`![audited by exosphere-audit](<inline data-URI svg>)`) and the
+  raw SVG source. Determinism is asserted across two runs (identical bytes).
+- **BLOCK/REVIEW → no badge:** a BLOCK-fixture repo, audited with `--badge`, emits **no badge** plus a
+  clear one-line reason, and preserves the normal report + the non-zero exit code on BLOCK.
+- **`--ci` gates correctly:** non-zero exit on BLOCK gates the author's PR; `--ci` respects the R3
+  `.exosphereignore` by default and `--no-ignore` still overrides it.
+- **Transparency carry-over (load-bearing):** a repo that earns a badge via `.exosphereignore`
+  exclusions STILL discloses those exclusions in the report — a badge cannot launder a hidden
+  exclusion. Tested with an abuse fixture (a malicious `.exosphereignore` hiding a finding).
+- **Zero new runtime dependency** (ADR-003): the SVG is hand-generated; no SVG/badge package added.
+- **Offline:** no hosted/dynamic badge endpoint; the badge is a self-contained inline data-URI.
+- 100% coverage floor (stmts/branches/funcs/lines) held; all R1+R3 tests remain green.
+
+### Step-Story Done Criteria (R2 addendum)
+
+- The built CLI proves, over real fixtures on real disk: `--badge` on PASS emits a byte-stable md+svg
+  (verified across two spawns); `--badge` on a BLOCK fixture emits no badge + a reason + non-zero exit;
+  `--ci` gates on BLOCK and passes on PASS; a badge earned via `.exosphereignore` still discloses the
+  exclusion. `STORY_PROVEN` requires all of these.
+
 ## Orchestrator Exit Condition
 
 An item is done ONLY when all universal + stage gates pass, line=branch=100%, the corpus gate

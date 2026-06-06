@@ -76,6 +76,17 @@ export interface AuditReport {
   readonly exclusions: ExclusionSummary;
 }
 
+/**
+ * Outcome of a `--badge` request (R2). On a PASS verdict the author earns a deterministic,
+ * offline trust badge (raw SVG + a self-contained Markdown data-URI snippet). On REVIEW/BLOCK
+ * no badge is issued — only a one-line reason. The badge derives solely from the verdict, so it
+ * is byte-stable; a PASS earned via `.exosphereignore` still discloses its exclusions upstream
+ * in the report (the badge cannot launder a hidden exclusion).
+ */
+export type BadgeResult =
+  | { readonly kind: 'badge'; readonly svg: string; readonly markdown: string }
+  | { readonly kind: 'no-badge'; readonly reason: string };
+
 // ── Typed errors (never throw raw strings) ──────────────────────────────────
 
 export type AuditErrorCode =
