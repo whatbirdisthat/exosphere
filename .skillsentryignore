@@ -27,5 +27,14 @@ src/core/matchers/**
 doc/**
 ROADMAP.md
 
+# The README showcases real attack patterns (curl|sh, "ignore previous instructions", Bash(*)) as
+# selling points — what the tool catches. It's documentation, not an executable artefact; excluded
+# and disclosed like the other docs. `--no-ignore` re-scans it.
+README.md
+
 # Build output (compiled copies of the rule sources).
 dist/**
+
+# Agent tooling — isolated build worktrees and agent memory. Not part of the audited product;
+# a transient worktree is a full repo copy (rule sources + fixtures) and must never be scanned.
+.claude/**
