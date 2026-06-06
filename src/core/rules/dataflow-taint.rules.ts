@@ -39,4 +39,31 @@ export const dataflowTaintRules: readonly RuleSpec[] = [
     ],
     precisionBudget: 0,
   },
+  // ── R9b.1 (ADR-007): the T1 CROSS-FILE shell taint rule. Selects the cross-file builtin by name;
+  // the engine routes it to its `detectCrossFile` channel so it can resolve `source`d siblings. ──
+  {
+    id: 'dataflow-taint/shell-crossfile-source-to-sink',
+    detectionClass: C,
+    severity: 'high',
+    tier: 'T1',
+    framework: SUPPLY_CHAIN,
+    why: 'A tainted value captured in one bundled script flows, via a `source`/`.` include of a sibling within the audited target, into a dangerous shell sink in another file — a payload split across FILES that the intra-file pass misses. A `source` include that escapes the target root (path traversal) is itself flagged and never followed.',
+    matcher: { kind: 'builtin', name: 'shell-crossfile-taint-to-sink', appliesTo: ['script', 'hook'] },
+    failFixtures: [
+      // single-file-decidable: a `source` include that escapes the audited root (path traversal). The
+      // per-file `detect` channel (a singleton set) already catches this — no sibling needed.
+      { kind: 'script', content: '#!/bin/bash\nsource ../../etc/evil.sh' },
+      // an absolute-path include also escapes the relative audited tree.
+      { kind: 'hook', content: 'source /etc/evil.sh' },
+    ],
+    passFixtures: [
+      // a benign in-tree `source ./lib.sh` with no sibling in the singleton set imports no taint and
+      // does not escape — silent. (The genuine cross-file CATCH is proven by the corpus over the
+      // whole file set; this rule's per-file channel must stay quiet on a lone benign include.)
+      { kind: 'script', content: '#!/bin/bash\nsource ./lib.sh\necho "ready"' },
+      // a dot-include of an in-tree sibling, likewise benign on its own.
+      { kind: 'script', content: '. ./helpers/util.sh\nrun_build' },
+    ],
+    precisionBudget: 0,
+  },
 ];

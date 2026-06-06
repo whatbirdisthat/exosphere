@@ -52,6 +52,14 @@ export interface Rule {
   readonly framework: FrameworkMapping;
   /** Given one file record, return zero or more matches (1-based line + matched excerpt). */
   readonly detect: (file: FileRecord) => RuleMatch[];
+  /**
+   * OPTIONAL cross-file channel (ADR-007 / R9b.1). When present, the engine ALSO calls this with the
+   * analysed file plus the whole in-memory file set, so a matcher can resolve a `source`d sibling's
+   * taint (cross-file dataflow). Existing rules leave this `undefined` — their `detect` and the
+   * line-pattern compiler path are unchanged; the cross-file pass is purely additive. The analyzer it
+   * points to operates in pure string space over in-memory records (never fs/exec/fetch).
+   */
+  readonly detectCrossFile?: (file: FileRecord, files: readonly FileRecord[]) => RuleMatch[];
 }
 
 export interface RuleMatch {
@@ -70,8 +78,11 @@ export interface RuleMatch {
 // name only ever selects a pre-existing vetted function from a closed registry. Nothing in a rule
 // field is ever passed to `eval`, `Function`, a dynamic `require`/`import`, or a shell.
 
-/** The closed, documented vocabulary of named built-in structural matchers (ADR-005, EARS-050). */
-export type BuiltinMatcherName =
+/**
+ * The closed vocabulary of PER-FILE named structural matchers (ADR-005, EARS-050). Each resolves to a
+ * pure `(file) => RuleMatch[]` in the `BUILTIN_MATCHERS` registry.
+ */
+export type PerFileBuiltinName =
   | 'zero-width-unicode'
   | 'html-comment-instruction'
   | 'homoglyph-override'
@@ -83,6 +94,17 @@ export type BuiltinMatcherName =
   // R9b: the T1 intra-file shell taint/dataflow analyzer (ADR-006). A multi-line, stateful structural
   // matcher that cannot be a single-line regex, so it joins the closed builtin registry by name.
   | 'shell-taint-to-sink';
+
+/**
+ * The closed vocabulary of CROSS-FILE named matchers (ADR-007, EARS-067). Each resolves to a pure
+ * `(file, files) => RuleMatch[]` in the `CROSSFILE_BUILTIN_MATCHERS` registry — it needs the whole
+ * in-memory file set to resolve a `source`d sibling's taint, so the engine routes it to the optional
+ * `Rule.detectCrossFile` channel. Same security boundary: data selects by name; logic is vetted code.
+ */
+export type CrossFileBuiltinName = 'shell-crossfile-taint-to-sink';
+
+/** The full closed vocabulary a rule's `{ kind: 'builtin', name }` may name (per-file ∪ cross-file). */
+export type BuiltinMatcherName = PerFileBuiltinName | CrossFileBuiltinName;
 
 /**
  * The declarative matcher vocabulary (ADR-005). A closed discriminated union so rule data can express

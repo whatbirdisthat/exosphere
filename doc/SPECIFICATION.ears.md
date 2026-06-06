@@ -347,6 +347,62 @@
   `child_process`, or any other execution sink (the never-execute invariant, EARS-006, extended to the
   taint analyzer).
 
+## R9b.1 — Cross-file shell taint/dataflow within the audited target (ADR-007)
+
+> Extends R9b's intra-file T1 analyzer to be **cross-file within the audited target**: when a shell
+> script `source`s/`. `-includes a sibling script shipped in the same target, taint that flows from the
+> sibling into a dangerous SINK in the analysed file is detected. Resolution is dependency-free,
+> offline, never-executing, never-fetching, and path-traversal-safe (an include escaping the target
+> root is a finding, never followed). All R9b EARS (058–066) remain in force.
+
+### Cross-file include resolution (safe, in-memory)
+
+- **EARS-067** — WHILE analysing a bundled shell script that contains a `source <path>` or `. <path>`
+  directive whose target is a **literal relative path** (e.g. `./lib.sh`, `lib/util.sh`), THE SYSTEM
+  SHALL resolve that include against the analysed file's directory **in pure string space**, looking
+  the target up among the already-enumerated in-memory files of the audited target, and SHALL NEVER
+  read the filesystem, open a network connection, or execute any part of the script to do so.
+- **EARS-068** — WHEN a resolved include points to a sibling script that exists within the audited
+  target, THE SYSTEM SHALL import that sibling's **tainted exported variables** (computed by the same
+  T1 seed/propagate pass over the sibling) as the initial taint set for the analysed file, so a tainted
+  SOURCE in the sibling can be tracked into a SINK in the analysed file.
+- **EARS-069** — WHEN a resolved include path **escapes the audited target root** (normalises to a path
+  outside the tree, i.e. begins with `..`), THE SYSTEM SHALL raise a high-severity `dataflow-taint`
+  finding citing the include directive's `file:line` as a path-traversal include, and SHALL NEVER read
+  the out-of-tree target — refusal and disclosure in one move (the auditor never reaches outside the
+  audited content).
+- **EARS-070** — WHILE resolving includes transitively, THE SYSTEM SHALL guard against `source` cycles
+  with a visited-set so analysis always terminates, and SHALL conservatively import no taint for an
+  include that resolves inside the target but to no enumerated file (a missing or ignored sibling),
+  raising no finding for that include itself.
+
+### Cross-file SINK detection (the split-across-FILES payload)
+
+- **EARS-071** — WHEN a tainted value imported from a `source`d sibling reaches a dangerous SINK in the
+  analysed file (pipe-to-shell, `eval`/`exec`, `source` of a tainted target, or an autorun-location
+  write), THE SYSTEM SHALL raise a high-severity `dataflow-taint` BLOCK citing the **sink** `file:line`
+  in the analysed file, labelled `tier: "T1"` with OWASP + MITRE ATLAS ids, and SHALL note the
+  originating sourced file in the excerpt so a reviewer sees both ends of the flow.
+- **EARS-072** — WHEN a malicious payload is split across **separate files** such that neither file
+  alone trips a finding (a tainted SOURCE captured in `lib.sh`, the SINK in `install.sh` that
+  `source`s it), THE SYSTEM SHALL still raise a T1 `dataflow-taint` BLOCK, whereas the R9b **intra-file**
+  analysis alone raises no finding for either file in isolation — the cross-file value the intra-file
+  pass provably misses.
+
+### Cross-file precision boundary (benign multi-file scripts pass)
+
+- **EARS-073** — WHILE analysing a benign multi-file shell bundle in which a sourced helper supplies no
+  taint that reaches a dangerous SINK (e.g. an `install.sh` that `source`s a `lib.sh` of helper
+  functions and then downloads a pinned, hash-verified asset to a file), THE SYSTEM SHALL raise no T1
+  finding, holding the false-positive rate within the rule's precision budget.
+
+### Safety invariant (carried, extended to cross-file)
+
+- **EARS-074** — WHILE performing cross-file T1 dataflow analysis, THE SYSTEM SHALL operate entirely in
+  pure string space over in-memory file records and SHALL NEVER pass any part of any analysed or sourced
+  script to a shell, `eval`, `Function`, `child_process`, the filesystem, or the network (the
+  never-execute AND never-fetch/never-read invariant, extending EARS-066 across file boundaries).
+
 ## ID register
 
-Highest existing ID: **EARS-066**. Next new ID starts at EARS-067. IDs are permanent; never reuse.
+Highest existing ID: **EARS-074**. Next new ID starts at EARS-075. IDs are permanent; never reuse.

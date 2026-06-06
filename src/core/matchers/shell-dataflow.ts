@@ -125,16 +125,28 @@ export function sinkForLine(line: string, tainted: ReadonlySet<string>): boolean
   return false;
 }
 
+/** The component kinds the T1 shell analyzers apply to (script/hook). Exported for the cross-file pass. */
+export { SHELL_KINDS };
+
 /**
- * The T1 analyzer: a single forward pass over the script's lines. Seeds + propagates taint through
- * assignments and reports a finding at each SINK line a tainted variable reaches.
+ * The forward-pass result: the SINK matches found, plus the FINAL taint set after the whole file. The
+ * final taint set is what a sourced sibling "exports" to a file that includes it (R9b.1 / EARS-068).
  */
-export function shellTaintToSink(file: FileRecord): RuleMatch[] {
-  if (!SHELL_KINDS.has(file.kind)) {
-    return [];
-  }
+export interface ForwardPassResult {
+  readonly matches: RuleMatch[];
+  readonly tainted: Set<string>;
+}
+
+/**
+ * The shared T1 forward pass (R9b core, reused cross-file in R9b.1). A single forward scan over the
+ * script's lines: seed + propagate taint through assignments and report a finding at each SINK line a
+ * tainted variable reaches. `seed` provides an INITIAL taint set — empty for intra-file analysis
+ * (EARS-061), or a sourced sibling's exported taint for cross-file analysis (EARS-068). Pure string
+ * space; never an execution sink (EARS-066/074).
+ */
+export function forwardPass(file: FileRecord, seed: ReadonlySet<string> = new Set()): ForwardPassResult {
   const matches: RuleMatch[] = [];
-  const tainted = new Set<string>();
+  const tainted = new Set<string>(seed);
   const rawLines = file.content.split('\n');
   let lineNo = 0;
   for (const raw of rawLines) {
@@ -168,5 +180,17 @@ export function shellTaintToSink(file: FileRecord): RuleMatch[] {
       tainted.add(rm![1] as string);
     }
   }
-  return matches;
+  return { matches, tainted };
+}
+
+/**
+ * The T1 intra-file analyzer (R9b): a single forward pass over the script's lines, with no imported
+ * taint. Seeds + propagates taint through assignments and reports a finding at each SINK line a tainted
+ * variable reaches.
+ */
+export function shellTaintToSink(file: FileRecord): RuleMatch[] {
+  if (!SHELL_KINDS.has(file.kind)) {
+    return [];
+  }
+  return forwardPass(file).matches;
 }

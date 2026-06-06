@@ -186,6 +186,88 @@ describe('STORY: T1 dataflow catches multi-line obfuscation the T0 regex misses 
   });
 });
 
+// ── R9b.1: T1 CROSS-FILE shell dataflow/taint, proven through the real built CLI (ADR-007) ──────────
+describe('STORY: T1 cross-file dataflow catches a payload split across FILES (R9b.1)', () => {
+  // EARS-071/072 success gate (through the real CLI): a tainted SOURCE in lib.sh flows via
+  // `source ./lib.sh` into a SINK in install.sh — BLOCKs citing dataflow-taint tier T1 at the SINK
+  // file:line, noting the sourced file in the excerpt.
+  it('BLOCKs a split-across-files source-to-sink payload, citing the cross-file rule at the sink', async () => {
+    const { code, json } = await runCli(join(corpusRoot, 'malicious/mal-crossfile-split-curl'));
+    expect(json.verdict).toBe('BLOCK');
+    expect(code).toBeGreaterThan(0);
+    const hit = json.findings.find(
+      (f) =>
+        f.rule === 'dataflow-taint/shell-crossfile-source-to-sink' &&
+        f.file === 'install.sh' &&
+        f.line === 3,
+    );
+    expect(hit, 'cross-file T1 finding at install.sh:3').toBeDefined();
+    expect(hit!.tier).toBe('T1');
+    expect(hit!.severity).toBe('high');
+    expect(hit!.owasp).toBe('ASI04');
+    expect(hit!.atlas).toBe('AML.T0011');
+    // the excerpt names the sourced origin file so a reviewer sees both ends of the flow.
+    expect(hit!.excerpt).toContain('lib.sh');
+  });
+
+  // The autorun cross-file fixture is the SOLE-catcher proof: T0 cannot see a variable written to an
+  // autorun location, so the ONLY finding is the cross-file T1 rule (the intra-file/T0 passes miss it).
+  it('is the sole catcher of a cross-file autorun-write payload that T0 misses (EARS-072)', async () => {
+    const { code, json } = await runCli(join(corpusRoot, 'malicious/mal-crossfile-autorun'));
+    expect(json.verdict).toBe('BLOCK');
+    expect(code).toBeGreaterThan(0);
+    expect(json.findings).toHaveLength(1);
+    expect(json.findings[0]!.rule).toBe('dataflow-taint/shell-crossfile-source-to-sink');
+    expect(json.findings[0]!.file).toBe('install.sh');
+    expect(json.findings[0]!.line).toBe(3);
+    expect(json.findings[0]!.tier).toBe('T1');
+  });
+
+  // EARS-069 abuse: a `source` include that escapes the audited target root is REPORTED (and never
+  // followed) — path-traversal refusal + disclosure, surfaced once at the source line.
+  it('BLOCKs a path-traversal source include, citing the escape once at the source line (EARS-069)', async () => {
+    const { code, json } = await runCli(join(corpusRoot, 'malicious/mal-crossfile-include-escape'));
+    expect(json.verdict).toBe('BLOCK');
+    expect(code).toBeGreaterThan(0);
+    const escapes = json.findings.filter(
+      (f) => f.rule === 'dataflow-taint/shell-crossfile-source-to-sink' && f.line === 2,
+    );
+    expect(escapes, 'exactly one escape finding (no duplicate)').toHaveLength(1);
+    expect(escapes[0]!.excerpt).toContain('..');
+    expect(escapes[0]!.tier).toBe('T1');
+  });
+
+  // EARS-073 precision boundary: a benign multi-file bundle that sources a helper and pins a download
+  // PASSes (no taint reaches a dangerous sink across the file boundary).
+  it('PASSes a benign multi-file bundle that sources a helper + pins a download (EARS-073)', async () => {
+    const { code, json } = await runCli(join(corpusRoot, 'benign/ben-crossfile-pinned-download'));
+    expect(json.verdict).toBe('PASS');
+    expect(code).toBe(0);
+    expect(json.findings).toEqual([]);
+  });
+
+  // EARS-073: a benign helper whose captured value crosses the file boundary but only reaches echo PASSes.
+  it('PASSes a benign cross-file captured value that only reaches echo (EARS-073)', async () => {
+    const { code, json } = await runCli(join(corpusRoot, 'benign/ben-crossfile-captured-echo'));
+    expect(json.verdict).toBe('PASS');
+    expect(code).toBe(0);
+    expect(json.findings).toEqual([]);
+  });
+
+  // EARS-059: the markdown report surfaces "tier T1" + framework ids for a cross-file finding.
+  it('surfaces tier T1 and the sourced file in the markdown report for a cross-file finding', async () => {
+    const { stdout } = await exec('node', [
+      BIN,
+      join(corpusRoot, 'malicious/mal-crossfile-autorun'),
+    ]).catch((e: { stdout: string }) => ({ stdout: e.stdout }));
+    expect(stdout).toContain('BLOCK');
+    expect(stdout).toContain('dataflow-taint/shell-crossfile-source-to-sink');
+    expect(stdout).toContain('tier T1');
+    expect(stdout).toContain('install.sh:3');
+    expect(stdout).toContain('[via lib.sh]');
+  });
+});
+
 describe('STORY: hostile git acquisition never executes the audited payload (EARS-005/006)', () => {
   let work: string;
   beforeEach(async () => {
