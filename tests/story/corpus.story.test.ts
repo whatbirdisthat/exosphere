@@ -246,7 +246,7 @@ describe('STORY: .skillsentryignore self-exclusion convention (unmocked CLI)', (
 // R3 success-gate fixture (c): the self-scan — the built CLI audits THIS repo and PASSES,
 // with the rule-source + corpus excluded-and-disclosed (resolves the R1 residual).
 describe('STORY: skillsentry audits its OWN repository and PASSES (R1 residual resolved)', () => {
-  it('returns PASS with exit 0 when run on the exosphere repo root via the shipped .skillsentryignore', async () => {
+  it('returns PASS with exit 0 when run on the skillsentry repo root via the shipped .skillsentryignore', async () => {
     const { code, json } = await runCli(repoRoot);
     expect(json.verdict).toBe('PASS');
     expect(code).toBe(0);

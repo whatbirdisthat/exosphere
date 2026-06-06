@@ -1,6 +1,6 @@
-# ROADMAP — exosphere
+# ROADMAP — skillsentry
 
-> Agent-readable, tiered backlog. Source of truth for the IDEA: `doc/idea/skillsentry/brief.md`
+> Agent-readable, tiered backlog. Source of truth for the IDEA: `doc/idea/exosphere-audit/brief.md`
 > (+ `smu-seed.md`, `first-slice.md`, `handoff.md`). FOUNDRY ingests this; builder-lead tiers it.
 
 ## Tier 1 — FIRST VERTICAL SLICE (build now)
@@ -52,12 +52,12 @@
   - **Provenance is preserved in the report:** the verdict notes how many files were excluded and by which
     patterns (so an ignore file can't silently hide a finding — transparency over trust).
   - A `--no-ignore` flag to force a full scan (audit-the-auditor / CI override).
-  - The exosphere repo ships its own `.skillsentryignore` (excludes `tests/corpus/**` and the rule sources)
+  - The skillsentry repo ships its own `.skillsentryignore` (excludes `tests/corpus/**` and the rule sources)
     so `skillsentry .` on this repo returns PASS — proving the convention end-to-end.
 - **OUT-OF-SCOPE:** remote-fetched ignore trust policies; per-rule inline suppression comments (later).
 - **SUCCESS GATE:** new fixtures — a target with `.skillsentryignore` excluding a planted malicious file →
   PASS (with the exclusion noted in the report); the same target with `--no-ignore` → BLOCK. Running
-  `skillsentry .` on the exosphere repo itself → **PASS**. 100% coverage floor held.
+  `skillsentry .` on the skillsentry repo itself → **PASS**. 100% coverage floor held.
 - **SECURITY NOTE (load-bearing):** the ignore file must NOT be able to suppress a finding without the
   report disclosing that an exclusion happened — an attacker shipping a permissive `.skillsentryignore`
   must be visible, not invisible.
@@ -133,7 +133,7 @@
 - **R10 · Rename `exosphere-audit` → `skillsentry`** — ✅ COMPLETE — merged via PR #7 (merge `428b28c`, 2026-06-06).
   Product/package/CLI renamed to **`skillsentry`** (`npx skillsentry`); the self-exclusion convention is now
   **`.skillsentryignore`**; badge text "audited by skillsentry"; code, tests, active docs + specs updated.
-  Repo stays **`exosphere`** (umbrella) per the chosen scope; GitHub repo rename is a separate optional step.
+  GitHub repo also **renamed to `skillsentry`** (git remote + active doc/badge/package URLs swept; 2026-06-06).
   Historical discovery artifacts (`doc/idea/`, `docs/marketing/`, `doc/research/`, foundry plans) left as a
   point-in-time record. 241 tests / 100% coverage held. Name verified npm-free + clean in
   `docs/marketing/name-availability-report.md`. Precedes npm publish.
