@@ -403,6 +403,82 @@
   script to a shell, `eval`, `Function`, `child_process`, the filesystem, or the network (the
   never-execute AND never-fetch/never-read invariant, extending EARS-066 across file boundaries).
 
+## R9d — T3 rug-pull / version-diff (approval-lockfile drift detection)
+
+> The first **temporal** detection family. Every prior statement (EARS-001–074) is stateless — it
+> reasons about the *current* file set alone. T3 reasons about a target across **two points in time**:
+> an approval baseline (`.skillsentry.lock`) and the current working tree. The load-bearing invariants
+> are additive-only (`verdict = max(fresh scan, T3 drift)`), capability-fingerprint diffing (not raw
+> byte-hash), and R3 transparency (a lockfile can never silently suppress). T3 is **not** a `Rule` — no
+> matcher signature can take two target-level inputs — it is a temporal pass at the engine/adapter edge.
+> Specified by ADR-008. Domain: `doc/idea/r9d-rugpull/smu-seed.md`.
+
+### Approval lockfile authoring (`--approve`)
+
+- **EARS-075** — WHEN the CLI is invoked with `--approve`, THE SYSTEM SHALL run the normal fresh scan of
+  the target and SHALL write a `.skillsentry.lock` file at the target root capturing the approval
+  **capability fingerprint**: the schema version, each scanned file's sha256, the approved capability
+  SET (the fresh findings' rule + class + severity + file:line), the approval verdict, and the disclosed
+  `.skillsentryignore` exclusion provenance.
+- **EARS-076** — WHILE writing `.skillsentry.lock`, THE SYSTEM SHALL serialise it as **byte-stable**
+  deterministic JSON (sorted object keys, stable array ordering, a single trailing newline) such that
+  re-approving an identical target state produces byte-identical lock contents.
+- **EARS-077** — WHEN computing the per-file sha256 for the lockfile, THE SYSTEM SHALL use `node:crypto`
+  in the IO/adapter layer and SHALL NOT introduce any new runtime dependency, and the pure `core/*`
+  layer SHALL NOT import `node:crypto` or `node:fs` (ADR-001 layering preserved).
+- **EARS-078** — WHILE enumerating, hashing, or diffing a target, THE SYSTEM SHALL self-exclude the
+  `.skillsentry.lock` manifest from its own scan surface and from its own per-file hash set (the lock is
+  data the tool reads, never audited content and never part of its own fingerprint).
+
+### Temporal drift pass (a lockfile is present)
+
+- **EARS-079** — WHEN the CLI audits a target that has a `.skillsentry.lock` present, THE SYSTEM SHALL,
+  after producing the fresh T0/T1 scan result, run a **T3 temporal pass** that diffs the fresh
+  capability fingerprint against the lockfile and folds any resulting drift findings into the report.
+- **EARS-080** — WHILE diffing, THE SYSTEM SHALL key on the **capability SET** (not raw byte hashes), so
+  a change whose per-file sha256 differs but whose capability set is unchanged (a doc edit, version bump,
+  or reordered files) is classified as **benign drift**.
+- **EARS-081** — WHEN drift is benign (per-file content changed, capability set unchanged), THE SYSTEM
+  SHALL keep the verdict **PASS** and SHALL surface an informational note "N file(s) changed since
+  approval" — raising **no** finding for benign drift.
+- **EARS-082** — WHEN the capability set has **grown** since approval (a new sink, a broadened
+  permission, a new hook, a new bundled script, or any new fresh finding not present at approval), THE
+  SYSTEM SHALL raise a `version-drift` **escalation** finding tiered `T3`, citing the escalated finding's
+  `file:line` and the lockfile delta, carrying OWASP **ASI04** + a MITRE ATLAS technique id, with
+  severity inherited from the escalated capability.
+- **EARS-083** — WHEN a file that carried an accepted finding at approval has changed since (its sha256
+  differs from the lockfile), THE SYSTEM SHALL treat the approval of that file as invalidated and
+  re-surface it as a `version-drift` finding (an approval is only as durable as the bytes it approved).
+
+### Additive-only invariant (anti-laundering, ENFORCED IN CODE)
+
+- **EARS-084** — WHILE folding the T3 drift signal, THE SYSTEM SHALL compute the verdict as
+  `max(fresh T0/T1 verdict, T3 drift verdict)`: drift findings are only ever **added** to the finding
+  list before aggregation, so a `.skillsentry.lock` can ADD a finding but can NEVER remove one or lower a
+  verdict.
+- **EARS-085** — WHEN a target ships a permissive/laundering `.skillsentry.lock` that pre-approves a HIGH
+  finding which the fresh deterministic scan still raises, THE SYSTEM SHALL still **BLOCK** (the fresh
+  HIGH stands regardless of the lockfile) and SHALL disclose "lockfile approved N high-severity
+  finding(s)" in the report — laundering a BLOCK through a lockfile is structurally impossible.
+- **EARS-086** — WHEN no `.skillsentry.lock` is present, THE SYSTEM SHALL behave byte-identically to a
+  pre-R9d audit (the T3 pass is inert without a baseline; no drift section is emitted).
+
+### Transparency and report surface (R3 carry-over)
+
+- **EARS-087** — WHILE rendering a report for a target with a lockfile present, THE SYSTEM SHALL disclose
+  the lockfile delta in both the markdown and JSON surfaces: the "N file(s) changed since approval"
+  informational note, any `version-drift` escalation findings, and (load-bearing) the "lockfile approved
+  N high-severity finding(s)" disclosure when the lock recorded approved-HIGH findings — a lockfile can
+  never silently suppress.
+
+### Safety invariant (carried, extended to the temporal pass)
+
+- **EARS-088** — WHILE performing the T3 temporal pass, THE SYSTEM SHALL treat `.skillsentry.lock` as
+  inert DATA read in the adapter layer and SHALL NEVER pass any part of it to a shell, `eval`,
+  `Function`, `child_process`, or the network, and the drift diff itself SHALL be a pure function over
+  already-parsed in-memory records (the never-execute / never-fetch invariant, extended to the approval
+  baseline — same boundary as the R4 ruleset data and the R3 ignore file).
+
 ## ID register
 
-Highest existing ID: **EARS-074**. Next new ID starts at EARS-075. IDs are permanent; never reuse.
+Highest existing ID: **EARS-088**. Next new ID starts at EARS-089. IDs are permanent; never reuse.
