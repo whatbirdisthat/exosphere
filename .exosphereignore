@@ -13,8 +13,15 @@ tests/corpus/**
 tests/integration/**
 src/**/__tests__/**
 
-# Rule-source files: the detection patterns themselves (scanners + match helpers).
-src/core/scanners/**
+# Rule-source files: the detection patterns themselves.
+# R4 externalised the rules into declarative DATA (src/core/rules/**) plus a closed registry of
+# named structural matchers (src/core/matchers/**). These files legitimately CONTAIN the attack
+# patterns and per-rule fail-fixtures the tool detects, so they are excluded-and-disclosed exactly
+# as the former compiled-in scanners were. The ruleset is DATA, never executed (ADR-005), so
+# excluding the data files cannot hide a real finding — `--no-ignore` re-scans them and the
+# exclusion is reported in every audit.
+src/core/rules/**
+src/core/matchers/**
 
 # Specification and idea/opportunity docs that quote attack patterns as examples.
 doc/**

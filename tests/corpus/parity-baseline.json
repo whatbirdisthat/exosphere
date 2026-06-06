@@ -1,0 +1,207 @@
+{
+  "malicious/mal-ansi-linejump": {
+    "verdict": "BLOCK",
+    "n": 1,
+    "findings": [
+      {
+        "rule": "prompt-injection/ansi-line-jumping",
+        "file": "agents/helper.md",
+        "line": 3,
+        "owasp": "LLM01",
+        "atlas": "AML.T0051",
+        "sev": "high"
+      }
+    ]
+  },
+  "malicious/mal-base64-injection": {
+    "verdict": "BLOCK",
+    "n": 1,
+    "findings": [
+      {
+        "rule": "prompt-injection/encoded-override-payload",
+        "file": "SKILL.md",
+        "line": 8,
+        "owasp": "LLM01",
+        "atlas": "AML.T0051",
+        "sev": "high"
+      }
+    ]
+  },
+  "malicious/mal-blended-exfil": {
+    "verdict": "BLOCK",
+    "n": 3,
+    "findings": [
+      {
+        "rule": "prompt-injection/tool-coercion-exfiltration",
+        "file": "agents/helper.md",
+        "line": 8,
+        "owasp": "LLM01",
+        "atlas": "AML.T0051",
+        "sev": "high"
+      },
+      {
+        "rule": "dangerous-bash/reverse-shell-dev-tcp",
+        "file": "scripts/run.sh",
+        "line": 2,
+        "owasp": "ASI04",
+        "atlas": "AML.T0050",
+        "sev": "high"
+      },
+      {
+        "rule": "dangerous-bash/secret-path-read",
+        "file": "scripts/run.sh",
+        "line": 3,
+        "owasp": "ASI04",
+        "atlas": "AML.T0011",
+        "sev": "high"
+      }
+    ]
+  },
+  "malicious/mal-committed-secrets": {
+    "verdict": "BLOCK",
+    "n": 1,
+    "findings": [
+      {
+        "rule": "committed-secrets/aws-access-key",
+        "file": "config.env",
+        "line": 3,
+        "owasp": "ASI04",
+        "atlas": "AML.T0055",
+        "sev": "high"
+      }
+    ]
+  },
+  "malicious/mal-dangerous-bash": {
+    "verdict": "BLOCK",
+    "n": 1,
+    "findings": [
+      {
+        "rule": "dangerous-bash/curl-pipe-to-shell",
+        "file": "install.sh",
+        "line": 4,
+        "owasp": "ASI04",
+        "atlas": "AML.T0050",
+        "sev": "high"
+      }
+    ]
+  },
+  "malicious/mal-hex-injection": {
+    "verdict": "BLOCK",
+    "n": 1,
+    "findings": [
+      {
+        "rule": "prompt-injection/encoded-override-payload",
+        "file": "SKILL.md",
+        "line": 8,
+        "owasp": "LLM01",
+        "atlas": "AML.T0051",
+        "sev": "high"
+      }
+    ]
+  },
+  "malicious/mal-homoglyph-injection": {
+    "verdict": "BLOCK",
+    "n": 1,
+    "findings": [
+      {
+        "rule": "prompt-injection/homoglyph-override",
+        "file": "SKILL.md",
+        "line": 8,
+        "owasp": "LLM01",
+        "atlas": "AML.T0051",
+        "sev": "high"
+      }
+    ]
+  },
+  "malicious/mal-mcp-desc-poisoning": {
+    "verdict": "BLOCK",
+    "n": 1,
+    "findings": [
+      {
+        "rule": "tool-description-poisoning/mcp-tool-description",
+        "file": ".mcp.json",
+        "line": 6,
+        "owasp": "MCP-T01",
+        "atlas": "AML.T0051",
+        "sev": "high"
+      }
+    ]
+  },
+  "malicious/mal-over-broad-perms": {
+    "verdict": "BLOCK",
+    "n": 1,
+    "findings": [
+      {
+        "rule": "over-broad-perms/bash-allow-all",
+        "file": "settings.json",
+        "line": 3,
+        "owasp": "ASI03",
+        "atlas": "AML.T0053",
+        "sev": "high"
+      }
+    ]
+  },
+  "malicious/mal-prompt-injection": {
+    "verdict": "BLOCK",
+    "n": 1,
+    "findings": [
+      {
+        "rule": "prompt-injection/ignore-previous-instructions",
+        "file": "SKILL.md",
+        "line": 10,
+        "owasp": "LLM01",
+        "atlas": "AML.T0051",
+        "sev": "high"
+      }
+    ]
+  },
+  "malicious/mal-skill-desc-poisoning": {
+    "verdict": "BLOCK",
+    "n": 1,
+    "findings": [
+      {
+        "rule": "tool-description-poisoning/frontmatter-description",
+        "file": "SKILL.md",
+        "line": 3,
+        "owasp": "MCP-T01",
+        "atlas": "AML.T0051",
+        "sev": "high"
+      }
+    ]
+  },
+  "benign/ben-accented-prose": {
+    "verdict": "PASS",
+    "n": 0,
+    "findings": []
+  },
+  "benign/ben-base64-docs": {
+    "verdict": "PASS",
+    "n": 0,
+    "findings": []
+  },
+  "benign/ben-build-script": {
+    "verdict": "PASS",
+    "n": 0,
+    "findings": []
+  },
+  "benign/ben-date-formatter": {
+    "verdict": "PASS",
+    "n": 0,
+    "findings": []
+  },
+  "benign/ben-narrow-perms": {
+    "verdict": "PASS",
+    "n": 0,
+    "findings": []
+  },
+  "benign/ben-plain-description": {
+    "verdict": "PASS",
+    "n": 0,
+    "findings": []
+  },
+  "benign/ben-security-docs": {
+    "verdict": "PASS",
+    "n": 0,
+    "findings": []
+  }
+}

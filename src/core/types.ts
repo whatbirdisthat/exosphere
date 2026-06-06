@@ -55,6 +55,74 @@ export interface RuleMatch {
   readonly excerpt: string;
 }
 
+// ── R4: the externalised, declarative, contributable rule DATA shape (ADR-005) ──────────────
+//
+// A `RuleSpec` is pure, JSON-serialisable DATA — the self-describing record a contributor authors
+// without touching engine code. The compiler (`core/compile.ts`) turns a `RuleSpec` into the runtime
+// `Rule` above. LOAD-BEARING SAFETY INVARIANT (SMU §6 / ADR-001 / ADR-005, EARS-051): rule data is
+// never executed. A `line-pattern` source is only ever compiled to a *matching* `RegExp`; a `builtin`
+// name only ever selects a pre-existing vetted function from a closed registry. Nothing in a rule
+// field is ever passed to `eval`, `Function`, a dynamic `require`/`import`, or a shell.
+
+/** The closed, documented vocabulary of named built-in structural matchers (ADR-005, EARS-050). */
+export type BuiltinMatcherName =
+  | 'zero-width-unicode'
+  | 'html-comment-instruction'
+  | 'homoglyph-override'
+  | 'encoded-override-payload'
+  | 'ansi-line-jumping'
+  | 'mcp-combined-scopes'
+  | 'frontmatter-coercive-description'
+  | 'mcp-tool-coercive-description';
+
+/**
+ * The declarative matcher vocabulary (ADR-005). A closed discriminated union so rule data can express
+ * a matcher WITHOUT carrying executable logic:
+ *  - `line-pattern` — a per-line regex (pattern source string + optional flags), the declarative bulk.
+ *  - `builtin`      — selects a named structural matcher from the closed registry by name.
+ */
+export type MatcherSpec =
+  | {
+      readonly kind: 'line-pattern';
+      /** Regex SOURCE string — compiled with `new RegExp(...)`, only ever used to MATCH text. */
+      readonly pattern: string;
+      readonly flags?: string;
+      readonly appliesTo?: readonly ComponentKind[];
+    }
+  | {
+      readonly kind: 'builtin';
+      readonly name: BuiltinMatcherName;
+      readonly appliesTo?: readonly ComponentKind[];
+    };
+
+/** A labelled fixture a rule ships with: a benign (pass) or hostile (fail) input. */
+export interface RuleFixture {
+  readonly kind: ComponentKind;
+  readonly content: string;
+}
+
+/**
+ * A single rule as externalised DATA (ADR-005). Self-describing: it carries its identity, framework
+ * mapping, the matcher spec, its OWN pass/fail fixtures, and a precision budget — so a contributor
+ * lands a rule and its evidence atomically, and the precision-budget guard can enforce quality
+ * mechanically.
+ */
+export interface RuleSpec {
+  readonly id: string;
+  readonly detectionClass: DetectionClass;
+  readonly severity: Severity;
+  readonly tier: RuleTier;
+  readonly framework: FrameworkMapping;
+  readonly why: string;
+  readonly matcher: MatcherSpec;
+  /** Benign inputs this rule MUST NOT match (EARS-056). */
+  readonly passFixtures: readonly RuleFixture[];
+  /** Hostile inputs this rule MUST match (EARS-056). */
+  readonly failFixtures: readonly RuleFixture[];
+  /** Max corpus false-positive rate this rule may add (0 = none). Enforced mechanically (EARS-057). */
+  readonly precisionBudget: number;
+}
+
 /** An in-memory file as seen by the pure scan core. `kind` comes from enumeration (the SBOM). */
 export interface FileRecord {
   /** Path relative to the audited root (POSIX separators). */
@@ -129,5 +197,24 @@ export class AuditError extends Error {
     super(message);
     this.name = 'AuditError';
     this.code = code;
+  }
+}
+
+/**
+ * Raised at ruleset LOAD/COMPILE time (never mid-scan) when a `RuleSpec` is malformed: an invalid
+ * `line-pattern` regex source (EARS-052) or an unknown `builtin` matcher name (EARS-053). Typed so a
+ * bad contributor rule fails the build with a clear cause, not a raw throw during an audit.
+ */
+export type RulesetErrorCode = 'INVALID_PATTERN' | 'UNKNOWN_BUILTIN';
+
+export class RulesetError extends Error {
+  readonly code: RulesetErrorCode;
+  /** The id of the offending rule. */
+  readonly ruleId: string;
+  constructor(code: RulesetErrorCode, ruleId: string, message: string) {
+    super(message);
+    this.name = 'RulesetError';
+    this.code = code;
+    this.ruleId = ruleId;
   }
 }
