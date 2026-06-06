@@ -37,11 +37,53 @@
   FOSS/$0 — not a defended moat. Win on craft + distribution + native fit.
 
 ## Tier 2 — Backlog (after the slice ships green; not now)
-- R2 · Author self-audit `audit .` + README trust-badge (the viral distribution loop).
-- R3 · Curated/versioned community ruleset packaging (the "open ruleset" artefact).
-- R4 · Spec/quality drift checks.
-- R5 · Cross-harness support (Cursor/Codex/Gemini instruction files).
-- R6 · Hosted registry / continuous monitoring (the platform play).
-- R7 · Runtime/execution-time guard.
+## Tier 1b — NEXT SLICES (build now, in order: R3 → R2)
 
-> Tier-2 items are explicitly parked. The cycle builds **R1 only**.
+### R3 · `.exosphereignore` / self-exclusion convention
+- **STATUS:** IN_PROGRESS
+- **PRIORITY:** P0 (unblocks R2; resolves the R1 accepted residual — the tool BLOCKs its own repo)
+- **STACK:** TypeScript / Node → `handler-js` (extends the R1 codebase).
+- **OBJECTIVE:** Let an audited target declare paths the scan should exclude, so a repo that legitimately
+  contains rule patterns / security fixtures / docs can earn a clean verdict.
+- **IN-SCOPE:**
+  - Read an optional **`.exosphereignore`** file at the target root: gitignore-style globs, one per line,
+    `#` comments, blank lines ignored. Matched files are excluded from enumeration (never scanned).
+  - **Provenance is preserved in the report:** the verdict notes how many files were excluded and by which
+    patterns (so an ignore file can't silently hide a finding — transparency over trust).
+  - A `--no-ignore` flag to force a full scan (audit-the-auditor / CI override).
+  - The exosphere repo ships its own `.exosphereignore` (excludes `tests/corpus/**` and the rule sources)
+    so `exosphere-audit .` on this repo returns PASS — proving the convention end-to-end.
+- **OUT-OF-SCOPE:** remote-fetched ignore trust policies; per-rule inline suppression comments (later).
+- **SUCCESS GATE:** new fixtures — a target with `.exosphereignore` excluding a planted malicious file →
+  PASS (with the exclusion noted in the report); the same target with `--no-ignore` → BLOCK. Running
+  `exosphere-audit .` on the exosphere repo itself → **PASS**. 100% coverage floor held.
+- **SECURITY NOTE (load-bearing):** the ignore file must NOT be able to suppress a finding without the
+  report disclosing that an exclusion happened — an attacker shipping a permissive `.exosphereignore`
+  must be visible, not invisible.
+
+### R2 · Author self-audit + README trust-badge
+- **STATUS:** BLOCKED-BY R3 (build immediately after R3)
+- **PRIORITY:** P1 (the viral distribution loop — every badge advertises the tool)
+- **STACK:** TypeScript / Node → `handler-js`.
+- **OBJECTIVE:** A skill/plugin author self-audits their repo and earns a shareable trust signal.
+- **IN-SCOPE:**
+  - `exosphere-audit . --badge` → on PASS, emit a Markdown/SVG **badge snippet** (e.g.
+    `![audited by exosphere-audit](…)`) the author pastes into their README; on REVIEW/BLOCK, no badge +
+    a clear reason.
+  - A `--ci` convenience for the author's GitHub Action (non-zero exit gates the PR; respects R3 ignore).
+  - Deterministic, offline badge generation (no hosted endpoint in v1 — consistent with FOSS/no-backend).
+- **OUT-OF-SCOPE:** hosted/dynamic badge endpoint; a public registry (that's the parked platform play).
+- **SUCCESS GATE:** PASS repo → valid badge snippet emitted; BLOCK repo → no badge + reason; badge
+  output is byte-stable for a given verdict. 100% coverage floor held.
+- **DEPENDS ON:** R3 (so the author's own repo can earn a clean PASS to badge).
+
+## Tier 2 — Backlog (parked; not now)
+- R4 · Curated/versioned community ruleset packaging (the "open ruleset" artefact).
+- R5 · Spec/quality drift checks.
+- R6 · Cross-harness support (Cursor/Codex/Gemini instruction files).
+- R7 · Hosted registry / continuous monitoring (the platform play).
+- R8 · Runtime/execution-time guard.
+- R9 · **Deeper vulnerability research** — expand detection beyond the v1 four classes (see the research
+  plan to be written under `doc/research/`).
+
+> Build order now: **R3 → R2**. Tier-2 (R4–R9) stays parked.
