@@ -124,9 +124,9 @@
   precision-budget`). A rule that regresses corpus FP is reverted, not merged.
 
 ### R9b · T1 deterministic dataflow/taint detection for bundled shell scripts
-- **STATUS:** ⏳ AWAITING MERGE — branch `slice/r9b-dataflow` (base `main`). 300 tests / 100% coverage
-  (stmts/branches/funcs/lines). Corpus 100% accuracy / 0% FP across 23 fixtures. Self-scan PASS. Zero new
-  runtime deps. DELIVERY pending PR approval (pure library — line ends at DELIVERY).
+- **STATUS:** ✅ COMPLETE — merged via PR #9 (merge `79cd73e`, 2026-06-06). 300 tests / 100% coverage.
+  T1 intra-file shell taint/dataflow; catches multi-line obfuscation T0 misses. Zero new deps (ADR-006).
+  DELIVERY_COMPLETE.
 - **PRIORITY:** P1 (closes the bundled-script dataflow gap named in `deeper-detection-plan.md` §1).
 - **OBJECTIVE:** Add the **T1 tier** — deterministic, offline, never-executing **intra-file taint/dataflow
   analysis** for bundled shell scripts (`install.sh`, hooks, bundled `*.sh`/`*.bash`). Track tainted
@@ -144,10 +144,9 @@
   precision line. EARS-058–066.
 
 ### R9b.1 · T1 CROSS-FILE shell dataflow/taint within the audited target
-- **STATUS:** ⏳ AWAITING MERGE — branch `slice/r9b1-crossfile-dataflow` (base `main`). 349 tests / 100%
-  coverage (stmts/branches/funcs/lines). Corpus 100% accuracy / 0% FP across 28 fixtures. Self-scan
-  `skillsentry .` PASS. Zero new runtime deps. DELIVERY pending PR approval (pure library — line ends at
-  DELIVERY).
+- **STATUS:** ✅ COMPLETE — merged via PR #11 (merge `e4375fd`, 2026-06-06). 349 tests / 100% coverage.
+  Cross-file `source` taint within the target; path-traversal-safe; never-executes/never-fetches. Zero
+  new deps (ADR-007). DELIVERY_COMPLETE.
 - **PRIORITY:** P1 (closes ADR-006 residual #1 — cross-file `source` taint was OUT of R9b's intra-file scope).
 - **OBJECTIVE:** Extend the R9b T1 analyzer to be **cross-file WITHIN the audited target**: when a
   bundled shell script `source`s/`. `-includes a sibling shipped in the same target, resolve that include
