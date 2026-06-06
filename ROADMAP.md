@@ -82,7 +82,7 @@
   output is byte-stable for a given verdict. 100% coverage floor held.
 - **DEPENDS ON:** R3 (so the author's own repo can earn a clean PASS to badge).
 
-## Tier 1c — NEXT SLICES (build now, in order: R9a → R4)
+## Tier 1c — DETECTION + RULESET (R9a, R4 — ✅ complete)
 
 > **Binding decisions** (from the research-plan sign-off, `doc/research/deeper-detection-plan.md` §7):
 > (1) **Deterministic default** — every default is 100% deterministic + offline; the architecture leaves
@@ -91,14 +91,9 @@
 > (R4) comes **after** R9a. (4) npm publish deferred. (5) The **rename is committed** (R10 below).
 
 ### R9a · Detection breadth — framework mapping + encoding-evasion + tool-description poisoning
-- **STATUS:** ⏳ AWAITING MERGE — on branch `slice/r9a-detection-breadth` (off main `c5916f5`). 188 tests /
-  100% coverage (stmts/branches/funcs/lines). Corpus 100% accuracy / 0% FP across 18 fixtures (12
-  malicious + 9 benign incl. 3 new near-misses). Zero new runtime deps (ADR-004 — Buffer/regex only).
-  Engine kept tier-pluggable (ADR-004: `tier` union + `framework` metadata on `Rule`; opt-in T2 added
-  later by widening the union + edge-gating, no rule/engine rework). Every rule (5 classes) carries
-  OWASP + MITRE ATLAS ids, surfaced per-finding in md + JSON. Self-scan `exosphere-audit .` → PASS
-  (113 files excluded-and-disclosed; no `.exosphereignore` change needed — new sources/fixtures fall
-  under existing globs). Security-gate PASS. Awaiting human review + merge (pr-approval governance).
+- **STATUS:** ✅ COMPLETE — merged via PR #4 (merge `b931538`, 2026-06-06). 188 tests / 100% coverage.
+  5 detection classes, each rule tagged OWASP + MITRE ATLAS (surfaced in md + JSON). Encoding-evasion +
+  tool-description-poisoning added. Engine tier-pluggable (ADR-004). Zero new runtime deps. DELIVERY_COMPLETE.
 - **PRIORITY:** P0
 - **STACK:** TypeScript / Node → `handler-js`. **Tier T0 only** (deterministic/offline).
 - **OBJECTIVE:** Widen detection with three additions, each rule tagged with its **OWASP + MITRE ATLAS**
@@ -118,20 +113,11 @@
   IDs; benign near-misses→PASS); existing corpus still 100%/≤10%-FP; 100% coverage floor held.
 
 ### R4 · Externalise the community ruleset
-- **STATUS:** ⏳ AWAITING MERGE — on branch `slice/r4-external-ruleset`, **stacked on `fix/ci-build-order`**
-  (PR base = `fix/ci-build-order`; auto-retargets to main when PR #5 merges). 241 tests / 100% coverage
-  (stmts/branches/funcs/lines). Rules externalised into declarative DATA (`src/core/rules/**` =
-  `RuleSpec[]`) + a closed registry of named structural matchers (`src/core/matchers/builtins.ts`),
-  compiled by `src/core/compile.ts`. The ruleset is DATA, never code — no eval/Function/dynamic-require
-  of rule content (ADR-005, EARS-051). **Parity proven:** all 18 corpus fixtures yield identical
-  verdicts + findings (file:line, rule, severity, owasp, atlas) vs the compiled-in baseline
-  (`tests/corpus/parity-baseline.json`). Corpus 100% accuracy / 0% FP. **Precision-budget guard**
-  enforced mechanically (every rule's own pass/fail fixtures + per-rule corpus-FP ≤ budget) with a
-  deliberately-loose-rule catch proving the guard bites. Schema versioned (`RULESET_SCHEMA_VERSION` +
-  `RULESET_VERSION`); contribution workflow in `doc/RULESET.md`. Zero new runtime deps (ADR-005). Self-scan
-  `exosphere-audit .` → PASS (`.exosphereignore` updated: `src/core/scanners/**` → `src/core/rules/**` +
-  `src/core/matchers/**`, excluded-and-disclosed). Security-gate (self-audit + secret/dep sweep) PASS.
-  Awaiting human review + merge (pr-approval governance).
+- **STATUS:** ✅ COMPLETE — merged via PR #6 (merge `0e383b1`, 2026-06-06). 241 tests / 100% coverage.
+  Rules externalised into declarative DATA (`src/core/rules/**`) compiled by `src/core/compile.ts`; pure
+  data, never executed (ADR-005). Parity proven vs the compiled-in baseline; precision-budget guard
+  enforced; schema versioned; contribution workflow in `doc/RULESET.md`. Zero new runtime deps.
+  DELIVERY_COMPLETE. Residual (future slice): on-disk contributor ruleset loader.
 - **PRIORITY:** P1 (turns "my tool" into "the ecosystem's ruleset" — reach compounding)
 - **OBJECTIVE:** Move rules out of compiled code into a **versioned, contributable ruleset**; each rule a
   self-describing record (`id · owasp/atlas mapping · severity · rationale · tier · pass/fail fixtures ·
@@ -149,4 +135,4 @@
   brand/TM/GitHub in `docs/marketing/name-availability-report.md`); final name confirmed at rename time.
   Do BEFORE npm publish. A mechanical rename slice (package.json, bin, badge text, docs, repo refs).
 
-> Build order now: **R9a → R4**. npm publish + R10 rename precede public launch; Tier-2 stays parked.
+> Next: **R10 rename** (in progress). npm publish precedes public launch; Tier-2 (R5–R9b–e) stays parked.
