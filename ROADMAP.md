@@ -180,7 +180,9 @@
 > capability no incumbent one-shot scanner has). R7 (hosted platform) is explicitly NOT pursued now.
 
 ### R9d · T3 rug-pull / version-diff — approval-lockfile drift detection
-- **STATUS:** 🎯 ACTIVE NEXT SLICE (design agreed 2026-06-07; awaiting EARS → build).
+- **STATUS:** 🎯 ACTIVE NEXT SLICE — design agreed + pressure-tested to knowledge-parity (2026-06-07).
+  **Build-ready IDEA package: `doc/idea/r9d-rugpull/`** (brief · smu-seed · first-slice · handoff;
+  discovery exit gate ✅). Awaiting FOUNDRY EARS → build.
 - **PRIORITY:** P0 (the differentiator + the npm-publish gate).
 - **STACK:** TypeScript / Node → `handler-js`. **New tier T3** (temporal); deterministic/offline.
 - **OBJECTIVE:** Detect the **rug-pull** — a skill/plugin that was clean when a user approved it and
@@ -190,23 +192,28 @@
   the R2 badge) and a recurring CI ritual one-shot scanners structurally cannot offer.
 - **BASELINE MODEL (decided — approval lockfile, NOT git-ref diffing):**
   - `skillsentry <target> --approve` writes a deterministic, byte-stable **`.skillsentry.lock`**:
-    schema version · per-file content hash (**sha256 via `node:crypto` — no new dep**) · the
-    **detection fingerprint** (findings + verdict at approval, i.e. what was knowingly accepted) ·
-    the **capability surface** (declared perms / allow-lists, MCP scope combos, hooks, bundled-script
-    inventory) · disclosed `.skillsentryignore` exclusions (R3 provenance carried over).
-  - A subsequent `skillsentry <target>` with a lockfile present runs the **T3 diff** and classifies
-    mutations: **benign drift** (docs / version bump / no capability change) → noted, **PASS** (the FP
-    line that must hold); **capability escalation** (new `curl|sh`, broadened perms, a script that
-    gained a sink, a new hook) → the rug-pull signal → **REVIEW/BLOCK**, `tier:'T3'`, OWASP **ASI04** +
-    MITRE ATLAS; **approval invalidation** (a previously-accepted file's hash changed) → re-surface.
-- **SECURITY NOTE (load-bearing — mirrors R3's ignore-file rule):** an attacker could ship a permissive
-  `.skillsentry.lock` that "pre-approves" malicious state. A lockfile that approves HIGH findings is
-  itself **flagged and disclosed** — you **cannot launder a BLOCK through a committed lockfile** without
-  the report saying so. Transparency over trust, by construction.
-- **ARCHITECTURE:** widen `RuleTier` `'T0'|'T1'` → add **`'T3'`** (T2 semantic stays deliberately
-  unbuilt — note in an ADR that T3 ships before T2 by design, since T3 holds the deterministic/offline
-  invariant and T2 would break it). New detection class `version-drift`; new closed-registry builtin
-  `lockfile-drift`. **Zero new runtime deps** (sha256 + structural diff only); never-execute / offline.
+    schema version · per-file content hash (**sha256 via `node:crypto` — no new dep**) · the **capability
+    fingerprint** (findings + verdict at approval + declared perms / allow-lists / MCP scope combos /
+    hooks / bundled-script inventory) · disclosed `.skillsentryignore` exclusions (R3 carry-over).
+  - **Diff basis = capability fingerprint, NOT raw byte-hash** (decided): T3 re-scans fresh and diffs the
+    **capability SET**. **Benign drift** (file hash changed, capability set unchanged — doc edit, version
+    bump, reorder) → **PASS** + an informational "changed since approval" note (the FP line that must
+    hold). **Capability escalation** (set GREW — new `curl|sh`, broadened perms, a script that gained a
+    sink, a new hook) → rug-pull signal → **REVIEW/BLOCK**, `tier:'T3'`, OWASP **ASI04** + MITRE ATLAS,
+    citing the escalated file:line + lockfile delta. **Approval invalidation** (a previously-accepted
+    file changed) → re-surface. Per-file hashes feed only the note, never a BLOCK on their own.
+- **SECURITY — ADDITIVE-ONLY invariant (load-bearing; decided):** `verdict = max(fresh T0/T1 scan, T3
+  drift signal)`. The lockfile can only **ADD** findings, **never subtract** — the fresh deterministic
+  scan always runs and sets the floor, so a HIGH finding BLOCKs regardless of any lockfile. **Laundering
+  a BLOCK through a permissive `.skillsentry.lock` is therefore structurally impossible**, and a lockfile
+  that recorded approved-HIGH findings is itself flagged-and-disclosed (mirrors R3's ignore-file rule).
+  Cryptographic signing is **deferred to a later slice** — additive-only already defeats laundering.
+- **ARCHITECTURE:** T3 is **NOT a `Rule`** — every matcher (`detect`/`detectCrossFile`) only sees current
+  state; drift needs `(freshScan, lockfile)`, so T3 is a new **temporal pass** wired at the engine/adapter
+  edge (lockfile read in IO/adapter per ADR-001; diff pure in core). Widen `RuleTier` `'T0'|'T1'` → add
+  **`'T3'`** (T2 semantic stays deliberately unbuilt — ADR-008 notes T3 ships before T2 by design, since
+  T3 holds the deterministic/offline invariant and T2 would break it). New detection class
+  `version-drift`; new closed-registry builtin `lockfile-drift`. **Zero new runtime deps**; never-execute.
 - **OUT-OF-SCOPE:** hosted/remote baseline trust policies; git-ref `--since` diffing (rejected in favour
   of the offline lockfile); signing the lockfile (cryptographic provenance is a later slice); the T2
   semantic tier.
