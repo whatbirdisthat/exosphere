@@ -40,7 +40,9 @@
 ## Tier 1b — NEXT SLICES (build now, in order: R3 → R2)
 
 ### R3 · `.exosphereignore` / self-exclusion convention
-- **STATUS:** IN_PROGRESS
+- **STATUS:** AWAITING MERGE — branch `slice/r3-exosphereignore` (pr-approval; → COMPLETE on human merge).
+  128 tests / 100% coverage (stmts/branches/funcs/lines). Zero new runtime deps (ADR-002). Self-scan
+  `exosphere-audit .` → PASS with 90 files excluded-and-disclosed (R1 residual resolved). Security-gate PASS.
 - **PRIORITY:** P0 (unblocks R2; resolves the R1 accepted residual — the tool BLOCKs its own repo)
 - **STACK:** TypeScript / Node → `handler-js` (extends the R1 codebase).
 - **OBJECTIVE:** Let an audited target declare paths the scan should exclude, so a repo that legitimately

@@ -58,9 +58,22 @@ export interface Finding {
   readonly why: string;
 }
 
+/**
+ * Disclosure of what `.exosphereignore` removed from the scan surface (R3).
+ * Load-bearing transparency invariant: an exclusion can never silently hide a finding,
+ * so every excluded file is accounted for here and surfaced in both report formats.
+ */
+export interface ExclusionSummary {
+  /** Total number of files removed from the scan surface by the ignore file. */
+  readonly excludedCount: number;
+  /** Per-pattern provenance: which pattern excluded how many files (only patterns that hit). */
+  readonly patterns: readonly { readonly pattern: string; readonly count: number }[];
+}
+
 export interface AuditReport {
   readonly verdict: Verdict;
   readonly findings: readonly Finding[];
+  readonly exclusions: ExclusionSummary;
 }
 
 // ── Typed errors (never throw raw strings) ──────────────────────────────────

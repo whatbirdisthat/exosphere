@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { renderMarkdown, renderJson } from '../report.js';
-import type { AuditReport, Finding } from '../types.js';
+import type { AuditReport, ExclusionSummary, Finding } from '../types.js';
 
 const finding: Finding = {
   rule: 'dangerous-bash/curl-pipe-sh',
@@ -12,8 +12,9 @@ const finding: Finding = {
   why: 'pipes a remote script straight into a shell',
 };
 
-const blockReport: AuditReport = { verdict: 'BLOCK', findings: [finding] };
-const passReport: AuditReport = { verdict: 'PASS', findings: [] };
+const noExclusions: ExclusionSummary = { excludedCount: 0, patterns: [] };
+const blockReport: AuditReport = { verdict: 'BLOCK', findings: [finding], exclusions: noExclusions };
+const passReport: AuditReport = { verdict: 'PASS', findings: [], exclusions: noExclusions };
 
 describe('report.renderMarkdown', () => {
   // @EARS-021 — markdown cites file, line, rule, why
@@ -29,6 +30,25 @@ describe('report.renderMarkdown', () => {
     const md = renderMarkdown(passReport, '.');
     expect(md).toContain('PASS');
     expect(md.toLowerCase()).toContain('no findings');
+  });
+
+  // @EARS-029 — the transparency invariant is disclosed in markdown
+  it('discloses excluded-file count and per-pattern counts in markdown when files were excluded', () => {
+    const report: AuditReport = {
+      verdict: 'PASS',
+      findings: [],
+      exclusions: { excludedCount: 3, patterns: [{ pattern: 'tests/corpus/**', count: 3 }] },
+    };
+    const md = renderMarkdown(report, '.');
+    expect(md.toLowerCase()).toContain('excluded');
+    expect(md).toContain('3');
+    expect(md).toContain('tests/corpus/**');
+  });
+
+  // @EARS-030 — no exclusions => no exclusion section noise
+  it('omits the exclusion section in markdown when nothing was excluded', () => {
+    const md = renderMarkdown(passReport, '.');
+    expect(md.toLowerCase()).not.toContain('excluded by .exosphereignore');
   });
 });
 
@@ -50,5 +70,22 @@ describe('report.renderJson', () => {
     const parsed = JSON.parse(renderJson(passReport, '.')) as { verdict: string; findings: unknown[] };
     expect(parsed.verdict).toBe('PASS');
     expect(parsed.findings).toEqual([]);
+  });
+
+  // @EARS-029 / @EARS-030 — JSON always carries the exclusion summary (machine-readable transparency)
+  it('always includes the exclusions summary in JSON', () => {
+    const report: AuditReport = {
+      verdict: 'PASS',
+      findings: [],
+      exclusions: { excludedCount: 2, patterns: [{ pattern: '*.env', count: 2 }] },
+    };
+    const parsed = JSON.parse(renderJson(report, '.')) as { exclusions: ExclusionSummary };
+    expect(parsed.exclusions.excludedCount).toBe(2);
+    expect(parsed.exclusions.patterns).toEqual([{ pattern: '*.env', count: 2 }]);
+  });
+
+  it('includes a zero exclusions summary in JSON when nothing was excluded', () => {
+    const parsed = JSON.parse(renderJson(passReport, '.')) as { exclusions: ExclusionSummary };
+    expect(parsed.exclusions).toEqual({ excludedCount: 0, patterns: [] });
   });
 });

