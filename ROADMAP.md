@@ -64,7 +64,12 @@
   must be visible, not invisible.
 
 ### R2 · Author self-audit + README trust-badge
-- **STATUS:** BLOCKED-BY R3 (build immediately after R3)
+- **STATUS:** AWAITING MERGE — branch `slice/r2-author-badge`, **stacked on `slice/r3-exosphereignore`**
+  (pr-approval; → COMPLETE on human merge). 151 tests / 100% coverage (stmts/branches/funcs/lines).
+  Zero new runtime deps (ADR-003 — hand-generated static SVG). `--badge` emits a deterministic,
+  offline, byte-stable trust snippet (md + raw SVG) on PASS; no badge + reason on REVIEW/BLOCK.
+  `--ci` gates on BLOCK and respects `.exosphereignore` (`--no-ignore` overrides). Transparency
+  carry-over proven: a badge earned via exclusions still discloses them. Security-gate PASS.
 - **PRIORITY:** P1 (the viral distribution loop — every badge advertises the tool)
 - **STACK:** TypeScript / Node → `handler-js`.
 - **OBJECTIVE:** A skill/plugin author self-audits their repo and earns a shareable trust signal.

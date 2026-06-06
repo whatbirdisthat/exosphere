@@ -135,6 +135,48 @@
   `.exosphereignore` file entirely and scan the full tree, so an audit-the-auditor / CI run cannot be
   weakened by a target-supplied ignore file.
 
+## R2 — author self-audit + README trust-badge
+
+> Source: ROADMAP R2; ADR-003 (embedded in `doc/exosphere-audit-r2_PLAN.md`). The skill/plugin author
+> self-audits their repo and, on a PASS verdict, earns a deterministic, OFFLINE, shareable trust badge.
+> Load-bearing invariant (carried over from R3): a PASS earned via `.exosphereignore` exclusions still
+> discloses those exclusions — a badge can never launder a hidden exclusion. Badge text is fixed:
+> "audited by exosphere-audit". Actors (SMU §2): skill/plugin author (secondary), CI/automation (system).
+
+### Badge emission
+
+- **EARS-032** — WHEN the CLI is invoked with `--badge` and the resulting verdict is **PASS**, THE
+  SYSTEM SHALL emit a trust badge consisting of BOTH a Markdown snippet (whose alt text is
+  "audited by exosphere-audit" and whose image source is an inline, self-contained `data:image/svg+xml`
+  data-URI) AND the raw SVG source, in addition to the normal report.
+- **EARS-033** — WHEN the CLI is invoked with `--badge` and the resulting verdict is **REVIEW** or
+  **BLOCK**, THE SYSTEM SHALL emit NO badge and SHALL instead emit a single clear one-line reason
+  naming the verdict, while still emitting the normal report and preserving the verdict's exit code.
+- **EARS-034** — WHEN the CLI is invoked WITHOUT `--badge`, THE SYSTEM SHALL emit neither a badge nor a
+  no-badge reason line (badge output is opt-in).
+
+### Determinism (byte-stability)
+
+- **EARS-035** — WHILE generating a PASS badge, THE SYSTEM SHALL produce byte-identical Markdown and
+  SVG output for the same verdict across repeated runs, deriving the badge solely from the verdict (no
+  timestamp, randomness, or environment-dependent content), so the snippet the author pastes is stable.
+
+### Transparency carry-over (load-bearing)
+
+- **EARS-036** — WHEN the verdict is PASS **and** one or more files were excluded by `.exosphereignore`,
+  THE SYSTEM SHALL still disclose the exclusion summary (count + per-pattern provenance, per EARS-029)
+  in the report alongside the emitted badge, so a badge can never launder a hidden exclusion.
+
+### CI convenience flag
+
+- **EARS-037** — WHEN the CLI is invoked with `--ci`, THE SYSTEM SHALL exit non-zero if and only if the
+  verdict is BLOCK (preserving the EARS-022 exit-code contract), so an author's GitHub Action gates a
+  pull request on a BLOCK verdict.
+- **EARS-038** — WHEN the CLI is invoked with `--ci`, THE SYSTEM SHALL honour any `.exosphereignore` at
+  the target root by default (the same enumeration path as a normal audit); and WHEN `--no-ignore` is
+  also supplied, THE SYSTEM SHALL ignore the `.exosphereignore` and scan the full tree, so a CI run
+  cannot be silently weakened by a target-supplied ignore file.
+
 ## ID register
 
-Highest existing ID: **EARS-031**. Next new ID starts at EARS-032. IDs are permanent; never reuse.
+Highest existing ID: **EARS-038**. Next new ID starts at EARS-039. IDs are permanent; never reuse.

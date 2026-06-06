@@ -364,3 +364,104 @@ Feature: exosphere-audit static supply-chain audit
     Given a target whose .exosphereignore excludes a planted malicious file
     When the auditor audits the target without --no-ignore
     Then the planted file is excluded and the verdict is PASS
+
+  # ── R2: badge emission ────────────────────────────────────────────────────
+
+  @EARS-032
+  Scenario: A PASS repo with --badge emits a markdown snippet and raw SVG (happy)
+    Given a benign target that audits to PASS
+    When the author audits it with --badge
+    Then a Markdown badge snippet with alt text "audited by exosphere-audit" is emitted
+    And the raw SVG source is emitted
+    And the markdown image source is an inline data:image/svg+xml data-URI
+
+  @EARS-033
+  Scenario: A BLOCK repo with --badge emits no badge plus a reason (unhappy)
+    Given a malicious target that audits to BLOCK
+    When the author audits it with --badge
+    Then no badge is emitted
+    And a one-line reason naming the BLOCK verdict is emitted
+    And the audit still exits non-zero
+
+  @EARS-033
+  Scenario: A REVIEW repo with --badge emits no badge plus a reason (unhappy)
+    Given a target whose worst finding is medium so it audits to REVIEW
+    When the author audits it with --badge
+    Then no badge is emitted
+    And a one-line reason naming the REVIEW verdict is emitted
+
+  @EARS-034
+  Scenario: Without --badge no badge or reason line is emitted (abuse/noise-control)
+    Given a benign target that audits to PASS
+    When the author audits it without --badge
+    Then neither a badge nor a no-badge reason line is emitted
+
+  # ── R2: determinism (byte-stability) ──────────────────────────────────────
+
+  @EARS-035
+  Scenario: The PASS badge is byte-identical across two runs (happy)
+    Given a benign target that audits to PASS
+    When the author audits it with --badge twice
+    Then the emitted badge bytes are identical between the two runs
+
+  @EARS-035
+  Scenario: Two different PASS repos earn the identical PASS badge (abuse/determinism)
+    Given two different benign targets that both audit to PASS
+    When each is audited with --badge
+    Then both emit the byte-identical PASS badge, because the badge derives only from the verdict
+
+  @EARS-035
+  Scenario: The badge contains no timestamp or random content (unhappy/determinism)
+    Given a PASS badge is generated
+    When its SVG source is inspected
+    Then it contains no timestamp, nonce, or environment-dependent text
+
+  # ── R2: transparency carry-over (load-bearing) ────────────────────────────
+
+  @EARS-036
+  Scenario: A badge earned via an ignore exclusion still discloses the exclusion (abuse)
+    Given a target whose .exosphereignore excludes a planted malicious file so it audits to PASS
+    When the author audits it with --badge
+    Then a badge is emitted
+    And the report still discloses the excluded-file count and the excluding pattern
+
+  @EARS-036
+  Scenario: A malicious permissive ignore cannot launder a hidden finding under a badge (abuse)
+    Given an attacker ships a .exosphereignore that hides a malicious file to force a PASS
+    When the repo is audited with --badge
+    Then the badge is accompanied by the exclusion disclosure exposing what was hidden
+    And the same target under --no-ignore emits no badge and BLOCKs
+
+  @EARS-036
+  Scenario: A PASS with no exclusions reports zero excluded alongside its badge (unhappy)
+    Given a benign target with no .exosphereignore that audits to PASS
+    When the author audits it with --badge
+    Then a badge is emitted
+    And the report discloses an excluded-file count of zero
+
+  # ── R2: --ci convenience flag ─────────────────────────────────────────────
+
+  @EARS-037
+  Scenario: --ci exits non-zero on a BLOCK so a GitHub Action gates the PR (happy)
+    Given a malicious target that audits to BLOCK
+    When it is audited with --ci
+    Then the process exits non-zero
+
+  @EARS-037
+  Scenario: --ci exits zero on a PASS so a clean PR is not blocked (unhappy)
+    Given a benign target that audits to PASS
+    When it is audited with --ci
+    Then the process exits zero
+
+  @EARS-038
+  Scenario: --ci honours the target's .exosphereignore by default (abuse)
+    Given a target whose .exosphereignore excludes a planted malicious file
+    When it is audited with --ci
+    Then the planted file is excluded and the process exits zero
+    And the exclusion is disclosed in the report
+
+  @EARS-038
+  Scenario: --ci with --no-ignore re-surfaces the hidden finding and gates (abuse)
+    Given a target whose permissive .exosphereignore would hide a malicious file
+    When it is audited with --ci --no-ignore
+    Then the planted file is scanned and the process exits non-zero
