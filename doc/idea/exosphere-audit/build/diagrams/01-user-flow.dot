@@ -1,0 +1,36 @@
+// First-slice user-flow — portrait TB, fits the 4x9 charting matrix (<=4 across).
+digraph user_flow {
+  rankdir=TB;
+  bgcolor="transparent";
+  node [shape=box, style="rounded,filled", fontname="DejaVu Sans", fontsize=12,
+        color="#0f3460", fillcolor="#eef2f8", fontcolor="#1a1a2e",
+        margin="0.18,0.10", penwidth=1.2];
+  edge [color="#5a6b8c", fontname="DejaVu Sans", fontsize=10, penwidth=1.1];
+
+  start  [label="Dev finds a third-party\nskill / plugin", fillcolor="#dfe7f2"];
+  run    [label="npx exosphere-audit\n<git-url | local-dir>", shape=box, fillcolor="#d7e9d7", color="#2f6b2f"];
+  itype  [label="Input type?", shape=diamond, fillcolor="#fff3d6", color="#a07b1f"];
+  fetch  [label="Shallow read-only clone -> temp\nNO hooks / NO build executed", fillcolor="#fde7e7", color="#9b3b3b"];
+  local  [label="Read in place\n(read-only)"];
+  enum   [label="Enumerate skills / agents /\nplugin.json / settings.json /\nhooks / scripts / MCP"];
+  scan   [label="Scan 4 classes\n(curated low-FP ruleset):\ndangerous-bash | prompt-injection\nover-broad-perms | committed-secrets",
+          fillcolor="#e8e2f4", color="#5a3f86"];
+  sev    [label="Highest severity?", shape=diamond, fillcolor="#fff3d6", color="#a07b1f"];
+  pass   [label="PASS  (exit 0)", fillcolor="#d7e9d7", color="#2f6b2f", fontcolor="#1f4d1f"];
+  review [label="REVIEW  (findings +\nfile:line + why)", fillcolor="#fff3d6", color="#a07b1f"];
+  block  [label="BLOCK  (exit != 0)\nsafe to wire into CI", fillcolor="#fde7e7", color="#9b3b3b", fontcolor="#7a2a2a"];
+  report [label="markdown + JSON report", shape=box, fillcolor="#dfe7f2"];
+
+  start -> run -> itype;
+  itype -> fetch [label="git url"];
+  itype -> local [label="local dir"];
+  fetch -> enum;
+  local -> enum;
+  enum -> scan -> sev;
+  sev -> pass   [label="none"];
+  sev -> review [label="low-med"];
+  sev -> block  [label="high"];
+  pass -> report;
+  review -> report;
+  block -> report;
+}
