@@ -87,11 +87,15 @@ corpus false-positive rate is reverted, not merged. This is the open artefact th
 4. **R9d** — T3 rug-pull / version-diff.
 5. **R9e** — opt-in T2 semantic tier.
 
-## 7 · Open questions (for the product owner)
+## 7 · Open questions — RESOLVED (product-owner sign-off, 2026-06-06)
 
-1. **Semantic tier (T2):** include it at all, given it breaks offline/deterministic — or stay 100%
-   deterministic forever (a legitimate, defensible posture)?
-2. **Externalise the ruleset (R4) before or after** a couple more built-in classes ship?
-3. **Framework mapping:** OWASP-only (lighter), or OWASP **+ MITRE ATLAS** (more rigorous, more upkeep)?
+1. **Semantic tier (T2):** ✅ **Deterministic default; architect for an opt-in T2 later.** Every default
+   stays 100% deterministic + offline; the rule/scanner interface must leave room to add an opt-in
+   semantic tier later **without rework** — but T2 is not built now.
+2. **Externalise the ruleset (R4):** ✅ **After R9a.** Ship more built-in detection first (R9a), then
+   externalise (R4).
+3. **Framework mapping:** ✅ **OWASP (ASI/MCP/LLM) + MITRE ATLAS** technique IDs per rule, from the start.
 
-> When these three are answered, R9a is immediately actionable as the next FOUNDRY slice after R2 merges.
+> All three resolved → **R9a is the active next slice** (deterministic T0; OWASP+ATLAS-tagged rules;
+> framework mapping + encoding-evasion + tool-description poisoning; engine kept tier-pluggable for a
+> future opt-in T2). See ROADMAP R9a.

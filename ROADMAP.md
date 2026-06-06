@@ -82,13 +82,51 @@
   output is byte-stable for a given verdict. 100% coverage floor held.
 - **DEPENDS ON:** R3 (so the author's own repo can earn a clean PASS to badge).
 
+## Tier 1c — NEXT SLICES (build now, in order: R9a → R4)
+
+> **Binding decisions** (from the research-plan sign-off, `doc/research/deeper-detection-plan.md` §7):
+> (1) **Deterministic default** — every default is 100% deterministic + offline; the architecture leaves
+> room for an **opt-in semantic tier (T2) later**, but T2 is NOT built now. (2) **Framework mapping =
+> OWASP (ASI/MCP/LLM) + MITRE ATLAS** technique IDs per rule, from the start. (3) Ruleset externalisation
+> (R4) comes **after** R9a. (4) npm publish deferred. (5) The **rename is committed** (R10 below).
+
+### R9a · Detection breadth — framework mapping + encoding-evasion + tool-description poisoning
+- **STATUS:** IN_PROGRESS (next FOUNDRY slice; extends R1–R3 codebase)
+- **PRIORITY:** P0
+- **STACK:** TypeScript / Node → `handler-js`. **Tier T0 only** (deterministic/offline).
+- **OBJECTIVE:** Widen detection with three additions, each rule tagged with its **OWASP + MITRE ATLAS**
+  IDs, holding the never-execute / low-FP / transparency invariants and 100% coverage.
+- **IN-SCOPE:**
+  1. **Framework mapping** — every existing + new rule carries `owasp:` and `atlas:` IDs; surfaced in the
+     report (md + JSON) per finding. Refactor the rule record to hold this metadata.
+  2. **Encoding/obfuscation evasion** (strengthens `prompt-injection`) — homoglyphs, base64/hex-encoded
+     instructions, ANSI-escape "line jumping" (deepen the existing zero-width-unicode handling).
+  3. **Tool/skill-description poisoning** (new class) — malicious instructions hidden in tool/skill
+     **descriptions** the model reads but the user doesn't (MCP tool descriptions, skill frontmatter).
+- **ARCHITECTURE CONSTRAINT (load-bearing):** keep the detection engine **tier-pluggable** — the rule/
+  scanner interface must be shaped so an **opt-in T2 semantic tier** can be added later without rework,
+  while T0 stays the deterministic default. No runtime LLM dependency introduced.
+- **OUT-OF-SCOPE:** the T2 semantic tier itself; AST/dataflow (T1, later); rug-pull/version-diff.
+- **SUCCESS GATE:** new corpus fixtures per addition (malicious→BLOCK with correct file:line+rule+framework
+  IDs; benign near-misses→PASS); existing corpus still 100%/≤10%-FP; 100% coverage floor held.
+
+### R4 · Externalise the community ruleset
+- **STATUS:** BLOCKED-BY R9a
+- **PRIORITY:** P1 (turns "my tool" into "the ecosystem's ruleset" — reach compounding)
+- **OBJECTIVE:** Move rules out of compiled code into a **versioned, contributable ruleset**; each rule a
+  self-describing record (`id · owasp/atlas mapping · severity · rationale · tier · pass/fail fixtures ·
+  precision-budget`). A rule that regresses corpus FP is reverted, not merged.
+
 ## Tier 2 — Backlog (parked; not now)
-- R4 · Curated/versioned community ruleset packaging (the "open ruleset" artefact).
 - R5 · Spec/quality drift checks.
 - R6 · Cross-harness support (Cursor/Codex/Gemini instruction files).
 - R7 · Hosted registry / continuous monitoring (the platform play).
 - R8 · Runtime/execution-time guard.
-- R9 · **Deeper vulnerability research** — expand detection beyond the v1 four classes (see the research
-  plan to be written under `doc/research/`).
+- R9b–e · Further deeper-detection tiers — T1 AST/dataflow, rug-pull/version-diff, opt-in T2 semantic
+  (see `doc/research/deeper-detection-plan.md` §6).
+- **R10 · Rename to final brand** — the user has committed to renaming away from the `exosphere-audit`
+  placeholder regardless of npm timing. Leading candidate **`skillsentry`** (verified npm-free + clean
+  brand/TM/GitHub in `docs/marketing/name-availability-report.md`); final name confirmed at rename time.
+  Do BEFORE npm publish. A mechanical rename slice (package.json, bin, badge text, docs, repo refs).
 
-> Build order now: **R3 → R2**. Tier-2 (R4–R9) stays parked.
+> Build order now: **R9a → R4**. npm publish + R10 rename precede public launch; Tier-2 stays parked.
