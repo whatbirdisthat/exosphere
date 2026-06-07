@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedBy": "threat-modeler gap ritual (STRIDE portals + EoP deck vs probe set)",
+  "rulesetVersion": "0.6.0",
+  "matrix": {
+    "S": { "count": 3, "density": "THIN", "note": "all via description/text impersonation; no identity/publisher/provenance check" },
+    "T": { "count": 6, "density": "HEAVY" },
+    "R": { "count": 0, "density": "ABSENT" },
+    "I": { "count": 7, "density": "HEAVY" },
+    "D": { "count": 0, "density": "ABSENT" },
+    "E": { "count": 7, "density": "HEAVY" },
+    "axis": { "cognitive": 9, "temporal": "realized by the engine T3 rug-pull pass, not a RuleSpec — NOT a gap" }
+  },
+  "gaps": [
+    {
+      "portal": "D",
+      "card": "An attacker can rm -rf / or ~, drop a fork-bomb, dd/mkfs a device, or unpack a tar-bomb.",
+      "candidateClass": "resource-exhaustion",
+      "ruleSketch": "line-pattern probes for `rm -rf /|~`, `:(){ :|:& };:`, `dd if=/dev/zero of=`, `mkfs`, and unbounded `yes |` / `while true` spawning.",
+      "owasp": "ASI04",
+      "atlas": "AML.T0049",
+      "stride": ["D"],
+      "priority": "P1",
+      "rationale": "ABSENT cell, highest user value, purely pattern-tier, deterministic + never-executing, zero new deps."
+    },
+    {
+      "portal": "R",
+      "card": "An attacker can clear shell history or truncate/disable logs to erase the trail.",
+      "candidateClass": "audit-evasion",
+      "ruleSketch": "line-pattern probes for `history -c`, `rm ~/.bash_history`, `unset HISTFILE`, `git reflog expunge`, writes/truncation of `/var/log/*`, `journalctl --rotate`.",
+      "owasp": "ASI04",
+      "atlas": "AML.T0051",
+      "stride": ["R"],
+      "priority": "P1",
+      "rationale": "ABSENT cell; maps to MAESTRO L5 (observability integrity); fully static + deterministic."
+    },
+    {
+      "portal": "S",
+      "card": "An attacker can publish under a typosquatted name, claim a false repository/homepage, or name an MCP tool to mimic a built-in.",
+      "candidateClass": "publisher-spoofing",
+      "ruleSketch": "builtin: manifest name edit-distance-1/homoglyph vs a shipped popular-name list; declared repository disagreeing with acquired git origin; MCP tool name mimicking Read/Bash.",
+      "owasp": "ASI04",
+      "atlas": "AML.T0010",
+      "stride": ["S"],
+      "priority": "P2",
+      "rationale": "THIN cell (only text-impersonation today); needs a small shipped allow-list, no network."
+    },
+    {
+      "portal": "E",
+      "card": "An attacker can sudo / chmod +s / write /etc/sudoers.d, or install persistence (cron, systemd unit, ~/.bashrc, git hook).",
+      "candidateClass": "privilege-escalation-persistence",
+      "ruleSketch": "line-pattern probes for `sudo`, `chmod +s`, `setcap`, `/etc/sudoers.d`, crontab writes, systemd unit drops, profile/rc appends, git-hook installs.",
+      "owasp": "ASI03",
+      "atlas": "AML.T0053",
+      "stride": ["E"],
+      "priority": "P2",
+      "rationale": "HEAVY cell but missing the sudo/setuid + persistence shapes; deterministic, deepens E."
+    },
+    {
+      "portal": "T",
+      "card": "An attacker can make a skill rewrite its own SKILL.md/manifest or .claude/settings.json at runtime (a rug-pull feeder).",
+      "candidateClass": "self-modifying-skill",
+      "ruleSketch": "line-pattern probes for a script writing to its own SKILL.md/plugin.json or to .claude/settings.json.",
+      "owasp": "ASI04",
+      "atlas": "AML.T0031",
+      "stride": ["T"],
+      "axis": ["temporal"],
+      "priority": "P3",
+      "rationale": "Deepens T and links to the temporal axis; pattern-tier."
+    },
+    {
+      "portal": "I",
+      "card": "An attacker can harvest env / .npmrc / .netrc and pipe to the network.",
+      "candidateClass": "dataflow-taint (extend sink/source set)",
+      "ruleSketch": "extend the T1 taint source set with env/printenv/.npmrc/.netrc reads reaching a network sink (no new class; widen the existing analyzer).",
+      "owasp": "ASI04",
+      "atlas": "AML.T0055",
+      "stride": ["I"],
+      "priority": "P3",
+      "rationale": "Deepens an already-HEAVY cell by extending the existing taint analyzer rather than adding a class."
+    },
+    {
+      "portal": null,
+      "axis": ["privacy-LINDDUN"],
+      "card": "A skill ships real PII (emails, names, phone numbers) in fixtures/logs/committed data.",
+      "candidateClass": "privacy/pii-in-data",
+      "ruleSketch": "line-pattern PII probes (email, phone, national-id shapes) over data/fixture files.",
+      "owasp": "LLM02",
+      "atlas": "AML.T0057",
+      "priority": "PARKED",
+      "rationale": "Proves the threat-map is open to multiple frameworks (LINDDUN), not only STRIDE. Graduate when there is corpus evidence."
+    }
+  ]
+}
