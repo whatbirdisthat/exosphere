@@ -11,26 +11,40 @@ export const resourceExhaustionRules = [
         id: 'resource-exhaustion/recursive-delete-root',
         detectionClass: C,
         severity: 'high',
-        why: 'Recursively force-deletes a root-level location (/, ~, /*, $HOME) — catastrophic data loss.',
+        why: 'Recursively force-deletes a root-level location (/, a top-level system dir, ~, or $HOME) — catastrophic data loss.',
         tier: 'T0',
         framework: DOS,
-        // rm + a recursive AND force intent + a ROOT-LEVEL target anchored to space/end (so `rm -rf ./build`
-        // and `rm -rf node_modules` do NOT match — precision-first).
+        // rm + a recursive AND force intent (combined `-rf`/`-Rf`/`-fr`, split `-r -f`, or long
+        // `--recursive --force` in any order, case-insensitive recursive flag) + a CATASTROPHIC target: bare
+        // `/`, a top-level system dir, `~`, or `$HOME`/`${HOME}`/`"$HOME"`, optionally globbed, anchored to a
+        // word boundary so a subdir (`rm -rf /var/cache/app`, `rm -rf ~/.cache/app`, `rm -rf ./build`) and a
+        // non-recursive `rm -f` do NOT match — precision-first (corpus budget 0).
         matcher: {
             kind: 'line-pattern',
-            pattern: '\\brm\\s+[^\\n]*(?:-[a-zA-Z]*r[a-zA-Z]*f|-[a-zA-Z]*f[a-zA-Z]*r|--recursive[^\\n]*--force|--force[^\\n]*--recursive)[^\\n]*\\s(?:/(?:\\*)?|~|\\$HOME)(?:\\s|$)',
+            pattern: '\\brm\\s+[^\\n]*(?:-[a-zA-Z]*[rR][a-zA-Z]*f|-[a-zA-Z]*f[a-zA-Z]*[rR]|-[rR]\\b[^\\n]*\\s-f\\b|-f\\b[^\\n]*\\s-[rR]\\b|--recursive\\b[^\\n]*--force|--force\\b[^\\n]*--recursive)[^\\n]*\\s["\']?(?:/(?:etc|usr|var|boot|lib|lib64|bin|sbin|opt|root|home|sys|proc|dev|srv)?|~|\\$\\{?HOME\\}?)(?:/?\\*)?["\']?(?:\\s|$)',
         },
         failFixtures: [
             { kind: 'script', content: 'rm -rf /' },
             { kind: 'script', content: 'rm -rf ~' },
             { kind: 'script', content: 'rm -rf /*' },
             { kind: 'script', content: 'rm -fr $HOME' },
+            // evasions found in adversarial review (U6) — each must now be caught:
+            { kind: 'script', content: 'rm -rf /etc' },
+            { kind: 'script', content: 'rm -Rf /usr' },
+            { kind: 'script', content: 'rm -r -f /var' },
+            { kind: 'script', content: 'rm -rf "$HOME"' },
+            { kind: 'script', content: 'rm -rf ${HOME}' },
+            { kind: 'script', content: 'rm -rf /home/*' },
+            { kind: 'script', content: 'rm --recursive --force /boot' },
         ],
         passFixtures: [
             { kind: 'script', content: 'rm -rf ./build' },
             { kind: 'script', content: 'rm -rf node_modules' },
             { kind: 'script', content: 'rm -f /tmp/lockfile' },
             { kind: 'script', content: 'rm -rf ~/.cache/myapp' },
+            // precision boundaries: a SUBDIR of a system path is not the catastrophe and must NOT match.
+            { kind: 'script', content: 'rm -rf /var/cache/app' },
+            { kind: 'script', content: 'rm -rf /tmp/build' },
         ],
         precisionBudget: 0,
     },

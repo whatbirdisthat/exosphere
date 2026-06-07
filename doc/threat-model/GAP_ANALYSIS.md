@@ -45,9 +45,24 @@ deterministic surfaces, not relabelled existing classes. The negative space is t
 - **P3 · I** — extend the existing T1 taint analyzer with env/`.npmrc`/`.netrc` → network sinks (no new class).
 - **PARKED · privacy (LINDDUN)** — PII shipped in fixtures/data; graduate when corpus evidence exists.
 
+## Known residual evasions (the T0 line-pattern tier is not exhaustive)
+These classes are **precision-first** (corpus budget 0): they catch the unambiguous catastrophic shapes,
+not every variant. Honest residuals, tracked rather than hidden:
+- **`resource-exhaustion`** — `recursive-delete-root` now also catches top-level system dirs, `-R`, split
+  `-r -f`, and quoted/braced `$HOME` (U6). Still out: arbitrary `/deep/sub/path` deletes (FP-prone),
+  `find / -delete`. `fork-bomb` catches the `:`-glyph classic; named-function and `perl`/`python` bombs
+  are open (U8). `raw-disk-destroy` is being widened to partitions/`shred`/`wipefs`/redirects (U9).
+- **`audit-evasion`** — being widened to `ln -sf /dev/null …_history`, `chattr`, `auditctl`, and
+  trailing-slash-less `/var/log` (U10/U11).
+- **Whole-tier limit (U23):** matching is **per line**, so a `\`-continuation, heredoc, or variable
+  indirection (`T=/; rm -rf "$T"`) can split a payload across lines and evade T0. Multi-line shell
+  obfuscation is the T1 dataflow tier's job, not T0's.
+
 ## Out of scope (rejected by the pillars)
 Anything needing runtime, network, a parser dependency, or LLM semantics — these would break the
-never-executing, zero-dependency, deterministic, offline guarantees and are deliberately excluded.
+never-executing, deterministic, offline-scan guarantees and are deliberately excluded. This includes the
+"cognitive DoS" EoP card (an instruction coercing an unbounded tool-call loop) — a runtime behaviour, not
+a static artefact.
 
 ## Next action
 The two P1 ABSENT cells are now covered. Next-highest value: **P2 · S — `publisher-spoofing`** (the THIN

@@ -14,15 +14,16 @@
   "gaps": [
     {
       "portal": "D",
-      "card": "An attacker can rm -rf / or ~, drop a fork-bomb, dd/mkfs a device, or unpack a tar-bomb.",
+      "card": "An attacker can rm -rf a root-level path, drop a fork-bomb, or dd/mkfs a block device.",
       "candidateClass": "resource-exhaustion",
-      "ruleSketch": "line-pattern probes for `rm -rf /|~`, `:(){ :|:& };:`, `dd if=/dev/zero of=`, `mkfs`, and unbounded `yes |` / `while true` spawning.",
+      "ruleSketch": "line-pattern probes for recursive-delete of a root-level path, the classic fork-bomb, and dd/mkfs/shred/wipefs against a block device.",
       "owasp": "ASI04",
-      "atlas": "AML.T0049",
+      "atlas": "AML.T0011",
       "stride": ["D"],
       "priority": "P1",
       "status": "SHIPPED at ruleset 0.7.0 — class `resource-exhaustion` (3 rules: recursive-delete-root, fork-bomb, raw-disk-destroy)",
-      "rationale": "ABSENT cell, highest user value, purely pattern-tier, deterministic + never-executing, zero new deps."
+      "rationale": "ABSENT cell, highest user value, purely pattern-tier, deterministic + never-executing, zero new deps.",
+      "deferred": "tar-bomb extraction and unbounded `yes |` / `while true` spawning are NOT yet shipped (too FP-prone for a precisionBudget-0 line-pattern); tracked as open D follow-ups."
     },
     {
       "portal": "R",
@@ -30,7 +31,7 @@
       "candidateClass": "audit-evasion",
       "ruleSketch": "line-pattern probes for `history -c`, `rm ~/.bash_history`, `unset HISTFILE`, `git reflog expunge`, writes/truncation of `/var/log/*`, `journalctl --rotate`.",
       "owasp": "ASI04",
-      "atlas": "AML.T0051",
+      "atlas": "AML.T0011",
       "stride": ["R"],
       "priority": "P1",
       "status": "SHIPPED at ruleset 0.7.0 — class `audit-evasion` (2 rules: history-clearing, log-tampering)",
