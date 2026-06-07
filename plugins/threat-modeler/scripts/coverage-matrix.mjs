@@ -23,16 +23,21 @@ try {
   process.exit(2);
 }
 
+// Density is a coarse, deliberately-simple HEURISTIC over the rule-tag count (≤3 THIN, 0 ABSENT) — a
+// hint for "where to look next", NOT a partition. Counts are PORTAL TAGS: a rule with stride ['T','E']
+// is tagged in both columns, so the columns sum to MORE than the rule total. The honest scalar is the
+// rule total (printed once); per-portal we also report distinct detection classes (U20/U21).
 const density = (n) => (n === 0 ? 'ABSENT' : n <= 3 ? 'THIN' : 'HEAVY');
 
 const portalRows = Object.entries(PORTALS).map(([key, name]) => {
   const hits = ruleSpecs.filter((s) => (s.framework.stride ?? []).includes(key));
-  const byTier = { T0: 0, T1: 0, T3: 0 };
+  // Derive tier keys from the data — never seed a phantom T3:0 row (U22).
+  const byTier = {};
   for (const s of hits) byTier[s.tier] = (byTier[s.tier] ?? 0) + 1;
   return {
     portal: key,
     name,
-    count: hits.length,
+    tags: hits.length,
     density: density(hits.length),
     byTier,
     classes: [...new Set(hits.map((s) => s.detectionClass))],
@@ -41,20 +46,28 @@ const portalRows = Object.entries(PORTALS).map(([key, name]) => {
 
 const axisRows = AXES.map((axis) => {
   const hits = ruleSpecs.filter((s) => (s.framework.axis ?? []).includes(axis));
-  return { axis, count: hits.length, classes: [...new Set(hits.map((s) => s.detectionClass))] };
+  return { axis, tags: hits.length, classes: [...new Set(hits.map((s) => s.detectionClass))] };
 });
 
-const matrix = { generatedFrom: distUrl, ruleCount: ruleSpecs.length, portals: portalRows, axes: axisRows };
+const tagTotal = portalRows.reduce((n, r) => n + r.tags, 0);
+const matrix = {
+  generatedFrom: distUrl,
+  ruleCount: ruleSpecs.length,
+  portalTagTotal: tagTotal, // > ruleCount because rules carry multiple portals (U20)
+  portals: portalRows,
+  axes: axisRows,
+};
 
 if (process.argv.includes('--json')) {
   console.log(JSON.stringify(matrix, null, 2));
 } else {
-  console.log(`STRIDE coverage over ${ruleSpecs.length} probes (mechanical, from rule data)\n`);
-  console.log('PORTAL                       count  density  tiers           detection classes');
+  console.log(`STRIDE coverage: ${ruleSpecs.length} rules → ${tagTotal} portal-tags (rules carry 1+ portals), mechanical from rule data\n`);
+  console.log('PORTAL                       tags  density  tiers           detection classes');
   for (const r of portalRows) {
     const tiers = Object.entries(r.byTier).filter(([, n]) => n > 0).map(([t, n]) => `${t}:${n}`).join(' ') || '—';
-    console.log(`${r.portal} ${r.name.padEnd(24)} ${String(r.count).padStart(3)}   ${r.density.padEnd(7)} ${tiers.padEnd(15)} ${r.classes.join(', ') || '—'}`);
+    console.log(`${r.portal} ${r.name.padEnd(24)} ${String(r.tags).padStart(3)}   ${r.density.padEnd(7)} ${tiers.padEnd(15)} ${r.classes.join(', ') || '—'}`);
   }
   console.log('\nEXTRA agentic axes (escape classic STRIDE):');
-  for (const a of axisRows) console.log(`  ${a.axis.padEnd(10)} ${String(a.count).padStart(2)}  ${a.classes.join(', ') || '—'}`);
+  for (const a of axisRows) console.log(`  ${a.axis.padEnd(10)} ${String(a.tags).padStart(2)}  ${a.classes.join(', ') || '—'}`);
+  console.log('\ncount = portal-tags (a rule with multiple portals is counted in each); density is a coarse hint, not a partition.');
 }

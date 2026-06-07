@@ -1,25 +1,26 @@
 # Threat-map gap analysis
 
-_Produced by the threat-modeler gap ritual (`/threat-modeler:gap-ritual`). STRIDE is used here as just
-another threat-intelligence source feeding the self-improvement covenant — never a brand. The coverage
+_Produced by the threat-modeler gap ritual (`/threat-modeler:gap-ritual`). STRIDE is the organising lens
+feeding the self-improvement covenant — one intelligence source, not an authority over the gates. The coverage
 matrix is computed **mechanically** from `framework.stride` / `framework.axis` on every rule
 (`plugins/threat-modeler/scripts/coverage-matrix.mjs`), not from an LLM's opinion._
 
-Ruleset version: **0.7.0** · probes tabulated: **26**
+Ruleset version: **0.7.0** · **27 rules → 29 portal-tags** (a rule with stride `['T','E']` is tagged in
+both columns, so the column counts sum to MORE than the rule total — counts are tags, not a partition).
 
 _History: at 0.6.0 the ritual found R and D **ABSENT**. The covenant then shipped two new classes
-(`resource-exhaustion` → D, `audit-evasion` → R) via PR. Both cells are now covered (THIN). This is the
-self-improvement loop closing — re-run `/threat-modeler:gap-ritual` to regenerate._
+(`resource-exhaustion` → D, `audit-evasion` → R) via PR, since widened. This is the self-improvement loop
+closing — `density` below is a coarse hint; re-run `/threat-modeler:gap-ritual` for the live numbers._
 
 ## STRIDE × tier coverage matrix
 
-| Portal | Count | Density | Tiers | Detection classes |
+| Portal | Tags | Density | Tiers | Detection classes |
 |---|---|---|---|---|
 | **S** Spoofing | 3 | THIN | T0:3 | prompt-injection (homoglyph), tool-description-poisoning |
 | **T** Tampering | 6 | HEAVY | T0:4 T1:2 | dangerous-bash, over-broad-perms, dataflow-taint |
 | **R** Repudiation | 2 | THIN _(was ABSENT)_ | T0:2 | **audit-evasion** |
 | **I** Information disclosure | 7 | HEAVY | T0:7 | dangerous-bash, prompt-injection, over-broad-perms, committed-secrets |
-| **D** Denial of service | 3 | THIN _(was ABSENT)_ | T0:3 | **resource-exhaustion** |
+| **D** Denial of service | 4 | HEAVY _(was ABSENT)_ | T0:4 | **resource-exhaustion** |
 | **E** Elevation of privilege | 7 | HEAVY | T0:5 T1:2 | dangerous-bash, over-broad-perms, dataflow-taint |
 
 ### EXTRA agentic axes (escape classic STRIDE)
