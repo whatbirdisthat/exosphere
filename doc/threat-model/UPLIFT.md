@@ -25,16 +25,16 @@ and `node plugins/threat-modeler/scripts/coverage-matrix.mjs` after each change;
 
 ## CRITICAL
 
-- [ ] **U1 · over-claim (A-C1)** — "offline / air-gapped" is false for the headline git-URL audit:
+- [x] **U1 · over-claim (A-C1)** — "offline / air-gapped" is false for the headline git-URL audit:
   `src/adapters/acquire.ts` shells `git clone` over the network for a git-URL target. Files:
   `plugins/skillsentry/knowledge/trust-pillars.md:12`, `plugins/skillsentry/skills/audit/SKILL.md:21`,
   `plugins/supersize-semgrep/knowledge/trust-statement.md`. **Fix:** scope the claim — "deterministic +
   offline *in the scan path*; acquiring a git-URL target performs one `git clone`." Drop "air-gapped" or
   restrict it to local-dir audits.
-- [ ] **U2 · over-claim (A-C2)** — "zero runtime dependencies / no supply chain of its own" omits the
+- [x] **U2 · over-claim (A-C2)** — "zero runtime dependencies / no supply chain of its own" omits the
   required external **`git`** binary for git-URL audits. `trust-pillars.md:9` + every manifest. **Fix:**
   "zero npm/runtime-package dependencies; git-URL acquisition requires a `git` binary on the host."
-- [ ] **U3 · over-claim + hypocrisy (A-C3, A-H4)** — marketplace headline "a self-reflecting security
+- [x] **U3 · over-claim + hypocrisy (A-C3, A-H4)** — marketplace headline "a self-reflecting security
   platform whose deterministic core is **provably untouched** by the agentic layer"
   (`.claude-plugin/marketplace.json:4`) is contradicted by `propose-rule.md:24-31`, which has the agent
   edit `src/core/types.ts`, `src/core/ruleset.ts`, and add `src/core/rules/*`. The core IS touched (on a
@@ -42,22 +42,22 @@ and `node plugins/threat-modeler/scripts/coverage-matrix.mjs` after each change;
   cannot bypass*." Drop "provably untouched" + "self-reflecting." Update the covenant wording from
   "drafts RuleSpec *data*" to "authors rule modules and registers them (type union + ruleset)" so prose
   matches the actual act step.
-- [ ] **U4 · inconsistency (B-C1)** — `gaps.json` SHIPPED entries cite ATLAS ids that don't match the
+- [x] **U4 · inconsistency (B-C1)** — `gaps.json` SHIPPED entries cite ATLAS ids that don't match the
   shipped rules: `gaps.json:24` resource-exhaustion `AML.T0049` vs rule `AML.T0011`; `gaps.json:35`
   audit-evasion `AML.T0051` vs rule `AML.T0011` (and `AML.T0051` collides with the prompt-injection
   family). **Fix:** set both SHIPPED gaps' `atlas` to `AML.T0011` to match `src/core/rules/*`.
-- [ ] **U5 · inconsistency (B-C2)** — `gaps.json:17,19` advertise tar-bomb + `yes |` / `while true`
+- [x] **U5 · inconsistency (B-C2)** — `gaps.json:17,19` advertise tar-bomb + `yes |` / `while true`
   shapes under a `status: SHIPPED` that only delivered 3 rules (recursive-delete, fork-bomb, raw-disk).
   **Fix:** remove the un-shipped shapes from the SHIPPED card/sketch, or reopen them as a separate
   un-shipped gap. Don't fold deferred work under a SHIPPED status.
-- [ ] **U6 · coverage gap + undisclosed (C-C1)** — `resource-exhaustion/recursive-delete-root`
+- [x] **U6 · coverage gap + undisclosed (C-C1)** — `resource-exhaustion/recursive-delete-root`
   (`src/core/rules/resource-exhaustion.rules.ts:26`) catches only `/`, `/*`, `~`, bare `$HOME`. **Misses**
   `rm -rf /etc|/usr|/var|/boot`, `-R`/`-Rf` (uppercase recursive), split `-r -f`, quoted `"$HOME"` /
   `${HOME}`, `/home/*`. GAP_ANALYSIS/gaps.json claim D "covered" with **no residual-evasion note**.
   **Fix:** broaden targets to top-level system dirs + optional `/*`; accept quoted/braced `$HOME`/`~`;
   case-insensitive recursive flag; split/long flags in any order; add the missed strings as failFixtures.
   And add a "known residual evasions" section to GAP_ANALYSIS so coverage isn't overstated.
-- [ ] **U7 · token-waste (D-C1, D-C2)** — the covenant line is copy-pasted into **10 files** (verbatim in
+- [x] **U7 · token-waste (D-C1, D-C2)** — the covenant line is copy-pasted into **10 files** (verbatim in
   8); the 8-point gate list is triplicated; the gate bash command is duplicated in `propose-rule` SKILL
   and command. **Fix:** make `plugins/threat-modeler/knowledge/covenant-governance.md` the single source
   of truth; everywhere else replace the restated block with a one-line reference. Est. ~40–55% prose
@@ -122,14 +122,14 @@ and `node plugins/threat-modeler/scripts/coverage-matrix.mjs` after each change;
   label for raw counts.
 - [ ] **U22 · correctness (C-M2)** — `coverage-matrix.mjs:30` seeds `byTier {T0,T1,T3}`, emitting a phantom
   `T3:0` on every row (T3 is engine-side, never a RuleSpec). **Fix:** derive tier keys from data.
-- [ ] **U23 · undisclosed limit (C-M4)** — line-pattern matching is per-line (`compile.ts:47`), so
+- [x] **U23 · undisclosed limit (C-M4)** — line-pattern matching is per-line (`compile.ts:47`), so
   line-continuation (`rm -rf \`⏎`/etc`), heredocs, and variable indirection (`T=/; rm -rf "$T"`) evade the
   whole T0 tier. **Fix:** note these as known T0 limits in GAP_ANALYSIS; consider a `\`-continuation join
   pass before per-line matching.
 - [ ] **U24 · inconsistency (B-M1)** — three names (repo `exosphere`, product/CLI `skillsentry`,
   marketplace `threat-stack`) are never tied together in any top-level doc. **Fix:** one naming line in
   README.
-- [ ] **U25 · dangling claim (B-M2)** — `eop-deck.md:32` lists a "cognitive DoS" card as "→ no probe" that
+- [x] **U25 · dangling claim (B-M2)** — `eop-deck.md:32` lists a "cognitive DoS" card as "→ no probe" that
   is neither a gaps.json entry nor marked out-of-scope. **Fix:** mark it out-of-scope (runtime-only),
   consistent with GAP_ANALYSIS.md's out-of-scope section.
 - [ ] **U26 · hypocrisy (A-M10)** — `stride-portals.md:2` says STRIDE is "never a brand" while `:26`
@@ -165,7 +165,7 @@ and `node plugins/threat-modeler/scripts/coverage-matrix.mjs` after each change;
   unexplained 26-vs-28 column sum; "100% coverage" alongside a `v8 ignore` pragma in `acquire.ts`. **Fix:**
   "findings tagged to …"; add the column-sum note; "100% enforced coverage, with disclosed v8-ignore
   exclusions."
-- [ ] **U36 · disclosure (A-L13)** — `semgrep --config auto` fetches rules from the network; note it in
+- [x] **U36 · disclosure (A-L13)** — `semgrep --config auto` fetches rules from the network; note it in
   `supersize-semgrep/knowledge/trust-statement.md`.
 
 ---
