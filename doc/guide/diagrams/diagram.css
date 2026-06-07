@@ -1,0 +1,75 @@
+/* Dark-mode-friendly diagram styling, injected at render time (mmdc -C).
+ *
+ * Strategy: the diagrams are rendered on a TRANSPARENT background so they sit on whatever the page
+ * is — white in GitHub light mode, near-black in dark mode. Every node is a self-contained LIGHT
+ * "card" with a strong outline and a drop-shadow, so its dark text stays legible on any background,
+ * and the shadow lifts it off a dark page. Edges/arrows use a mid-tone that reads on both themes,
+ * and edge/sequence labels carry their own light backing. */
+
+/* Node shapes: strong outline + drop-shadow (flowchart, state, sequence actors, notes). */
+.node rect,
+.node polygon,
+.node circle,
+.node ellipse,
+.node path,
+.statediagram-state rect,
+.statediagram-state .composit,
+g.stateGroup rect,
+.actor,
+.note {
+  stroke-width: 1.6px !important;
+  filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.45));
+}
+
+/* Subgraph / cluster containers: lighter outline, soft shadow so the grouping reads on dark too. */
+.cluster rect,
+.statediagram-cluster rect {
+  stroke-width: 1.2px !important;
+  filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.30));
+}
+
+/* Edges/links: a touch thicker so the mid-tone lines are visible on a dark page. */
+.edgePath .path,
+.flowchart-link,
+.transition,
+.messageLine0,
+.messageLine1,
+.relation {
+  stroke-width: 1.5px !important;
+}
+
+/* Edge labels (flowchart): keep a light backing behind the dark text. */
+.edgeLabel rect,
+.edgeLabels .label rect,
+.labelBkg {
+  fill: #eef2f7 !important;
+  opacity: 0.92;
+}
+.edgeLabel,
+.edgeLabel p {
+  background-color: #eef2f7 !important;
+}
+
+/* Text that FLOATS on the (transparent) background — sequence messages, fragment/condition labels,
+ * loop labels, free edge labels — can't pick a single colour that reads on both white and dark pages.
+ * Give it a light HALO (paint a light stroke under the dark fill): invisible on light/on a card, but
+ * a legibility outline on a dark page. This is what makes floating text honour dark mode. */
+.messageText,
+.loopText,
+.loopText tspan,
+.labelText,
+.labelText tspan,
+text.actor tspan,
+.edgeLabel text,
+.statediagram .edgeLabel text {
+  fill: #16212e !important;
+  paint-order: stroke !important;
+  stroke: #eef2f7 !important;
+  stroke-width: 3.2px !important;
+  stroke-linejoin: round !important;
+}
+/* The white message/sequence number glyphs sit on a coloured bullet — leave those alone. */
+.sequenceNumber {
+  fill: #ffffff !important;
+  stroke: none;
+}

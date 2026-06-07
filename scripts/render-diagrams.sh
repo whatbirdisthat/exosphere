@@ -13,6 +13,7 @@ set -euo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 diagrams_dir="$here/doc/guide/diagrams"
 config="$diagrams_dir/mermaid-config.json"
+css="$diagrams_dir/diagram.css"
 
 if ! command -v mmdc >/dev/null 2>&1; then
   echo "error: mmdc not found. Install with: npm i -g @mermaid-js/mermaid-cli" >&2
@@ -42,10 +43,12 @@ count=0
 for src in "$diagrams_dir"/*.mmd; do
   out="${src%.mmd}.svg"
   echo "rendering $(basename "$src") -> $(basename "$out")"
+  # Transparent background + injected CSS so diagrams honour both light and dark page themes
+  # (nodes are light cards with outlines + drop-shadows that read on any background).
   if [ -n "$pptr_cfg" ]; then
-    mmdc -p "$pptr_cfg" -c "$config" -b white -i "$src" -o "$out" >/dev/null
+    mmdc -p "$pptr_cfg" -c "$config" -C "$css" -b transparent -i "$src" -o "$out" >/dev/null
   else
-    mmdc -c "$config" -b white -i "$src" -o "$out" >/dev/null
+    mmdc -c "$config" -C "$css" -b transparent -i "$src" -o "$out" >/dev/null
   fi
   count=$((count + 1))
 done

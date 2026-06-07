@@ -7,6 +7,7 @@
 Point it at a Claude Code skill or plugin; it tells you, with receipts, whether it's safe to trust —
 without ever executing what it scans.
 
+[![audited by skillsentry](./doc/audited-by-skillsentry.svg)](./doc/articles/how-skillsentry-works.md)
 [![CI](https://github.com/whatbirdisthat/skillsentry/actions/workflows/ci.yml/badge.svg)](https://github.com/whatbirdisthat/skillsentry/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![runtime deps: 0](https://img.shields.io/badge/runtime%20deps-0-brightgreen.svg)](#why-you-can-trust-it)
