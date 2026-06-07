@@ -30,6 +30,33 @@ jobs:
       - name: Story / corpus gate (real CLI over the malicious + benign corpus)
         run: npx vitest run tests/story
 
+  # ── The wall: the agentic threat-stack layer must never erode the pure auditor's trust pillars ──
+  wall:
+    name: 🧱 wall · pure auditor stays pure while the platform grows around it
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - name: Zero runtime dependencies (the auditor of a supply chain has none)
+        run: |
+          DEPS=$(node -p "JSON.stringify(require('./package.json').dependencies || {})")
+          echo "dependencies: $DEPS"
+          test "$DEPS" = "{}" || { echo "::error::root package.json must declare zero runtime dependencies"; exit 1; }
+      - name: Vendored plugin CLI is in sync with source (deterministic, reproducible)
+        run: |
+          npm run build:plugin
+          git diff --exit-code -- plugins/skillsentry/cli \
+            || { echo "::error::plugins/skillsentry/cli is stale — run 'npm run build:plugin' and commit"; exit 1; }
+      - name: The auditor plugin is a THIN wrapper (detection stays in the deterministic CLI)
+        run: |
+          grep -q 'cli/bin.js' plugins/skillsentry/commands/audit.md \
+            || { echo "::error::audit.md must invoke the vendored cli/bin.js"; exit 1; }
+          echo "✅ auditor plugin is a thin wrapper over the deterministic CLI" >> "$GITHUB_STEP_SUMMARY"
+
   # ── Dogfooding: the auditor audits itself, in the open, every commit ──
   self-audit:
     name: 🛡️ self-audit · we run our own tool on ourselves

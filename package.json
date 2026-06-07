@@ -46,6 +46,7 @@
     "pretest:cov": "npm run build",
     "test:cov": "vitest run --coverage",
     "selfaudit": "npm run build && node dist/bin.js .",
+    "build:plugin": "npm run build && rm -rf plugins/skillsentry/cli && cp -r dist plugins/skillsentry/cli && node -e \"require('fs').writeFileSync('plugins/skillsentry/cli/package.json', JSON.stringify({type:'module',private:true,bin:{skillsentry:'bin.js'}},null,2)+'\\n')\"",
     "lint": "eslint . --max-warnings=0",
     "prepublishOnly": "npm run build && npm run test:cov"
   },

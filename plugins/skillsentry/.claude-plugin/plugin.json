@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "skillsentry",
+  "displayName": "skillsentry — static supply-chain auditor",
+  "version": "0.1.0",
+  "description": "Audit an AI-agent skill or plugin for supply-chain attacks BEFORE it runs. A thin in-editor wrapper over the pure, never-executing, zero-dependency skillsentry CLI (shipped self-contained in cli/). /skillsentry:audit <target> runs the deterministic auditor over this repo or ANY other repo you are working on and renders a PASS / REVIEW / BLOCK verdict mapped to OWASP, MITRE ATLAS and STRIDE. Detection stays inside the deterministic CLI — the plugin never reads-and-judges target files in the agent context, so auditing a hostile repo is safe. The trust anchor of the threat-stack platform.",
+  "author": {
+    "name": "whatbirdisthat",
+    "email": "95787+whatbirdisthat@users.noreply.github.com",
+    "url": "https://github.com/whatbirdisthat"
+  },
+  "homepage": "https://github.com/whatbirdisthat/skillsentry/tree/main/plugins/skillsentry",
+  "repository": "https://github.com/whatbirdisthat/skillsentry",
+  "license": "MIT",
+  "category": "security",
+  "defaultEnabled": true,
+  "keywords": [
+    "security",
+    "supply-chain",
+    "audit",
+    "claude-code",
+    "skills",
+    "mcp",
+    "prompt-injection",
+    "stride",
+    "owasp",
+    "mitre-atlas",
+    "static-analysis"
+  ],
+  "metadata": {
+    "note": "commands/ and skills/ are auto-discovered. The CLI is vendored self-contained under cli/ (built by `npm run build:plugin`); the audit command shells to `node ${CLAUDE_PLUGIN_ROOT}/cli/bin.js`. An OPTIONAL pre-tool audit hook ships DISABLED as hooks/hooks.json.example — enabling the plugin never auto-audits."
+  }
+}
