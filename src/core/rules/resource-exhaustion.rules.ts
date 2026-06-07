@@ -60,14 +60,18 @@ export const resourceExhaustionRules: readonly RuleSpec[] = [
     why: 'Defines a self-replicating fork bomb that exhausts process slots until the system is unusable.',
     tier: 'T0',
     framework: DOS,
-    // The classic `:(){ :|:& };:` and whitespace variants.
+    // The classic `:(){ :|:& };:` AND any renamed equivalent — a function that pipes itself into a
+    // backgrounded copy of itself, then invokes itself. The captured identifier + backreference (\1)
+    // generalises beyond the `:` glyph (U8); `run_pipeline(){ build|test; }` does NOT match (the body
+    // does not re-invoke the same name).
     matcher: {
       kind: 'line-pattern',
-      pattern: ':\\s*\\(\\s*\\)\\s*\\{\\s*:\\s*\\|\\s*:\\s*&\\s*\\}\\s*;\\s*:',
+      pattern: '([A-Za-z_:][\\w]*)\\s*\\(\\s*\\)\\s*\\{\\s*\\1\\s*\\|\\s*\\1\\s*&\\s*\\}\\s*;\\s*\\1',
     },
     failFixtures: [
       { kind: 'script', content: ':(){ :|:& };:' },
       { kind: 'script', content: ': () { : | : & } ; :' },
+      { kind: 'script', content: 'b(){ b|b& };b' },
     ],
     passFixtures: [
       { kind: 'script', content: 'echo ":(){ documented fork bomb shape, not live }"' },
@@ -76,26 +80,56 @@ export const resourceExhaustionRules: readonly RuleSpec[] = [
     precisionBudget: 0,
   },
   {
+    id: 'resource-exhaustion/fork-loop',
+    detectionClass: C,
+    severity: 'high',
+    why: 'A tight unbounded fork loop (perl `fork while fork`, Python `while True: os.fork()`) exhausts process slots.',
+    tier: 'T0',
+    framework: DOS,
+    matcher: {
+      kind: 'line-pattern',
+      pattern: '\\bfork\\s+while\\s+fork\\b|\\bwhile\\s+(?:True|1)\\s*:[^\\n]*\\bos\\.fork\\s*\\(\\s*\\)',
+    },
+    failFixtures: [
+      { kind: 'script', content: "perl -e 'fork while fork'" },
+      { kind: 'script', content: 'while True: os.fork()' },
+    ],
+    passFixtures: [
+      { kind: 'script', content: 'pid = os.fork()  # spawn one worker' },
+      { kind: 'script', content: '# fork the repository before cloning' },
+    ],
+    precisionBudget: 0,
+  },
+  {
     id: 'resource-exhaustion/raw-disk-destroy',
     detectionClass: C,
     severity: 'high',
-    why: 'Writes raw bytes over, or reformats, a block device (dd of=/dev/sdX, mkfs /dev/…) — wipes a disk.',
+    why: 'Writes over, reformats, or wipes a block device (dd of=/dev/…, mkfs, shred, wipefs, blkdiscard, or a `>` redirect) — destroys a disk.',
     tier: 'T0',
     framework: DOS,
-    // dd WRITING to a block device, or mkfs ON a block device. Reading a device (if=/dev/urandom) or
-    // imaging to a file does NOT match.
+    // A destructive WRITE to a block device: dd of=, a `>` redirect, mkfs, shred, wipefs, or blkdiscard
+    // targeting /dev/{sd,vd,xvd,nvme,mmcblk,hd,disk}[partition]. Reading a device (if=/dev/urandom),
+    // imaging to a FILE (of=key.bin), or `> /dev/null` does NOT match (U9).
     matcher: {
       kind: 'line-pattern',
       pattern:
-        '(?:\\bdd\\b[^\\n]*\\bof=|\\bmkfs(?:\\.\\w+)?\\s+[^\\n]*)/dev/(?:sd[a-z]|nvme\\d|disk\\d|hd[a-z]|mmcblk\\d)',
+        '(?:\\bdd\\b[^\\n]*\\bof\\s*=\\s*|\\b(?:shred|wipefs|blkdiscard)\\b[^\\n]*\\s|\\bmkfs(?:\\.\\w+)?\\s+[^\\n]*|>\\s*)/dev/(?:sd[a-z]|vd[a-z]|xvd[a-z]|nvme\\d+n\\d+|mmcblk\\d+|hd[a-z]|disk\\d+)(?:p?\\d+)?\\b',
     },
     failFixtures: [
       { kind: 'script', content: 'dd if=/dev/zero of=/dev/sda bs=1M' },
       { kind: 'script', content: 'mkfs.ext4 /dev/nvme0n1' },
+      // evasions found in adversarial review (U9):
+      { kind: 'script', content: 'dd if=/dev/zero of=/dev/sda1' },
+      { kind: 'script', content: 'shred /dev/sdb' },
+      { kind: 'script', content: 'wipefs -a /dev/sda' },
+      { kind: 'script', content: 'cat /dev/zero > /dev/vda' },
+      { kind: 'script', content: 'dd of = /dev/xvda bs=1M' },
     ],
     passFixtures: [
       { kind: 'script', content: 'dd if=/dev/urandom of=key.bin bs=32 count=1' },
       { kind: 'script', content: 'mkfs.ext4 /tmp/disk.img' },
+      { kind: 'script', content: 'echo hi > /dev/null' },
+      { kind: 'script', content: 'dd if=/dev/sda of=backup.img' },
     ],
     precisionBudget: 0,
   },
