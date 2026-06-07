@@ -1,0 +1,22 @@
+%% How a rule (DATA) becomes a runnable matcher — and why data can never execute.
+%% Source: src/core/compile.ts, ruleset.ts, matchers/builtins.ts, ADR-005
+sequenceDiagram
+    autonumber
+    participant Dev as Contributor
+    participant Spec as RuleSpec (data)
+    participant Comp as compileRule()
+    participant Reg as Closed builtin registry
+    participant Rule as Rule (runnable)
+
+    Dev->>Spec: author id · severity · tier · framework<br/>matcher · pass/fail fixtures · precisionBudget
+    Spec->>Comp: compile at load time
+    alt matcher.kind == "line-pattern"
+        Comp->>Comp: new RegExp(pattern, flags)<br/>(MATCHES text — never executes it)
+        Comp-->>Rule: detect(file) → RuleMatch[]
+    else matcher.kind == "builtin"
+        Comp->>Reg: look up name (must already exist)
+        Reg-->>Comp: vetted, code-reviewed function
+        Comp-->>Rule: detect(file) [+ detectCrossFile]
+    end
+    Note over Spec,Reg: Data selects from a CLOSED vocabulary.<br/>No eval, no Function, no dynamic import.<br/>A rule cannot define new behaviour.
+    Note over Rule: precision-budget guard: a rule that<br/>regresses corpus false-positives is reverted, not merged.

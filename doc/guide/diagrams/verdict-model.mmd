@@ -1,0 +1,25 @@
+%% The verdict is the single highest severity among all findings. Only BLOCK gates CI.
+%% Source: src/core/verdict.ts
+stateDiagram-v2
+    direction LR
+    [*] --> Scan
+    Scan --> PASS: no findings
+    Scan --> REVIEW: highest severity is low or medium
+    Scan --> BLOCK: any high-severity finding
+
+    PASS: PASS ✅
+    PASS: exit 0 · badge eligible
+    REVIEW: REVIEW ⚠️
+    REVIEW: exit 0 · human should inspect
+    BLOCK: BLOCK ⛔
+    BLOCK: exit 1 · gates the build
+
+    PASS --> [*]
+    REVIEW --> [*]
+    BLOCK --> [*]
+
+    note right of BLOCK
+      Additive-only: T3 drift findings are added
+      before aggregating, so a baseline can raise
+      a verdict but never lower it.
+    end note

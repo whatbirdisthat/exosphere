@@ -1,0 +1,15 @@
+%% T3 rug-pull detection: what changed since you approved this skill, and is it dangerous?
+%% Source: src/core/drift.ts, lock.ts, src/adapters/lockfile.ts, ADR-008
+flowchart TD
+    A["Fresh scan findings + per-file sha256"] --> D
+    B[".skillsentry.lock<br/>approved capability fingerprint + hashes"] --> D
+    D{"diff capability sets<br/>(drift.ts)"}
+
+    D -->|"fresh capability NOT in approved set"| E["<b>Escalation</b><br/>new sink / perm / hook gained since approval<br/>→ drift finding, tier T3"]
+    D -->|"approved file's bytes changed,<br/>capability still present"| F["<b>Approval invalidation</b><br/>the approval no longer covers these bytes<br/>→ drift finding, tier T3"]
+    D -->|"bytes changed,<br/>capability unchanged"| G["<b>Benign drift</b><br/>docs / version bump / reorder<br/>→ informational note, no finding"]
+
+    E --> H["Verdict = aggregate( fresh ∪ drift )<br/><b>additive-only</b>: a lockfile can ADD a finding, never remove one"]
+    F --> H
+    G --> H
+    H --> I["A permissive lockfile cannot launder a BLOCK.<br/>Any HIGH it pre-approved is DISCLOSED in the report."]

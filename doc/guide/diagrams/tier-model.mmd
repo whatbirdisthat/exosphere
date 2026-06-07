@@ -1,0 +1,16 @@
+%% The detection tiers. Everything default-on stays deterministic + offline + never-executing.
+%% Source: src/core/types.ts (RuleTier), ADR-004/006/007/008
+flowchart TD
+    subgraph DEFAULT["Default-on — deterministic · offline · never-executes"]
+        direction TB
+        T0["<b>T0 — Pattern</b><br/>per-file, single-line regex + vetted structural matchers<br/>e.g. curl | sh · zero-width unicode · over-broad MCP scopes"]
+        T1["<b>T1 — Dataflow / taint</b><br/>multi-line, in bundled shell scripts<br/>tainted SOURCE → propagate across lines → dangerous SINK<br/>intra-file (ADR-006) + cross-file via source (ADR-007)"]
+        T3["<b>T3 — Temporal / rug-pull</b><br/>diff current scan vs an approved .skillsentry.lock<br/>NOT a rule — needs two inputs (fresh + baseline)<br/>capability-fingerprint diff · additive-only (ADR-008)"]
+    end
+
+    T2["<b>T2 — Semantic (claims-vs-behaviour)</b><br/>would need an LLM → breaks offline + determinism<br/><i>NOT built; reserved as a future OPT-IN tier</i>"]
+
+    T0 --> T1 --> T3
+    T3 -.->|"future, opt-in only"| T2
+
+    style T2 stroke-dasharray: 5 5,fill:#f4f4f4,color:#7a7a7a
