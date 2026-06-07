@@ -38,16 +38,27 @@ g.stateGroup rect,
   stroke-width: 1.5px !important;
 }
 
-/* Edge labels (flowchart): keep a light backing behind the dark text. */
+/* Edge labels: an OPAQUE light pill behind dark text, so they read on a dark page (mermaid's own
+ * translucent pill goes dark-on-dark and vanishes). Cover both render forms — SVG &lt;rect&gt; and the
+ * foreignObject HTML label (&lt;p&gt;/&lt;span&gt;/&lt;div&gt;). */
 .edgeLabel rect,
+.edgeLabels rect,
 .edgeLabels .label rect,
+.edgeLabel .label-container,
+.label-container,
 .labelBkg {
   fill: #eef2f7 !important;
-  opacity: 0.92;
+  opacity: 1 !important;
+  stroke: #c7d2de !important;
+  stroke-width: 0.5px !important;
 }
 .edgeLabel,
-.edgeLabel p {
+.edgeLabel p,
+.edgeLabel span,
+.edgeLabel div {
   background-color: #eef2f7 !important;
+  color: #16212e !important;
+  opacity: 1 !important;
 }
 
 /* Text that FLOATS on the (transparent) background — sequence messages, fragment/condition labels,
@@ -61,6 +72,8 @@ g.stateGroup rect,
 .labelText tspan,
 text.actor tspan,
 .edgeLabel text,
+.edgeLabel tspan,
+.edgeLabels text,
 .statediagram .edgeLabel text {
   fill: #16212e !important;
   paint-order: stroke !important;

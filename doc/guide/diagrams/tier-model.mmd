@@ -1,17 +1,16 @@
 %% The detection tiers. Everything default-on stays deterministic + offline + never-executing.
 %% Colour key: blue = pattern · teal = dataflow · purple = temporal · grey/dashed = reserved, unbuilt.
 %% Source: src/core/types.ts (RuleTier), ADR-004/006/007/008
-flowchart TD
+flowchart LR
     subgraph DEFAULT["Default-on — deterministic · offline · never-executes"]
-        direction TB
-        T0["<b>T0 — Pattern</b><br/>per-file, single-line regex + vetted structural matchers<br/>e.g. curl | sh · zero-width unicode · over-broad MCP scopes"]:::core
-        T1["<b>T1 — Dataflow / taint</b><br/>multi-line, in bundled shell scripts<br/>tainted SOURCE → propagate across lines → dangerous SINK<br/>intra-file (ADR-006) + cross-file via source (ADR-007)"]:::io
-        T3["<b>T3 — Temporal / rug-pull</b><br/>diff current scan vs an approved .skillsentry.lock<br/>NOT a rule — needs two inputs (fresh + baseline)<br/>capability-fingerprint diff · additive-only (ADR-008)"]:::accent
+        direction LR
+        T0["<b>T0 · Pattern</b><br/>per-file regex +<br/>vetted structural matchers<br/>curl·sh · unicode · MCP scopes"]:::core
+        T1["<b>T1 · Dataflow / taint</b><br/>multi-line shell<br/>SOURCE → propagate → SINK<br/>intra- + cross-file"]:::io
+        T3["<b>T3 · Temporal / rug-pull</b><br/>diff vs approved lockfile<br/>not a rule (two inputs)<br/>additive-only"]:::accent
+        T0 --> T1 --> T3
     end
 
-    T2["<b>T2 — Semantic (claims-vs-behaviour)</b><br/>would need an LLM → breaks offline + determinism<br/><i>NOT built; reserved as a future OPT-IN tier</i>"]:::off
-
-    T0 --> T1 --> T3
+    T2["<b>T2 · Semantic</b> — claims-vs-behaviour<br/>would need an LLM → breaks offline + determinism<br/><i>not built; reserved as a future opt-in tier</i>"]:::off
     T3 -.->|"future, opt-in only"| T2
 
     classDef core fill:#dbe7f5,stroke:#3f6fae,color:#16212e;

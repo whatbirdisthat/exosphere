@@ -40,7 +40,7 @@ Taken seriously, that rule shapes the whole pipeline. An audit is a straight lin
 verdict, and no stage ever runs audited code:
 
 <p align="center">
-  <img src="../guide/diagrams/scan-pipeline.svg" width="380" alt="The scan pipeline">
+  <img src="../guide/diagrams/pipeline-overview.svg" width="820" alt="The scan pipeline">
 </p>
 
 You give it a target — a local folder, or a git URL. For a URL it does a shallow, **read-only** clone:
@@ -57,7 +57,7 @@ it relies on **where code is allowed to live.** The codebase is three layers, an
 between them is the entire safety argument:
 
 <p align="center">
-  <img src="../guide/diagrams/architecture-boundaries.svg" width="720" alt="Architecture boundaries">
+  <img src="../guide/diagrams/architecture-boundaries.svg" width="880" alt="Architecture boundaries">
 </p>
 
 - The **pure core** (`src/core/*`) — engine, rules, matchers, verdict, drift, report — imports `node:*`
@@ -86,7 +86,7 @@ technique that would break those properties (an LLM judge, say) is reserved as a
 default.
 
 <p align="center">
-  <img src="../guide/diagrams/tier-model.svg" width="560" alt="The detection tiers">
+  <img src="../guide/diagrams/tier-model.svg" width="880" alt="The detection tiers">
 </p>
 
 There are seven detection classes across three tiers:
@@ -119,7 +119,7 @@ across lines and (via `source`) across files. It runs entirely in string space: 
 executing, never fetching.
 
 <p align="center">
-  <img src="../guide/diagrams/taint-flow.svg" width="680" alt="T1 taint flow">
+  <img src="../guide/diagrams/taint-flow.svg" width="740" alt="T1 taint flow">
 </p>
 
 A `source ./lib.sh` is resolved *in memory and path-safely* — never fetched, never run — and tainted

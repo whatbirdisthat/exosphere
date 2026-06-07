@@ -13,7 +13,7 @@ An audit is a straight line from a target to a verdict. No stage runs audited co
 next a plain in-memory value.
 
 <p align="center">
-  <img src="./diagrams/scan-pipeline.svg" width="380" alt="The scan pipeline">
+  <img src="./diagrams/pipeline-overview.svg" width="820" alt="The scan pipeline">
 </p>
 
 1. **Resolve & acquire** (`src/adapters/acquire.ts`). The target is either a local directory (read in
@@ -40,7 +40,7 @@ next a plain in-memory value.
 live**. The codebase is split into three layers, and the dependency rule between them is the whole game.
 
 <p align="center">
-  <img src="./diagrams/architecture-boundaries.svg" width="720" alt="Architecture boundaries">
+  <img src="./diagrams/architecture-boundaries.svg" width="880" alt="Architecture boundaries">
 </p>
 
 - **Pure core** (`src/core/*`) — the engine, the rules, the matchers, verdict, drift, lock, report. It

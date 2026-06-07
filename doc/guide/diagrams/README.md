@@ -6,7 +6,7 @@ the docs). Readers need nothing installed — GitHub displays the committed SVGs
 
 | Diagram | Teaches |
 |---|---|
-| `scan-pipeline` | the end-to-end audit: target → acquire (read-only) → enumerate → scan → verdict → report |
+| `pipeline-overview` | the end-to-end audit: target → acquire (read-only) → enumerate → scan → verdict |
 | `architecture-boundaries` | the pure-core / adapter / CLI split that makes "never execute" structural (ADR-001) |
 | `tier-model` | the T0 / T1 / T3 detection tiers (and why T2 stays a future opt-in) |
 | `rule-compilation` | how a rule (data) becomes a matcher, and why data can never execute (ADR-005) |

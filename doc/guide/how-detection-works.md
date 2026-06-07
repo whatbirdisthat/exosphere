@@ -15,7 +15,7 @@ never-executing** — those properties are non-negotiable, so any technique that
 judge, say) is reserved as a future *opt-in* tier, never a default.
 
 <p align="center">
-  <img src="./diagrams/tier-model.svg" width="560" alt="The detection tiers">
+  <img src="./diagrams/tier-model.svg" width="880" alt="The detection tiers">
 </p>
 
 - **T0 — pattern.** Per-file, mostly single-line. Regular expressions plus a closed set of vetted
@@ -77,7 +77,7 @@ assignments, to a dangerous SINK, across lines and (via `source`) across files. 
 space: tokenizing, never executing, never fetching.
 
 <p align="center">
-  <img src="./diagrams/taint-flow.svg" width="680" alt="T1 taint flow">
+  <img src="./diagrams/taint-flow.svg" width="740" alt="T1 taint flow">
 </p>
 
 - **Sources:** command substitution `$(…)`, network fetch (`curl`/`wget`), base64/hex decode, sensitive
