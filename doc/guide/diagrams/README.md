@@ -41,5 +41,16 @@ The browser is auto-detected; override with `CHROME=/path/to/chrome ./scripts/re
 > changes it. Diagram rendering happens at authoring time; end users and the published package never
 > touch a browser or a diagram tool.
 
-Theming lives in `mermaid-config.json` (a neutral palette, white background) so every diagram shares one
-look.
+## Dark mode
+
+Diagrams are rendered on a **transparent background** so they sit on whatever the page is — white in
+GitHub light mode, near-black in dark mode. Theming is split in two:
+
+- `mermaid-config.json` — the shared palette (nodes are light "cards", mid-tone edges that read on both
+  themes, light edge-label backings).
+- `diagram.css` — injected at render time (`mmdc -C`): adds **outlines + drop-shadows** to every node so
+  it lifts off a dark page, and a light **text halo** behind floating labels (sequence messages, condition
+  labels) so dark text stays legible on a dark background while staying invisible on white.
+
+The result reads cleanly in both GitHub themes. To verify a change, render a quick raster on each
+background, e.g. `CHROME=/usr/bin/chromium` … `mmdc -b '#0d1117'` (dark) and `-b white` (light).
