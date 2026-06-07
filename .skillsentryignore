@@ -38,6 +38,19 @@ CHANGELOG.md
 # Build output (compiled copies of the rule sources).
 dist/**
 
+# threat-stack marketplace: the skillsentry plugin vendors a self-contained COPY of the built CLI
+# (the compiled rule sources) under cli/. Same class as dist/** — build output that legitimately
+# contains the detection patterns. `--no-ignore` re-scans it; the exclusion is disclosed.
+plugins/skillsentry/cli/**
+
+# First-party plugin TEACHING docs (skills/commands/knowledge/agents markdown) that QUOTE real attack
+# patterns to explain what the tool catches and to carry the Elevation-of-Privilege deck — e.g. curl|sh,
+# "ignore previous instructions", Bash(*), the EoP suits. These are reviewed, version-controlled docs of
+# the same trust class as README/doc, not third-party skills under audit. The plugin JSON manifests
+# (marketplace.json, plugin.json, hooks.json.example) are NOT excluded and stay audited. `--no-ignore`
+# re-scans everything; every exclusion is disclosed.
+plugins/**/*.md
+
 # Agent tooling — isolated build worktrees and agent memory. Not part of the audited product;
 # a transient worktree is a full repo copy (rule sources + fixtures) and must never be scanned.
 .claude/**

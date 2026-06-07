@@ -25,7 +25,7 @@ describe('ruleset', () => {
     }
   });
 
-  it('includes rules from all six detection classes (R9b adds dataflow-taint)', () => {
+  it('includes rules from all detection classes (R9b adds dataflow-taint; gap ritual adds D + R cells)', () => {
     const classes = new Set<DetectionClass>(ruleset.map((r) => r.detectionClass));
     expect(classes).toEqual(
       new Set<DetectionClass>([
@@ -35,6 +35,8 @@ describe('ruleset', () => {
         'committed-secrets',
         'tool-description-poisoning',
         'dataflow-taint',
+        'resource-exhaustion',
+        'audit-evasion',
       ]),
     );
   });

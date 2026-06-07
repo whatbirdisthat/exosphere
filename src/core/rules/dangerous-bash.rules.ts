@@ -5,8 +5,10 @@ import type { FrameworkMapping, RuleSpec } from '../types.js';
 // behaviour is unchanged (EARS-055). Precision-first: each targets a concrete exfiltration / RCE shape.
 
 const C = 'dangerous-bash' as const;
-const SUPPLY_CHAIN: FrameworkMapping = { owasp: 'ASI04', atlas: 'AML.T0011' };
-const CMD_EXEC: FrameworkMapping = { owasp: 'ASI04', atlas: 'AML.T0050' };
+// secret-path-read leaks a credential → Information disclosure.
+const SUPPLY_CHAIN: FrameworkMapping = { owasp: 'ASI04', atlas: 'AML.T0011', stride: ['I'] };
+// curl|sh / reverse-shell / base64-payload are remote code execution → Tampering + Elevation.
+const CMD_EXEC: FrameworkMapping = { owasp: 'ASI04', atlas: 'AML.T0050', stride: ['T', 'E'] };
 
 export const dangerousBashRules: readonly RuleSpec[] = [
   {

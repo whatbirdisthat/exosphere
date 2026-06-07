@@ -1,0 +1,16 @@
+{
+  "_comment": "OPT-IN, OFF BY DEFAULT. Copy this file to hooks/hooks.json to enable a pre-tool audit that runs the deterministic skillsentry CLI over the current repo and surfaces its verdict before risky tool use. Shipped disabled (.example) so enabling the plugin never auto-audits arbitrary repos. The CLI never executes audited content, so this is safe — but it is your explicit choice to turn on.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/cli/bin.js\" . --ci 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "threat-stack",
+  "description": "A stack of threat-intelligence tools, growing from one trusted core. The anchor is skillsentry — a pure, never-executing, zero-dependency static auditor for AI-agent skills and plugins (the npx CLI, shipped self-contained in-repo). Around it: an agentic threat-modeler that maps every probe onto STRIDE portals + two EXTRA agentic axes (temporal, cognitive) and runs an Elevation-of-Privilege gap ritual that proposes new rules; a front-door concierge; and opt-in 'supersize' plugins that extend reach (e.g. Semgrep SAST) WITHOUT touching the auditor's zero-dep core. Each plugin stands alone; together they are a self-reflecting security platform whose deterministic core is provably untouched by the agentic layer around it.",
+  "version": "0.1.0",
+  "owner": {
+    "name": "whatbirdisthat",
+    "email": "95787+whatbirdisthat@users.noreply.github.com"
+  },
+  "metadata": {
+    "pluginRoot": "./plugins",
+    "note": "skillsentry is the trust anchor (defaultEnabled). The agentic plugins are opt-in (defaultEnabled:false) so enabling the platform never auto-runs non-deterministic code. The covenant proposes (PR); the deterministic core + a human dispose."
+  },
+  "plugins": [
+    {
+      "name": "skillsentry",
+      "source": "./plugins/skillsentry",
+      "displayName": "skillsentry — static supply-chain auditor (the trust anchor)",
+      "description": "Audit an AI-agent skill or plugin for supply-chain attacks BEFORE it runs. A thin in-editor wrapper over the pure, never-executing, zero-dependency skillsentry CLI (shipped self-contained inside the plugin). /skillsentry:audit <target> runs the deterministic auditor over this repo or ANY other repo you are working on and renders a PASS / REVIEW / BLOCK verdict mapped to OWASP, MITRE ATLAS and STRIDE. The plugin NEVER reads-and-judges target files in the agent context — all detection stays inside the deterministic CLI, so auditing a hostile repo is safe.",
+      "version": "0.1.0",
+      "author": {
+        "name": "whatbirdisthat",
+        "email": "95787+whatbirdisthat@users.noreply.github.com",
+        "url": "https://github.com/whatbirdisthat"
+      },
+      "category": "security",
+      "defaultEnabled": true,
+      "keywords": ["security", "supply-chain", "audit", "claude-code", "skills", "mcp", "stride", "owasp", "mitre-atlas", "static-analysis"]
+    },
+    {
+      "name": "threat-modeler",
+      "source": "./plugins/threat-modeler",
+      "displayName": "threat-modeler — STRIDE/EoP gap ritual & self-improvement covenant",
+      "description": "The agentic threat-intelligence layer. Maps skillsentry's probe set onto STRIDE's six portals plus two EXTRA agentic axes (temporal, cognitive), runs the Elevation-of-Privilege 'threat-modelling poker' deck against the probes to surface ABSENT/THIN cells, and writes a gap analysis. Under the self-improvement covenant it drafts new deterministic RuleSpec data and OPENS A PR — it never decides a verdict and never ships a rule directly; the deterministic test suite and a human are the acceptance gate.",
+      "version": "0.1.0",
+      "author": {
+        "name": "whatbirdisthat",
+        "email": "95787+whatbirdisthat@users.noreply.github.com",
+        "url": "https://github.com/whatbirdisthat"
+      },
+      "category": "security",
+      "defaultEnabled": false,
+      "keywords": ["threat-modeling", "stride", "elevation-of-privilege", "shostack", "maestro", "owasp", "self-improvement", "agentic"]
+    },
+    {
+      "name": "threat-stack",
+      "source": "./plugins/threat-stack",
+      "displayName": "threat-stack — platform front door & concierge",
+      "description": "The front door of the threat-stack platform. Greets whoever opens the repo, explains the value flow (AUDIT ▸ MODEL ▸ EXTEND), lists only the installed plugins and the next command to run, and consolidates each plugin's readiness check into one table. A thin orchestrator that delegates to the specialists by capability and never re-implements them.",
+      "version": "0.1.0",
+      "author": {
+        "name": "whatbirdisthat",
+        "email": "95787+whatbirdisthat@users.noreply.github.com",
+        "url": "https://github.com/whatbirdisthat"
+      },
+      "category": "workflow",
+      "defaultEnabled": false,
+      "keywords": ["front-door", "concierge", "platform", "help", "flow", "orchestration", "threat-stack"]
+    },
+    {
+      "name": "supersize-semgrep",
+      "source": "./plugins/supersize-semgrep",
+      "displayName": "supersize-semgrep — opt-in SAST extension (separate product)",
+      "description": "An OPT-IN 'supersize' extension that adds Semgrep static analysis on top of skillsentry's verdict for deeper, language-aware SAST. A SEPARATE product with its own trust statement: it shells out to an external `semgrep` binary if installed (degrading gracefully with install guidance when absent) and is NEVER imported into the skillsentry core, so the auditor's zero-dependency, never-executing, deterministic guarantees remain unqualified. Off by default.",
+      "version": "0.1.0",
+      "author": {
+        "name": "whatbirdisthat",
+        "email": "95787+whatbirdisthat@users.noreply.github.com",
+        "url": "https://github.com/whatbirdisthat"
+      },
+      "category": "security",
+      "defaultEnabled": false,
+      "keywords": ["semgrep", "sast", "static-analysis", "extension", "opt-in", "supersize"]
+    }
+  ]
+}

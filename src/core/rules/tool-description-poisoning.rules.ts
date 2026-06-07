@@ -5,7 +5,9 @@ import type { FrameworkMapping, RuleSpec } from '../types.js';
 // Builtin logic preserved verbatim from the R9a compiled-in scanner (EARS-055).
 
 const C = 'tool-description-poisoning' as const;
-const POISONING: FrameworkMapping = { owasp: 'MCP-T01', atlas: 'AML.T0051' };
+// A coercive directive in a description the MODEL reads but the user does not: it impersonates trusted
+// intent (Spoofing) and targets the model's cognition (the EXTRA `cognitive` axis).
+const POISONING: FrameworkMapping = { owasp: 'MCP-T01', atlas: 'AML.T0051', stride: ['S'], axis: ['cognitive'] };
 
 export const toolDescriptionPoisoningRules: readonly RuleSpec[] = [
   {

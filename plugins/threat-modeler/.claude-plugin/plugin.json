@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "threat-modeler",
+  "displayName": "threat-modeler — STRIDE/EoP gap ritual & self-improvement covenant",
+  "version": "0.1.0",
+  "description": "The agentic threat-intelligence layer of the threat-stack platform. Maps skillsentry's probe set onto STRIDE's six portals plus two EXTRA agentic axes (temporal, cognitive), deals the Elevation-of-Privilege 'threat-modelling poker' deck against the probes to surface ABSENT/THIN cells, and writes a gap analysis (doc/threat-model/). Under the self-improvement covenant it drafts new deterministic RuleSpec data and OPENS A PR — it never decides a verdict and never ships a rule directly; the deterministic test suite and a human are the acceptance gate. STRIDE is treated here as just another threat-intelligence source feeding the covenant, never a brand.",
+  "author": {
+    "name": "whatbirdisthat",
+    "email": "95787+whatbirdisthat@users.noreply.github.com",
+    "url": "https://github.com/whatbirdisthat"
+  },
+  "homepage": "https://github.com/whatbirdisthat/skillsentry/tree/main/plugins/threat-modeler",
+  "repository": "https://github.com/whatbirdisthat/skillsentry",
+  "license": "MIT",
+  "category": "security",
+  "defaultEnabled": false,
+  "keywords": [
+    "threat-modeling",
+    "stride",
+    "elevation-of-privilege",
+    "maestro",
+    "owasp",
+    "mitre-atlas",
+    "linddun",
+    "self-improvement",
+    "covenant",
+    "agentic"
+  ],
+  "metadata": {
+    "note": "Runs against the skillsentry repo it lives in (cwd = repo root). The coverage matrix is computed mechanically from rule data by scripts/coverage-matrix.mjs; the agent reasons over the EMPTY cells using knowledge/. The covenant proposes (PR) — the deterministic core + a human dispose."
+  }
+}

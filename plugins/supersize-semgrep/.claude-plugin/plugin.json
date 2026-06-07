@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "supersize-semgrep",
+  "displayName": "supersize-semgrep — opt-in SAST extension (separate product)",
+  "version": "0.1.0",
+  "description": "An OPT-IN 'supersize' extension that adds Semgrep static analysis on top of skillsentry's verdict for deeper, language-aware SAST. A SEPARATE product with its own trust statement: it shells out to an external `semgrep` binary if installed (degrading gracefully with install guidance when absent) and is NEVER imported into the skillsentry core, so the auditor's zero-dependency, never-executing, deterministic guarantees remain unqualified. Off by default.",
+  "author": {
+    "name": "whatbirdisthat",
+    "email": "95787+whatbirdisthat@users.noreply.github.com",
+    "url": "https://github.com/whatbirdisthat"
+  },
+  "homepage": "https://github.com/whatbirdisthat/skillsentry/tree/main/plugins/supersize-semgrep",
+  "repository": "https://github.com/whatbirdisthat/skillsentry",
+  "license": "MIT",
+  "category": "security",
+  "defaultEnabled": false,
+  "keywords": ["semgrep", "sast", "static-analysis", "extension", "opt-in", "supersize"],
+  "metadata": {
+    "note": "Demonstrates the platform's community-extension model: external-tool plugins that genuinely expand reach WITHOUT touching the pure auditor's pillars. Read knowledge/trust-statement.md."
+  }
+}
