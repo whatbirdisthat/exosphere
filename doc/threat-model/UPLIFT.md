@@ -65,39 +65,39 @@ and `node plugins/threat-modeler/scripts/coverage-matrix.mjs` after each change;
 
 ## HIGH
 
-- [ ] **U8 · coverage gap (C-H1)** — `fork-bomb` hard-codes the `:` glyph; renaming the function
+- [x] **U8 · coverage gap (C-H1)** — `fork-bomb` hard-codes the `:` glyph; renaming the function
   (`b(){ b|b& };b`) or a `perl -e 'fork while fork'` / Python `os.fork()` bomb all bypass it.
   `resource-exhaustion.rules.ts:52`. **Fix:** generalise to a captured identifier (self-pipe-to-background
   + re-invocation); add a probe for `fork while fork` / `os.fork()` loops.
-- [ ] **U9 · coverage gap (C-H2)** — `raw-disk-destroy` misses partitions (`/dev/sda1`, `nvme0n1p2`),
+- [x] **U9 · coverage gap (C-H2)** — `raw-disk-destroy` misses partitions (`/dev/sda1`, `nvme0n1p2`),
   `shred`/`wipefs`/`blkdiscard`, shell-redirect overwrite `>/dev/sda`, spaced `of = `, and cloud disks
   `vd[a-z]`/`xvd[a-z]`. `resource-exhaustion.rules.ts:76`. **Fix:** add those verbs/forms + device classes.
-- [ ] **U10 · coverage gap (C-H3)** — `history-clearing` misses `ln -sf /dev/null ~/.bash_history`,
+- [x] **U10 · coverage gap (C-H3)** — `history-clearing` misses `ln -sf /dev/null ~/.bash_history`,
   `shred`/`truncate -s0 …_history`, bare `HISTFILE=/dev/null` (no `export`). `audit-evasion.rules.ts:24`.
   **Fix:** add those forms; unify the `_history` suffix list across branches.
-- [ ] **U11 · coverage gap (C-H4)** — `log-tampering` misses `rm -rf /var/log` (no trailing slash → whole
+- [x] **U11 · coverage gap (C-H4)** — `log-tampering` misses `rm -rf /var/log` (no trailing slash → whole
   dir), `chattr +i/+a`, `auditctl -e 0/-D`. `audit-evasion.rules.ts:50`. **Fix:** make the trailing slash
   optional; add `chattr`/`auditctl`; record any cross-platform (Windows) decisions as out-of-scope in gaps.json.
-- [ ] **U12 · broken promise (C-H5, D-L2)** — `plugins/supersize-semgrep/commands/sast.md:14` resolves
+- [x] **U12 · broken promise (C-H5, D-L2)** — `plugins/supersize-semgrep/commands/sast.md:14` resolves
   skillsentry via `${CLAUDE_PLUGIN_ROOT}/../skillsentry/cli/bin.js`, which won't exist when plugins
   install as isolated cache subtrees; the "deterministic verdict from the pure auditor" step then silently
   degrades to a buried JSON note. **Fix:** resolve skillsentry via a stable mechanism (declared dependency
   / `command -v skillsentry` / instruct the user to run `/skillsentry:audit` separately) and make the
   miss loud, not silent.
-- [ ] **U13 · stale docs (B-H4)** — `README.md` / `CHANGELOG.md` / `ROADMAP.md` still describe a single
+- [x] **U13 · stale docs (B-H4)** — `README.md` / `CHANGELOG.md` / `ROADMAP.md` still describe a single
   npx CLI: no marketplace, no threat-modeler, and the detector table omits `resource-exhaustion` /
   `audit-evasion`. README and marketplace.json describe two different products. **Fix:** add a
   marketplace/platform section + the two new detector rows; add a CHANGELOG entry for the 0.7.0 content bump.
-- [ ] **U14 · inconsistency (B-H2)** — `README.md:69` calls the class `description-poisoning` (real name
+- [x] **U14 · inconsistency (B-H2)** — `README.md:69` calls the class `description-poisoning` (real name
   `tool-description-poisoning`); `README.md:71` lists `version-drift | T3` as a detector row, contradicting
   the architecture (it's the temporal pass, not a Rule). **Fix:** correct the name; footnote version-drift
   as the T3 pass.
-- [ ] **U15 · inconsistency (B-H3)** — `ROADMAP.md:14` "four detection classes" / `:95` "5" vs the 8 now in
+- [x] **U15 · inconsistency (B-H3)** — `ROADMAP.md:14` "four detection classes" / `:95` "5" vs the 8 now in
   `types.ts`. **Fix:** mark those as historical v1/R9a scope, not present capability.
-- [ ] **U16 · over-claim contradiction (A-H6)** — `audit.md:36` says "PASS → safe to proceed" two lines
+- [x] **U16 · over-claim contradiction (A-H6)** — `audit.md:36` says "PASS → safe to proceed" two lines
   below "PASS = no rule matched (not a proof of safety)." **Fix:** "PASS → no rule matched (not a safety
   proof); proceed with normal judgement."
-- [ ] **U17 · hype in a "mechanical" doc (A-H5)** — `doc/threat-model/GAP_ANALYSIS.md:28` calls the
+- [x] **U17 · hype in a "mechanical" doc (A-H5)** — `doc/threat-model/GAP_ANALYSIS.md:28` calls the
   cognitive axis "the product's moat" inside a doc that bills itself as mechanical/not-an-opinion. **Fix:**
   delete "— the product's moat" (the count of 9 carries the fact).
 - [ ] **U18 · token-waste (D-H1, B-M3)** — every plugin description is stored twice (marketplace.json +
@@ -126,7 +126,7 @@ and `node plugins/threat-modeler/scripts/coverage-matrix.mjs` after each change;
   line-continuation (`rm -rf \`⏎`/etc`), heredocs, and variable indirection (`T=/; rm -rf "$T"`) evade the
   whole T0 tier. **Fix:** note these as known T0 limits in GAP_ANALYSIS; consider a `\`-continuation join
   pass before per-line matching.
-- [ ] **U24 · inconsistency (B-M1)** — three names (repo `exosphere`, product/CLI `skillsentry`,
+- [x] **U24 · inconsistency (B-M1)** — three names (repo `exosphere`, product/CLI `skillsentry`,
   marketplace `threat-stack`) are never tied together in any top-level doc. **Fix:** one naming line in
   README.
 - [x] **U25 · dangling claim (B-M2)** — `eop-deck.md:32` lists a "cognitive DoS" card as "→ no probe" that
@@ -155,7 +155,7 @@ and `node plugins/threat-modeler/scripts/coverage-matrix.mjs` after each change;
 - [ ] **U32 · nagging/noise (C-L1)** — the opt-in `hooks.json.example` re-audits the whole repo on **every**
   Bash call and swallows output (`2>/dev/null || true`), so a BLOCK is invisible. **Fix:** if advisory,
   surface stderr; if gating, drop `|| true`; reconsider per-Bash whole-repo re-scan.
-- [ ] **U33 · classification smell (C-L2)** — `set +o history` lives in `log-tampering` but belongs in
+- [x] **U33 · classification smell (C-L2)** — `set +o history` lives in `log-tampering` but belongs in
   `history-clearing`. Cosmetic (both are audit-evasion). **Fix:** move it.
 - [ ] **U34 · over-engineering (D-L1)** — `linddun.md` is PARKED yet read by 4 files every gap ritual; the
   ritual cross-checks 4 framework docs (maestro/mcp-38/owasp-agentic/linddun) each run. **Fix for v1:**
