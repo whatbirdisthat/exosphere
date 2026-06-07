@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "threat-stack",
+  "displayName": "threat-stack — platform front door & concierge",
+  "version": "0.1.0",
+  "description": "The front door of the threat-stack platform. Greets whoever opens the repo, explains the value flow (AUDIT ▸ MODEL ▸ EXTEND), lists only the installed plugins and the next command to run, and consolidates each plugin's readiness into one view. A thin orchestrator that delegates to the specialists (skillsentry, threat-modeler, supersize-*) by capability and never re-implements them.",
+  "author": {
+    "name": "whatbirdisthat",
+    "email": "95787+whatbirdisthat@users.noreply.github.com",
+    "url": "https://github.com/whatbirdisthat"
+  },
+  "homepage": "https://github.com/whatbirdisthat/skillsentry/tree/main/plugins/threat-stack",
+  "repository": "https://github.com/whatbirdisthat/skillsentry",
+  "license": "MIT",
+  "category": "workflow",
+  "defaultEnabled": false,
+  "keywords": ["front-door", "concierge", "platform", "help", "flow", "orchestration", "threat-stack"],
+  "metadata": {
+    "note": "commands/ and skills/ auto-discovered. SessionStart greeting via hooks/greet.sh. Delegates to skillsentry (AUDIT), threat-modeler (MODEL), supersize-* (EXTEND); never re-implements them."
+  }
+}
