@@ -100,12 +100,12 @@ and `node plugins/threat-modeler/scripts/coverage-matrix.mjs` after each change;
 - [x] **U17 · hype in a "mechanical" doc (A-H5)** — `doc/threat-model/GAP_ANALYSIS.md:28` calls the
   cognitive axis "the product's moat" inside a doc that bills itself as mechanical/not-an-opinion. **Fix:**
   delete "— the product's moat" (the count of 9 carries the fact).
-- [ ] **U18 · token-waste (D-H1, B-M3)** — every plugin description is stored twice (marketplace.json +
+- [x] **U18 · token-waste (D-H1, B-M3)** — every plugin description is stored twice (marketplace.json +
   plugin.json): `supersize-semgrep` 100% identical (~63 words), the other three 73–88% overlap (~280
   words duplicated); the threat-modeler keyword lists *drift* between the two. **Fix:** canonical long
   description in `plugin.json`; marketplace.json carries the one-line `displayName` tagline only. Sync
   keywords.
-- [ ] **U19 · token-waste (D-H2, D-H3, D-H4)** — descriptions are 80+ word paragraphs; SKILL `description`
+- [x] **U19 · token-waste (D-H2, D-H3, D-H4)** — descriptions are 80+ word paragraphs; SKILL `description`
   frontmatter is 76–84 words (loaded for every trigger-match) and restates the covenant; "never-executing"
   appears in 13 files, "zero-dependency" in 11, the STRIDE "never a brand" disclaimer in 7. **Fix:** cut
   descriptions to ~25–35 words; trigger lists to 3–4 phrases; assert each pillar/disclaimer once in its
@@ -113,14 +113,14 @@ and `node plugins/threat-modeler/scripts/coverage-matrix.mjs` after each change;
 
 ## MEDIUM
 
-- [ ] **U20 · correctness (B/C-M1)** — the matrix says "probes tabulated: 26" but the STRIDE columns sum
+- [x] **U20 · correctness (B/C-M1)** — the matrix says "probes tabulated: 26" but the STRIDE columns sum
   to 28 (rules carry multiple portals). `coverage-matrix.mjs:29`, `GAP_ANALYSIS.md:8`. **Fix:** label the
   column counts "portal tags (rules may carry several)" and/or print both 26 (rules) and 28 (tags).
-- [ ] **U21 · correctness (C-M3)** — density label cliff (`THIN ≤ 3`) is arbitrary and the HEAVY cells are
+- [x] **U21 · correctness (C-M3)** — density label cliff (`THIN ≤ 3`) is arbitrary and the HEAVY cells are
   inflated by the double-count (U20), which can suppress a real gap in the "next action." `coverage-matrix.mjs:26`.
   **Fix:** compute density over distinct rules whose *primary* portal is that cell, or drop the qualitative
   label for raw counts.
-- [ ] **U22 · correctness (C-M2)** — `coverage-matrix.mjs:30` seeds `byTier {T0,T1,T3}`, emitting a phantom
+- [x] **U22 · correctness (C-M2)** — `coverage-matrix.mjs:30` seeds `byTier {T0,T1,T3}`, emitting a phantom
   `T3:0` on every row (T3 is engine-side, never a RuleSpec). **Fix:** derive tier keys from data.
 - [x] **U23 · undisclosed limit (C-M4)** — line-pattern matching is per-line (`compile.ts:47`), so
   line-continuation (`rm -rf \`⏎`/etc`), heredocs, and variable indirection (`T=/; rm -rf "$T"`) evade the
@@ -132,21 +132,21 @@ and `node plugins/threat-modeler/scripts/coverage-matrix.mjs` after each change;
 - [x] **U25 · dangling claim (B-M2)** — `eop-deck.md:32` lists a "cognitive DoS" card as "→ no probe" that
   is neither a gaps.json entry nor marked out-of-scope. **Fix:** mark it out-of-scope (runtime-only),
   consistent with GAP_ANALYSIS.md's out-of-scope section.
-- [ ] **U26 · hypocrisy (A-M10)** — `stride-portals.md:2` says STRIDE is "never a brand" while `:26`
+- [x] **U26 · hypocrisy (A-M10)** — `stride-portals.md:2` says STRIDE is "never a brand" while `:26`
   prescribes a "Branding line for the platform: 'STRIDE + 2 agentic axes'", and STRIDE is in plugin
   displayNames + keywords. **Fix:** either own STRIDE as the organising brand or genuinely demote it — not both.
-- [ ] **U27 · nagging (D-M1)** — `plugins/threat-stack/hooks/greet.sh` prints two lines on **every**
+- [x] **U27 · nagging (D-M1)** — `plugins/threat-stack/hooks/greet.sh` prints two lines on **every**
   SessionStart. **Fix:** one line, or fire once (guard on a sentinel file); the content is already on
   demand via `/threat-stack` and `/threat-stack:help`.
-- [ ] **U28 · token-waste (D-M2)** — the gap-acceptance phrase "static · pre-execution · deterministic ·
+- [x] **U28 · token-waste (D-M2)** — the gap-acceptance phrase "static · pre-execution · deterministic ·
   never-executing" is repeated in 7 files. **Fix:** define once (covenant-governance or eop-deck) and reference.
-- [ ] **U29 · token-waste + drift (D-M3)** — `stride-portals.md` / `eop-deck.md` / gap-ritual SKILL
+- [x] **U29 · token-waste + drift (D-M3)** — `stride-portals.md` / `eop-deck.md` / gap-ritual SKILL
   **hardcode** the current density (T/I/E heavy, R/D absent) which is already computed by
   `coverage-matrix.mjs` — and has already drifted (eop-deck still says R/D "ABSENT" though they shipped).
   **Fix:** the matrix script is the source of truth for coverage status; docs describe portals, not current density.
-- [ ] **U30 · token-waste (D-M4)** — `platform-map.md`, `flow.md`, `help.md`, `threat-stack.md` circle the
+- [x] **U30 · token-waste (D-M4)** — `platform-map.md`, `flow.md`, `help.md`, `threat-stack.md` circle the
   same AUDIT▸MODEL▸EXTEND diagram/lists. **Fix:** platform-map is the source; the commands render slices.
-- [ ] **U31 · hype (A-M7, A-M8, A-M9)** — repeated brand mantras: "trust anchor" (5+), "load-bearing",
+- [x] **U31 · hype (A-M7, A-M8, A-M9)** — repeated brand mantras: "trust anchor" (5+), "load-bearing",
   "supersize", "growing/evolves toward greater threat intelligence". **Fix:** define once; lead supersize
   prose with "Semgrep SAST extension," not "supersize."
 
