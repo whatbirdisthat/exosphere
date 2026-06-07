@@ -124,7 +124,10 @@ full scan.
 
 ## Documentation
 
-The [**guide**](./doc/guide/) is the how-and-why:
+Start with the long-form article [**How skillsentry works**](./doc/articles/how-skillsentry-works.md) —
+the threat, the design, the tiers, and the limits, in one read.
+
+The [**guide**](./doc/guide/) is the how-and-why, by topic:
 
 - [Threat model & reading a report](./doc/guide/threat-model.md) — the attacks, the limits, the verdicts
 - [Architecture](./doc/guide/architecture.md) — the pipeline and the never-execute boundary

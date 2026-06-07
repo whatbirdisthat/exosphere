@@ -12,6 +12,7 @@ teach the design, including its limits.
 
 | If you want to… | Read |
 |---|---|
+| Read the whole story in one long-form piece | [How skillsentry works](../articles/how-skillsentry-works.md) |
 | Understand the threat skills pose, and how to read a verdict | [Threat model & reading a report](./threat-model.md) |
 | See how the scanner is built and why "never execute" is structural | [Architecture](./architecture.md) |
 | Learn what each detector actually looks for (and what it misses) | [How detection works](./how-detection-works.md) |
