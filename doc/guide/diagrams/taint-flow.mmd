@@ -1,30 +1,40 @@
 %% T1 dataflow/taint: catching a payload split across lines (and files) that single-line regex misses.
+%% Colour key: amber = untrusted input · blue = the analysis · purple = cross-file · red = danger.
 %% Source: src/core/matchers/shell-dataflow.ts, shell-crossfile-dataflow.ts, ADR-006/007
 flowchart TD
     subgraph SRC["Tainted SOURCEs (where untrusted data enters)"]
-        s1["command substitution $(...)"]
-        s2["network fetch — curl / wget"]
-        s3["base64 / hex decode"]
-        s4["sensitive env var · read from stdin"]
+        s1["command substitution $(...)"]:::warn
+        s2["network fetch — curl / wget"]:::warn
+        s3["base64 / hex decode"]:::warn
+        s4["sensitive env var · read from stdin"]:::warn
     end
 
-    P["Propagate taint across lines<br/>(single forward pass, top → bottom)<br/>assignment whose RHS uses a tainted var → tainted"]
+    P["Propagate taint across lines<br/>(single forward pass, top → bottom)<br/>assignment whose RHS uses a tainted var → tainted"]:::core
 
     subgraph XF["Cross-file (ADR-007)"]
-        x1["resolve 'source ./lib.sh' in-memory<br/>(path-safe, never fetches/executes)<br/>import tainted vars from the sibling"]
+        x1["resolve 'source ./lib.sh' in-memory<br/>(path-safe, never fetches/executes)<br/>import tainted vars from the sibling"]:::accent
     end
 
     subgraph SINK["Dangerous SINKs (where tainted data becomes dangerous)"]
-        k1["pipe to sh / bash / zsh"]
-        k2["eval · exec"]
-        k3["source / . a tainted target"]
-        k4["write to an autorun location<br/>(.bashrc · crontab · systemd · authorized_keys)"]
+        k1["pipe to sh / bash / zsh"]:::danger
+        k2["eval · exec"]:::danger
+        k3["source / . a tainted target"]:::danger
+        k4["write to an autorun location<br/>(.bashrc · crontab · systemd · authorized_keys)"]:::danger
     end
 
     s1 & s2 & s3 & s4 --> P
     x1 --> P
     P --> SINK
-    SINK --> F["Finding at the SINK's file:line<br/>tier T1 · OWASP ASI04 · MITRE ATLAS"]
+    SINK --> F["Finding at the SINK's file:line<br/>tier T1 · OWASP ASI04 · MITRE ATLAS"]:::danger
 
-    note["Example a regex misses:<br/>URL=$(get_secret); P=$(curl &quot;$URL&quot;); echo &quot;$P&quot; | sh"]
+    note["Example a regex misses:<br/>URL=$(get_secret); P=$(curl &quot;$URL&quot;); echo &quot;$P&quot; | sh"]:::input
     P -.- note
+
+    classDef warn fill:#fbe7c0,stroke:#bf8700,color:#16212e;
+    classDef core fill:#dbe7f5,stroke:#3f6fae,color:#16212e;
+    classDef accent fill:#e6dcf7,stroke:#8250df,color:#16212e;
+    classDef danger fill:#ffd7d2,stroke:#cf222e,color:#16212e;
+    classDef input fill:#e8edf2,stroke:#5b6b7f,color:#16212e;
+    style SRC fill:#fbf0d8,stroke:#bf8700,color:#16212e;
+    style XF fill:#efe7fa,stroke:#8250df,color:#16212e;
+    style SINK fill:#ffe6e2,stroke:#cf222e,color:#16212e;

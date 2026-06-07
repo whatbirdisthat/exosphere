@@ -39,7 +39,10 @@ You give it a target; it clones (read-only, hooks disabled) or reads a local fol
 runs a ruleset over them, and aggregates the findings into one verdict. Nothing in the skill is ever
 executed.
 
-![How skillsentry scans a skill](./doc/guide/diagrams/scan-pipeline.svg)
+<p align="center">
+  <img src="./doc/guide/diagrams/pipeline-overview.svg" width="820"
+       alt="Pipeline: target → acquire (read-only) → enumerate → scan (T0/T1/T3) → verdict: PASS, REVIEW, or BLOCK">
+</p>
 
 ```
 $ npx skillsentry github.com/acme/cool-skill

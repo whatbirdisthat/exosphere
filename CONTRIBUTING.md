@@ -51,7 +51,9 @@ can never execute anything. At load time a `RuleSpec` compiles to a matcher: a `
 `RegExp` (it *matches* text, never runs it), and a `builtin` selects a vetted function from a closed
 registry.
 
-![How a rule compiles](./doc/guide/diagrams/rule-compilation.svg)
+<p align="center">
+  <img src="./doc/guide/diagrams/rule-compilation.svg" width="760" alt="How a rule compiles">
+</p>
 
 A worked example — the rule that catches `curl … | sh`
 (`src/core/rules/dangerous-bash.rules.ts`, id `dangerous-bash/curl-pipe-to-shell`):

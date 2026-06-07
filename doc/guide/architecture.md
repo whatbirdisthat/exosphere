@@ -12,7 +12,9 @@ below follows from taking that seriously.
 An audit is a straight line from a target to a verdict. No stage runs audited code; each stage hands the
 next a plain in-memory value.
 
-![The scan pipeline](./diagrams/scan-pipeline.svg)
+<p align="center">
+  <img src="./diagrams/scan-pipeline.svg" width="380" alt="The scan pipeline">
+</p>
 
 1. **Resolve & acquire** (`src/adapters/acquire.ts`). The target is either a local directory (read in
    place) or a git URL. For a URL, skillsentry does a shallow, **read-only** clone: `--depth 1
@@ -37,7 +39,9 @@ next a plain in-memory value.
 "Never execute" isn't a runtime check you can forget to call — it's enforced by **where code is allowed to
 live**. The codebase is split into three layers, and the dependency rule between them is the whole game.
 
-![Architecture boundaries](./diagrams/architecture-boundaries.svg)
+<p align="center">
+  <img src="./diagrams/architecture-boundaries.svg" width="720" alt="Architecture boundaries">
+</p>
 
 - **Pure core** (`src/core/*`) — the engine, the rules, the matchers, verdict, drift, lock, report. It
   imports `node:*` **nothing**: no `fs`, no `child_process`, no `crypto`, no network. It only ever sees

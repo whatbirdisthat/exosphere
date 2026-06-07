@@ -28,7 +28,9 @@ dataflow analysis of bundled shell scripts), and aggregates the findings into a 
 BLOCK** verdict where every finding cites a `file:line`, a reason, and a framework ID (OWASP / MITRE
 ATLAS). It never executes, never phones home, and has zero runtime dependencies of its own.
 
-![How skillsentry scans a skill](./diagrams/scan-pipeline.svg)
+<p align="center">
+  <img src="./diagrams/scan-pipeline.svg" width="380" alt="How skillsentry scans a skill">
+</p>
 
 Each stage is explained in [Architecture](./architecture.md); each detector in
 [How detection works](./how-detection-works.md).

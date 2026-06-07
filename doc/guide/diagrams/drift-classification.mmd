@@ -1,15 +1,24 @@
 %% T3 rug-pull detection: what changed since you approved this skill, and is it dangerous?
+%% Colour key: grey = data · purple = the baseline · blue = the diff · red = escalation · amber =
+%% invalidation · green = benign / the guarantee.
 %% Source: src/core/drift.ts, lock.ts, src/adapters/lockfile.ts, ADR-008
 flowchart TD
-    A["Fresh scan findings + per-file sha256"] --> D
-    B[".skillsentry.lock<br/>approved capability fingerprint + hashes"] --> D
-    D{"diff capability sets<br/>(drift.ts)"}
+    A["Fresh scan findings + per-file sha256"]:::input --> D
+    B[".skillsentry.lock<br/>approved capability fingerprint + hashes"]:::accent --> D
+    D{"diff capability sets<br/>(drift.ts)"}:::core
 
-    D -->|"fresh capability NOT in approved set"| E["<b>Escalation</b><br/>new sink / perm / hook gained since approval<br/>→ drift finding, tier T3"]
-    D -->|"approved file's bytes changed,<br/>capability still present"| F["<b>Approval invalidation</b><br/>the approval no longer covers these bytes<br/>→ drift finding, tier T3"]
-    D -->|"bytes changed,<br/>capability unchanged"| G["<b>Benign drift</b><br/>docs / version bump / reorder<br/>→ informational note, no finding"]
+    D -->|"fresh capability NOT in approved set"| E["<b>Escalation</b><br/>new sink / perm / hook gained since approval<br/>→ drift finding, tier T3"]:::danger
+    D -->|"approved file's bytes changed,<br/>capability still present"| F["<b>Approval invalidation</b><br/>the approval no longer covers these bytes<br/>→ drift finding, tier T3"]:::warn
+    D -->|"bytes changed,<br/>capability unchanged"| G["<b>Benign drift</b><br/>docs / version bump / reorder<br/>→ informational note, no finding"]:::pass
 
-    E --> H["Verdict = aggregate( fresh ∪ drift )<br/><b>additive-only</b>: a lockfile can ADD a finding, never remove one"]
+    E --> H["Verdict = aggregate( fresh ∪ drift )<br/><b>additive-only</b>: a lockfile can ADD a finding, never remove one"]:::input
     F --> H
     G --> H
-    H --> I["A permissive lockfile cannot launder a BLOCK.<br/>Any HIGH it pre-approved is DISCLOSED in the report."]
+    H --> I["A permissive lockfile cannot launder a BLOCK.<br/>Any HIGH it pre-approved is DISCLOSED in the report."]:::pass
+
+    classDef input fill:#e8edf2,stroke:#5b6b7f,color:#16212e;
+    classDef accent fill:#e6dcf7,stroke:#8250df,color:#16212e;
+    classDef core fill:#dbe7f5,stroke:#3f6fae,color:#16212e;
+    classDef danger fill:#ffd7d2,stroke:#cf222e,color:#16212e;
+    classDef warn fill:#fbe7c0,stroke:#bf8700,color:#16212e;
+    classDef pass fill:#cdeacd,stroke:#2da44e,color:#16212e;

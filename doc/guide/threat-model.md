@@ -62,7 +62,9 @@ Treat a PASS as "no known-bad patterns found," one input to your judgement — n
 
 Findings collapse to a single verdict: the **highest severity** present wins.
 
-![Verdict model](./diagrams/verdict-model.svg)
+<p align="center">
+  <img src="./diagrams/verdict-model.svg" width="720" alt="Verdict model">
+</p>
 
 | Verdict | Meaning | Exit code | What to do |
 |---|---|---|---|

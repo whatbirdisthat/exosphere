@@ -1,4 +1,5 @@
 %% The verdict is the single highest severity among all findings. Only BLOCK gates CI.
+%% Colour key (traffic light): green = PASS · amber = REVIEW · red = BLOCK · blue = the scan.
 %% Source: src/core/verdict.ts
 stateDiagram-v2
     direction LR
@@ -17,6 +18,15 @@ stateDiagram-v2
     PASS --> [*]
     REVIEW --> [*]
     BLOCK --> [*]
+
+    classDef scan fill:#dbe7f5,stroke:#3f6fae,color:#16212e;
+    classDef pass fill:#cdeacd,stroke:#2da44e,color:#16212e;
+    classDef review fill:#fbe7c0,stroke:#bf8700,color:#16212e;
+    classDef block fill:#ffd7d2,stroke:#cf222e,color:#16212e;
+    class Scan scan
+    class PASS pass
+    class REVIEW review
+    class BLOCK block
 
     note right of BLOCK
       Additive-only: T3 drift findings are added

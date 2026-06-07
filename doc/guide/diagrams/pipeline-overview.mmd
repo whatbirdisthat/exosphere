@@ -1,0 +1,15 @@
+%% Compact horizontal overview for the README headline (wide + short, not the tall detailed pipeline).
+%% Colour key: grey = neutral/data · teal = touches the outside world · blue = pure computation ·
+%% green = PASS · amber = REVIEW · red = BLOCK.
+flowchart LR
+    T["Target<br/>git URL / dir"]:::input --> A["Acquire<br/>read-only"]:::io --> E["Enumerate<br/>& classify"]:::core --> S["Scan<br/>T0 · T1 · T3"]:::core --> V{"Verdict"}:::input
+    V -->|no findings| P["PASS ✅"]:::pass
+    V -->|low / med| R["REVIEW ⚠️"]:::warn
+    V -->|high| B["BLOCK ⛔"]:::danger
+
+    classDef input fill:#e8edf2,stroke:#5b6b7f,color:#16212e;
+    classDef io fill:#d2ebe8,stroke:#2a9d8f,color:#16212e;
+    classDef core fill:#dbe7f5,stroke:#3f6fae,color:#16212e;
+    classDef pass fill:#cdeacd,stroke:#2da44e,color:#16212e;
+    classDef warn fill:#fbe7c0,stroke:#bf8700,color:#16212e;
+    classDef danger fill:#ffd7d2,stroke:#cf222e,color:#16212e;

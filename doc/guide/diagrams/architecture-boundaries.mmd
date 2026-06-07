@@ -1,21 +1,22 @@
 %% The never-execute guarantee is STRUCTURAL: only the adapter layer touches the outside world.
-%% The pure core imports node:* nothing — enforced by a layering test (ADR-001).
+%% Colour key: grey = orchestration · teal = I/O (the only code touching the outside) · blue = pure core ·
+%% green = the safety guarantee.
 %% Source: ADR-001, src/core/*, src/adapters/*, src/core/__tests__/layering.test.ts
 flowchart TD
     subgraph CLI["CLI layer — orchestration"]
-        cli["cli.ts / bin.ts<br/>parse args · wire stages · format · exit code"]
+        cli["cli.ts / bin.ts<br/>parse args · wire stages · format · exit code"]:::input
     end
 
     subgraph ADAPTERS["Adapter layer — the ONLY code that does I/O"]
-        acq["acquire.ts<br/>git clone (read-only) · temp dirs"]
-        enum["enumerate.ts<br/>walk filesystem · read files"]
-        lock["lockfile.ts<br/>read/write .skillsentry.lock · sha256"]
+        acq["acquire.ts<br/>git clone (read-only) · temp dirs"]:::io
+        enum["enumerate.ts<br/>walk filesystem · read files"]:::io
+        lock["lockfile.ts<br/>read/write .skillsentry.lock · sha256"]:::io
     end
 
     subgraph CORE["Pure core — imports node:* NOTHING (no fs, child_process, crypto, net)"]
-        engine["engine.ts · ruleset.ts · compile.ts"]
-        rules["rules/*.rules.ts (data) · matchers/* (vetted fns)"]
-        logic["verdict.ts · drift.ts · lock.ts · report.ts · ignore.ts"]
+        engine["engine.ts · ruleset.ts · compile.ts"]:::core
+        rules["rules/*.rules.ts (data) · matchers/* (vetted fns)"]:::core
+        logic["verdict.ts · drift.ts · lock.ts · report.ts · ignore.ts"]:::core
     end
 
     cli --> acq & enum & lock
@@ -26,5 +27,14 @@ flowchart TD
     engine --> logic
     logic -->|"AuditReport (pure data)"| cli
 
-    note["Audited content is DATA, never code:<br/>no eval · no shell · no dynamic import.<br/>A hostile target cannot run."]
+    note["Audited content is DATA, never code:<br/>no eval · no shell · no dynamic import.<br/>A hostile target cannot run."]:::pass
     CORE -.- note
+
+    classDef input fill:#e8edf2,stroke:#5b6b7f,color:#16212e;
+    classDef io fill:#d2ebe8,stroke:#2a9d8f,color:#16212e;
+    classDef core fill:#dbe7f5,stroke:#3f6fae,color:#16212e;
+    classDef pass fill:#cdeacd,stroke:#2da44e,color:#16212e;
+
+    style CLI fill:#f1f3f6,stroke:#8b98a8,color:#16212e;
+    style ADAPTERS fill:#e2f1ee,stroke:#2a9d8f,color:#16212e;
+    style CORE fill:#e4ecf7,stroke:#3f6fae,color:#16212e;

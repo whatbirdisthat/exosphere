@@ -1,17 +1,24 @@
 %% The end-to-end audit pipeline: a target becomes a verdict without ever executing.
+%% Colour key: grey = neutral/data · teal = touches the outside world (I/O) · blue = pure computation ·
+%% purple = temporal (T3 drift).
 %% Source: src/cli.ts, src/adapters/{acquire,enumerate,classify}.ts, src/core/{engine,verdict,report}.ts
 flowchart TD
-    A["Target<br/>git URL or local dir"] --> B{"resolve<br/>(acquire.ts)"}
-    B -->|git URL| C["Shallow clone, READ-ONLY<br/>--depth 1 --no-checkout<br/>hooks disabled, no submodules, no LFS"]
-    B -->|local dir| D["Read in place<br/>(no copy)"]
-    C --> E["Enumerate + classify<br/>(enumerate.ts / classify.ts)<br/>walk tree → FileRecord[]"]
+    A["Target<br/>git URL or local dir"]:::input --> B{"resolve<br/>(acquire.ts)"}:::io
+    B -->|git URL| C["Shallow clone, READ-ONLY<br/>--depth 1 --no-checkout<br/>hooks disabled, no submodules, no LFS"]:::io
+    B -->|local dir| D["Read in place<br/>(no copy)"]:::io
+    C --> E["Enumerate + classify<br/>(enumerate.ts / classify.ts)<br/>walk tree → FileRecord[]"]:::core
     D --> E
-    E --> F["Apply .skillsentryignore<br/>excluded files disclosed, never hidden"]
-    F --> G["Scan: run the ruleset<br/>(engine.ts) — T0 patterns + T1 dataflow"]
-    G --> H["Findings[]<br/>rule · severity · file:line · why · OWASP/ATLAS"]
-    H --> I{".skillsentry.lock<br/>present?"}
-    I -->|yes| J["T3 drift pass<br/>(drift.ts) — diff vs approved baseline"]
+    E --> F["Apply .skillsentryignore<br/>excluded files disclosed, never hidden"]:::core
+    F --> G["Scan: run the ruleset<br/>(engine.ts) — T0 patterns + T1 dataflow"]:::core
+    G --> H["Findings[]<br/>rule · severity · file:line · why · OWASP/ATLAS"]:::core
+    H --> I{".skillsentry.lock<br/>present?"}:::accent
+    I -->|yes| J["T3 drift pass<br/>(drift.ts) — diff vs approved baseline"]:::accent
     I -->|no| K
-    J --> K["Aggregate verdict<br/>(verdict.ts) — additive-only"]
-    K --> L["Report: markdown + JSON<br/>(report.ts) · optional badge / CI line"]
-    L --> M["Exit 0 (PASS/REVIEW)<br/>or 1 (BLOCK)"]
+    J --> K["Aggregate verdict<br/>(verdict.ts) — additive-only"]:::input
+    K --> L["Report: markdown + JSON<br/>(report.ts) · optional badge / CI line"]:::input
+    L --> M["Exit 0 (PASS/REVIEW)<br/>or 1 (BLOCK)"]:::input
+
+    classDef input fill:#e8edf2,stroke:#5b6b7f,color:#16212e;
+    classDef io fill:#d2ebe8,stroke:#2a9d8f,color:#16212e;
+    classDef core fill:#dbe7f5,stroke:#3f6fae,color:#16212e;
+    classDef accent fill:#e6dcf7,stroke:#8250df,color:#16212e;

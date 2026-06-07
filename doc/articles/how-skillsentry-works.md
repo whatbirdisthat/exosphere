@@ -39,7 +39,9 @@ already lost.
 Taken seriously, that rule shapes the whole pipeline. An audit is a straight line from a target to a
 verdict, and no stage ever runs audited code:
 
-![The scan pipeline](../guide/diagrams/scan-pipeline.svg)
+<p align="center">
+  <img src="../guide/diagrams/scan-pipeline.svg" width="380" alt="The scan pipeline">
+</p>
 
 You give it a target — a local folder, or a git URL. For a URL it does a shallow, **read-only** clone:
 `--depth 1 --no-checkout`, git hooks disabled (`core.hooksPath=/dev/null`), submodules off, LFS smudge
@@ -54,7 +56,9 @@ A comment that says *"don't run the payload"* is worth nothing. So skillsentry d
 it relies on **where code is allowed to live.** The codebase is three layers, and the dependency rule
 between them is the entire safety argument:
 
-![Architecture boundaries](../guide/diagrams/architecture-boundaries.svg)
+<p align="center">
+  <img src="../guide/diagrams/architecture-boundaries.svg" width="720" alt="Architecture boundaries">
+</p>
 
 - The **pure core** (`src/core/*`) — engine, rules, matchers, verdict, drift, report — imports `node:*`
   **nothing**. No `fs`, no `child_process`, no `crypto`, no network. It only ever sees in-memory data and
@@ -81,7 +85,9 @@ Detection is layered. Everything on by default stays deterministic, offline, and
 technique that would break those properties (an LLM judge, say) is reserved as a *future opt-in*, never a
 default.
 
-![The detection tiers](../guide/diagrams/tier-model.svg)
+<p align="center">
+  <img src="../guide/diagrams/tier-model.svg" width="560" alt="The detection tiers">
+</p>
 
 There are seven detection classes across three tiers:
 
@@ -112,7 +118,9 @@ So T1 tracks **taint** — untrusted data — from a SOURCE, through variable as
 across lines and (via `source`) across files. It runs entirely in string space: tokenizing, never
 executing, never fetching.
 
-![T1 taint flow](../guide/diagrams/taint-flow.svg)
+<p align="center">
+  <img src="../guide/diagrams/taint-flow.svg" width="680" alt="T1 taint flow">
+</p>
 
 A `source ./lib.sh` is resolved *in memory and path-safely* — never fetched, never run — and tainted
 variables flow in from the sibling; an include that escapes the target root is itself a finding (ADR-006,
@@ -127,7 +135,9 @@ that gap with an approval baseline. You run `skillsentry <target> --approve` onc
 `.skillsentry.lock` recording the skill's **capability fingerprint**. On later runs, if the lockfile is
 present, skillsentry diffs the current scan against it.
 
-![Drift classification](../guide/diagrams/drift-classification.svg)
+<p align="center">
+  <img src="../guide/diagrams/drift-classification.svg" width="680" alt="Drift classification">
+</p>
 
 The crucial design choice: the diff keys on the **capability set** (the findings, permissions, scripts,
 hooks), *not* on raw file bytes. A documentation edit or a version bump changes the bytes but not the
@@ -149,7 +159,9 @@ There's a tension in a tool like this: you want a growing, community-contributab
 is a place where attacker-controlled-looking text meets your engine. skillsentry resolves it by making
 rules **declarative data** that the engine *interprets* — never code it runs.
 
-![How a rule compiles](../guide/diagrams/rule-compilation.svg)
+<p align="center">
+  <img src="../guide/diagrams/rule-compilation.svg" width="760" alt="How a rule compiles">
+</p>
 
 A `RuleSpec` declares an id, severity, tier, framework mapping, a matcher, pass/fail fixtures, and a
 precision budget. At load time it compiles to a runnable matcher in exactly two ways: a `line-pattern`
@@ -168,7 +180,9 @@ erodes trust faster than a miss.
 
 Findings collapse to a single verdict — the highest severity present wins:
 
-![Verdict model](../guide/diagrams/verdict-model.svg)
+<p align="center">
+  <img src="../guide/diagrams/verdict-model.svg" width="720" alt="Verdict model">
+</p>
 
 - **PASS** (exit `0`) — no findings.
 - **REVIEW** (exit `0`) — the highest finding is low or medium; read them and decide.

@@ -14,7 +14,9 @@ Detection is layered. Everything that is on by default stays **deterministic, of
 never-executing** — those properties are non-negotiable, so any technique that would break them (an LLM
 judge, say) is reserved as a future *opt-in* tier, never a default.
 
-![The detection tiers](./diagrams/tier-model.svg)
+<p align="center">
+  <img src="./diagrams/tier-model.svg" width="560" alt="The detection tiers">
+</p>
 
 - **T0 — pattern.** Per-file, mostly single-line. Regular expressions plus a closed set of vetted
   structural matchers (for things a regex can't express cleanly — unicode tricks, JSON scope analysis).
@@ -74,7 +76,9 @@ T1 reads bundled shell scripts and tracks **taint** — untrusted data — from 
 assignments, to a dangerous SINK, across lines and (via `source`) across files. It runs in pure string
 space: tokenizing, never executing, never fetching.
 
-![T1 taint flow](./diagrams/taint-flow.svg)
+<p align="center">
+  <img src="./diagrams/taint-flow.svg" width="680" alt="T1 taint flow">
+</p>
 
 - **Sources:** command substitution `$(…)`, network fetch (`curl`/`wget`), base64/hex decode, sensitive
   env vars, `read` from stdin.
@@ -100,7 +104,9 @@ You record a baseline with `skillsentry <target> --approve`, which writes a `.sk
 the skill's **capability fingerprint** (its findings + permissions + scripts + hooks, plus a per-file
 hash). On later runs, if the lockfile is present, skillsentry diffs the current scan against it.
 
-![Drift classification](./diagrams/drift-classification.svg)
+<p align="center">
+  <img src="./diagrams/drift-classification.svg" width="680" alt="Drift classification">
+</p>
 
 - **Escalation** — a capability present now that wasn't approved (a new sink, permission, or hook). This is
   the rug-pull signal.
@@ -123,7 +129,9 @@ Two load-bearing properties (ADR-008):
 Rules are **data, not code** — which is why a contributor can add one safely and why a malicious rule
 pattern can't execute.
 
-![Rule compilation](./diagrams/rule-compilation.svg)
+<p align="center">
+  <img src="./diagrams/rule-compilation.svg" width="760" alt="Rule compilation">
+</p>
 
 A `RuleSpec` declares an id, severity, tier, framework mapping, a matcher, pass/fail fixtures, and a
 precision budget. At load time it compiles to a runnable matcher: a `line-pattern` becomes a `RegExp`

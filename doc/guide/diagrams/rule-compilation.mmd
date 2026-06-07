@@ -1,12 +1,17 @@
 %% How a rule (DATA) becomes a runnable matcher — and why data can never execute.
+%% Colour key: grey = author/data · blue = the pure-core engine · green = the safety guarantee.
 %% Source: src/core/compile.ts, ruleset.ts, matchers/builtins.ts, ADR-005
 sequenceDiagram
     autonumber
     participant Dev as Contributor
+    box rgb(232,237,242) declarative data
     participant Spec as RuleSpec (data)
+    end
+    box rgb(219,231,245) the pure-core engine
     participant Comp as compileRule()
     participant Reg as Closed builtin registry
     participant Rule as Rule (runnable)
+    end
 
     Dev->>Spec: author id · severity · tier · framework<br/>matcher · pass/fail fixtures · precisionBudget
     Spec->>Comp: compile at load time
