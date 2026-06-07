@@ -1,0 +1,17 @@
+%% The end-to-end audit pipeline: a target becomes a verdict without ever executing.
+%% Source: src/cli.ts, src/adapters/{acquire,enumerate,classify}.ts, src/core/{engine,verdict,report}.ts
+flowchart TD
+    A["Target<br/>git URL or local dir"] --> B{"resolve<br/>(acquire.ts)"}
+    B -->|git URL| C["Shallow clone, READ-ONLY<br/>--depth 1 --no-checkout<br/>hooks disabled, no submodules, no LFS"]
+    B -->|local dir| D["Read in place<br/>(no copy)"]
+    C --> E["Enumerate + classify<br/>(enumerate.ts / classify.ts)<br/>walk tree → FileRecord[]"]
+    D --> E
+    E --> F["Apply .skillsentryignore<br/>excluded files disclosed, never hidden"]
+    F --> G["Scan: run the ruleset<br/>(engine.ts) — T0 patterns + T1 dataflow"]
+    G --> H["Findings[]<br/>rule · severity · file:line · why · OWASP/ATLAS"]
+    H --> I{".skillsentry.lock<br/>present?"}
+    I -->|yes| J["T3 drift pass<br/>(drift.ts) — diff vs approved baseline"]
+    I -->|no| K
+    J --> K["Aggregate verdict<br/>(verdict.ts) — additive-only"]
+    K --> L["Report: markdown + JSON<br/>(report.ts) · optional badge / CI line"]
+    L --> M["Exit 0 (PASS/REVIEW)<br/>or 1 (BLOCK)"]

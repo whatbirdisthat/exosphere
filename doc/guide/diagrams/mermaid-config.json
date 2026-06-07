@@ -1,0 +1,14 @@
+{
+  "theme": "neutral",
+  "themeVariables": {
+    "fontFamily": "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+    "fontSize": "15px",
+    "primaryColor": "#eef2f7",
+    "primaryBorderColor": "#5b6b7f",
+    "primaryTextColor": "#1b2733",
+    "lineColor": "#5b6b7f",
+    "tertiaryColor": "#f7f9fb"
+  },
+  "flowchart": { "curve": "basis", "htmlLabels": true, "padding": 12 },
+  "sequence": { "showSequenceNumbers": false, "wrap": true }
+}
