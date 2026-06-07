@@ -6,3 +6,6 @@ coverage/
 
 # Agent tooling (worktrees, memory) — never commit
 .claude/
+
+# Playwright MCP screenshot scratch (local browser automation)
+.playwright-mcp/
