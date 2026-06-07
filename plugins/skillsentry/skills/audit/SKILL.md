@@ -18,8 +18,9 @@ audited content.
 ## How it works (and the trust boundary you must honour)
 Detection lives entirely in the **vendored deterministic CLI** (`cli/bin.js`). It is:
 - **never-executing** — it reads files as text, never runs them, never feeds them to an LLM to judge;
-- **deterministic + offline** — same input → same verdict, no network, no model in the scan path;
-- **zero-dependency** — nothing in its supply chain to compromise.
+- **deterministic + offline in the scan path** — same input → same verdict, no model in the scan; the
+  scan makes no network calls (acquiring a git-URL target first does one `git clone`);
+- **zero npm-dependency** — no third-party packages in its supply chain (a git-URL audit uses the host `git`).
 
 So: **do not** read the target's files and decide for yourself whether they are malicious — that
 re-opens the exact injection surface the CLI avoids. Always go through the CLI.

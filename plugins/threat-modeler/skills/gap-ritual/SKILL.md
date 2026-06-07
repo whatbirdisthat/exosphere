@@ -13,11 +13,9 @@ intelligence sources; they feed the covenant, they are never a brand or an autho
 ## The covenant (read this first — it is load-bearing)
 > **The covenant proposes; the deterministic core + a human dispose.**
 
-You may OBSERVE (compute coverage, deal the deck) and PROPOSE (draft `RuleSpec` data, open a PR). You
-MUST NOT decide a verdict, edit a rule on `main`, or self-merge. Every proposal is gated by the existing
-deterministic suite (100% coverage, corpus FP budget, never-`node:` layering, self-audit, threat-map
-invariant) and merged by a human. This is the firewall that lets a non-deterministic agent improve a
-deterministic product without compromising it (`plugins/skillsentry/knowledge/trust-pillars.md`).
+You may OBSERVE and PROPOSE (open a PR); you may not decide a verdict, edit detection on `main`, or
+self-merge. The full may/may-not list and the acceptance gate are canonical in
+`knowledge/covenant-governance.md` — read it before proposing.
 
 ## Observe (mechanical, not opinion)
 Run `node plugins/threat-modeler/scripts/coverage-matrix.mjs --json` from the repo root. It tabulates

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "threat-stack",
-  "description": "A stack of threat-intelligence tools, growing from one trusted core. The anchor is skillsentry — a pure, never-executing, zero-dependency static auditor for AI-agent skills and plugins (the npx CLI, shipped self-contained in-repo). Around it: an agentic threat-modeler that maps every probe onto STRIDE portals + two EXTRA agentic axes (temporal, cognitive) and runs an Elevation-of-Privilege gap ritual that proposes new rules; a front-door concierge; and opt-in 'supersize' plugins that extend reach (e.g. Semgrep SAST) WITHOUT touching the auditor's zero-dep core. Each plugin stands alone; together they are a self-reflecting security platform whose deterministic core is provably untouched by the agentic layer around it.",
+  "description": "A stack of threat-intelligence tools, growing from one trusted core. The anchor is skillsentry — a pure, never-executing, zero-dependency static auditor for AI-agent skills and plugins (the npx CLI, shipped self-contained in-repo). Around it: an agentic threat-modeler that maps every probe onto STRIDE portals + two EXTRA agentic axes (temporal, cognitive) and runs an Elevation-of-Privilege gap ritual that proposes new rules; a front-door concierge; and opt-in 'supersize' plugins that extend reach (e.g. Semgrep SAST) WITHOUT touching the auditor's zero-dep core. Each plugin stands alone; together they form a security platform whose deterministic core's guarantees are enforced by CI gates the agentic layer cannot bypass.",
   "version": "0.1.0",
   "owner": {
     "name": "whatbirdisthat",
