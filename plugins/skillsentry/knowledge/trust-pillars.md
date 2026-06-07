@@ -32,8 +32,8 @@ The full governance — what the agent may/may-not do and the acceptance gate it
 in `threat-modeler/knowledge/covenant-governance.md` (the single source of truth; not restated here). The
 core's guarantees are *enforced by CI gates the agentic layer cannot bypass*, which is what lets a
 non-deterministic agent *improve* a deterministic product without ever being able to compromise it. STRIDE and the Elevation-of-Privilege deck are, in this frame, simply
-**another threat-intelligence source** feeding that covenant — never a brand, never an authority that
-bypasses the gates.
+**another threat-intelligence source** feeding that covenant — the organising lens, never an authority
+that bypasses the gates.
 
 ## The opt-in pre-tool audit (off by default)
 A pre-tool audit hook ships **disabled** as `hooks/hooks.json.example`. Enabling the plugin never

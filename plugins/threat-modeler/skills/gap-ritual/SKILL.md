@@ -1,6 +1,6 @@
 ---
 name: gap-ritual
-description: Run the STRIDE/Elevation-of-Privilege gap ritual against skillsentry's probe set and propose new deterministic rules. Use when the user wants to improve skillsentry's threat coverage, asks "what threats do we miss?", "what's our STRIDE coverage?", "run the gap ritual", "find detection gaps", "what new rules should we add?", or when a new detection class lands and coverage should be re-checked. The covenant's engine: it observes (mechanical coverage matrix + EoP deck), proposes (RuleSpec drafts), and opens a PR — it never ships a rule directly.
+description: Run the STRIDE/Elevation-of-Privilege gap ritual against skillsentry's probe set and propose new rules. Use when the user asks "what threats do we miss?", "what's our STRIDE coverage?", "run the gap ritual", "find detection gaps", or when a new detection class lands. Observes (mechanical matrix + EoP deck), proposes via PR — never ships a rule directly.
 ---
 
 # Gap ritual — the self-improvement covenant in motion
@@ -8,7 +8,7 @@ description: Run the STRIDE/Elevation-of-Privilege gap ritual against skillsentr
 The gap ritual is how the threat-stack platform evolves toward greater threat intelligence. It runs
 against **skillsentry's own probe set** and answers the Four Questions' fourth question — *did we do a
 good job?* — then proposes the next improvement. STRIDE and the Elevation-of-Privilege deck are the
-intelligence sources; they feed the covenant, they are never a brand or an authority.
+intelligence sources; STRIDE is the organising lens, but none of them overrides the deterministic gates.
 
 ## The covenant (read this first — it is load-bearing)
 > **The covenant proposes; the deterministic core + a human dispose.**

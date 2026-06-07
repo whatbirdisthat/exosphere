@@ -1,8 +1,8 @@
 # The self-improvement covenant — governance
 
-This is how the threat-stack platform evolves toward greater threat intelligence **without ever** being
-able to compromise the deterministic auditor. It extends the repo's existing `.foundry/governance.md`
-(`merge-mode: pr-approval` — never self-merge to main) to the threat-modeler.
+This is how the threat-modeler adds detection coverage **without ever** being able to compromise the
+deterministic auditor. It extends the repo's existing `.foundry/governance.md` (`merge-mode:
+pr-approval` — never self-merge to main) to the threat-modeler.
 
 ## The one rule
 > **The covenant proposes; the deterministic core + a human dispose.**

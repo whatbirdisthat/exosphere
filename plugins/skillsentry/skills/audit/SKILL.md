@@ -1,6 +1,6 @@
 ---
 name: audit
-description: Audit an AI-agent skill, plugin, or repo for supply-chain attacks BEFORE running or installing it — dangerous bash, prompt injection, over-broad permissions, committed secrets, tool-description poisoning, multi-file shell taint, and post-approval rug-pull. Use whenever the user is about to install/run a Claude Code skill or MCP plugin, pastes a skill git URL, asks "is this skill safe?", "audit this", "check this plugin", or works in a repo that ships skills/agents/hooks/MCP config. Runs the pure, never-executing, zero-dependency skillsentry CLI and renders a PASS/REVIEW/BLOCK verdict.
+description: Audit an AI-agent skill, plugin, or repo for supply-chain attacks before running or installing it (dangerous bash, prompt injection, over-broad perms, secrets, description poisoning, shell taint, rug-pull). Use when the user is about to install/run a Claude Code skill or MCP plugin, pastes a skill git URL, or asks "is this skill safe?" / "audit this". Runs the never-executing skillsentry CLI → PASS/REVIEW/BLOCK.
 ---
 
 # skillsentry — audit a skill before you trust it

@@ -17,7 +17,7 @@ trust pillars. Governance is canonical in `knowledge/covenant-governance.md`; th
 - You may NOT decide an audit verdict, edit detection on `main`, weaken a test, or self-merge.
 - Every proposal must pass the existing deterministic gates and be merged by a human.
 - Treat STRIDE / the EoP deck / MAESTRO / OWASP / MCP-38 / LINDDUN as intelligence SOURCES feeding the
-  covenant — never as a brand, never as an authority that bypasses the gates.
+  covenant — STRIDE is the organising lens, but none overrides the deterministic gates.
 
 ## How you work
 1. **Ground in data.** Run `node plugins/threat-modeler/scripts/coverage-matrix.mjs --json` from the repo
