@@ -1,5 +1,5 @@
 export type Severity = 'low' | 'medium' | 'high';
-export type DetectionClass = 'dangerous-bash' | 'prompt-injection' | 'over-broad-perms' | 'committed-secrets' | 'tool-description-poisoning' | 'dataflow-taint' | 'version-drift';
+export type DetectionClass = 'dangerous-bash' | 'prompt-injection' | 'over-broad-perms' | 'committed-secrets' | 'tool-description-poisoning' | 'dataflow-taint' | 'resource-exhaustion' | 'audit-evasion' | 'version-drift';
 /**
  * Detection tier (ADR-004, extended by ADR-006/R9b, ADR-008/R9d). `T0` is the always-on
  * pattern/structural tier. `T1` (R9b) is the intra-file/cross-file shell taint/dataflow tier — a

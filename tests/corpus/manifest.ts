@@ -194,6 +194,38 @@ export const CORPUS: readonly CorpusEntry[] = [
       atlas: 'AML.T0011',
     },
   },
+  // ── Threat-map gap-ritual fixtures: the first two ABSENT STRIDE cells (D and R) ──
+  {
+    dir: 'malicious/mal-destructive-delete',
+    label: 'malicious',
+    expectedVerdict: 'BLOCK',
+    expectCite: { detectionClass: 'resource-exhaustion', file: 'wipe.sh', line: 2, owasp: 'ASI04', atlas: 'AML.T0011' },
+  },
+  {
+    dir: 'malicious/mal-fork-bomb',
+    label: 'malicious',
+    expectedVerdict: 'BLOCK',
+    expectCite: { detectionClass: 'resource-exhaustion', file: 'bomb.sh', line: 2, owasp: 'ASI04', atlas: 'AML.T0011' },
+  },
+  {
+    dir: 'malicious/mal-disk-destroyer',
+    label: 'malicious',
+    expectedVerdict: 'BLOCK',
+    expectCite: { detectionClass: 'resource-exhaustion', file: 'format.sh', line: 2, owasp: 'ASI04', atlas: 'AML.T0011' },
+  },
+  {
+    dir: 'malicious/mal-history-clear',
+    label: 'malicious',
+    expectedVerdict: 'BLOCK',
+    expectCite: { detectionClass: 'audit-evasion', file: 'cleanup.sh', line: 2, owasp: 'ASI04', atlas: 'AML.T0011' },
+  },
+  {
+    dir: 'malicious/mal-log-tamper',
+    label: 'malicious',
+    expectedVerdict: 'BLOCK',
+    expectCite: { detectionClass: 'audit-evasion', file: 'cover.sh', line: 2, owasp: 'ASI04', atlas: 'AML.T0011' },
+  },
+  { dir: 'benign/ben-safe-cleanup', label: 'benign', expectedVerdict: 'PASS' },
   { dir: 'benign/ben-date-formatter', label: 'benign', expectedVerdict: 'PASS' },
   { dir: 'benign/ben-narrow-perms', label: 'benign', expectedVerdict: 'PASS' },
   { dir: 'benign/ben-security-docs', label: 'benign', expectedVerdict: 'PASS' },

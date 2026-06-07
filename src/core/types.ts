@@ -12,6 +12,13 @@ export type DetectionClass =
   // R9b: intra-file taint/dataflow in bundled shell scripts (a tainted SOURCE reaching a dangerous
   // SINK across lines). The T1-tier class — see ADR-006.
   | 'dataflow-taint'
+  // Threat-map gap ritual (STRIDE portal D — Denial of service): destructive / resource-exhaustion
+  // payloads in a bundled script (rm -rf /, fork-bomb, raw-disk dd/mkfs). The first ABSENT-cell class
+  // surfaced by the Elevation-of-Privilege deck run against the probe set (doc/threat-model/).
+  | 'resource-exhaustion'
+  // Threat-map gap ritual (STRIDE portal R — Repudiation): audit-trail evasion — clearing shell
+  // history or tampering with system logs to erase the trail (maps to MAESTRO L5 observability).
+  | 'audit-evasion'
   // R9d: a target's trust-relevant capability SET has GROWN since an approval baseline
   // (`.skillsentry.lock`) — the rug-pull. The T3 (temporal) class — see ADR-008. Not produced by a
   // `Rule`; raised by the temporal drift pass over (freshScanResult, lockfile).
