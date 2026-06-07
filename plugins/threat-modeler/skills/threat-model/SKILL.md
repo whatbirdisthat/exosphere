@@ -1,6 +1,6 @@
 ---
 name: threat-model
-description: Threat-model a system or design using the Four-Question Framework + STRIDE's six portals + the two agentic axes (temporal, cognitive). Use when the user asks to "threat model" something, wants a STRIDE analysis, asks "what can go wrong with this design?", "what are the attack surfaces?", "is this secure by design?", or wants to reason about an agentic/LLM/MCP system's risks. Grounds the analysis in named intelligence sources (STRIDE, MAESTRO, OWASP LLM/Agentic, MCP-38, LINDDUN) rather than vibes.
+description: Threat-model a system or design using the Four-Question Framework + STRIDE + the two agentic axes (temporal, cognitive). Use when the user asks to "threat model" something, wants a STRIDE analysis, "what can go wrong with this design?", or to reason about an agentic/LLM/MCP system's risks. Grounded in named sources (STRIDE, MAESTRO, OWASP, MCP-38), not vibes.
 ---
 
 # threat-model — structured, multi-source threat analysis

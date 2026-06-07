@@ -3,7 +3,7 @@
   "name": "threat-modeler",
   "displayName": "threat-modeler — STRIDE/EoP gap ritual & self-improvement covenant",
   "version": "0.1.0",
-  "description": "The agentic threat-intelligence layer of the threat-stack platform. Maps skillsentry's probe set onto STRIDE's six portals plus two EXTRA agentic axes (temporal, cognitive), deals the Elevation-of-Privilege 'threat-modelling poker' deck against the probes to surface ABSENT/THIN cells, and writes a gap analysis (doc/threat-model/). Under the self-improvement covenant it drafts new deterministic RuleSpec data and OPENS A PR — it never decides a verdict and never ships a rule directly; the deterministic test suite and a human are the acceptance gate. STRIDE is treated here as just another threat-intelligence source feeding the covenant, never a brand.",
+  "description": "The agentic threat-intelligence layer of the threat-stack platform. Maps skillsentry's probe set onto STRIDE's six portals plus two EXTRA agentic axes (temporal, cognitive), deals the Elevation-of-Privilege 'threat-modelling poker' deck against the probes to surface ABSENT/THIN cells, and writes a gap analysis (doc/threat-model/). Under the self-improvement covenant it drafts new deterministic RuleSpec data and OPENS A PR — it never decides a verdict and never ships a rule directly; the deterministic test suite and a human are the acceptance gate. STRIDE is the organising lens here — one intelligence source feeding the covenant, not an authority that bypasses the gates.",
   "author": {
     "name": "whatbirdisthat",
     "email": "95787+whatbirdisthat@users.noreply.github.com",

@@ -1,6 +1,6 @@
 ---
 name: gap-ritual
-description: Run the STRIDE/Elevation-of-Privilege gap ritual against skillsentry's probe set and propose new deterministic rules. Use when the user wants to improve skillsentry's threat coverage, asks "what threats do we miss?", "what's our STRIDE coverage?", "run the gap ritual", "find detection gaps", "what new rules should we add?", or when a new detection class lands and coverage should be re-checked. The covenant's engine: it observes (mechanical coverage matrix + EoP deck), proposes (RuleSpec drafts), and opens a PR — it never ships a rule directly.
+description: Run the STRIDE/Elevation-of-Privilege gap ritual against skillsentry's probe set and propose new rules. Use when the user asks "what threats do we miss?", "what's our STRIDE coverage?", "run the gap ritual", "find detection gaps", or when a new detection class lands. Observes (mechanical matrix + EoP deck), proposes via PR — never ships a rule directly.
 ---
 
 # Gap ritual — the self-improvement covenant in motion
@@ -8,16 +8,14 @@ description: Run the STRIDE/Elevation-of-Privilege gap ritual against skillsentr
 The gap ritual is how the threat-stack platform evolves toward greater threat intelligence. It runs
 against **skillsentry's own probe set** and answers the Four Questions' fourth question — *did we do a
 good job?* — then proposes the next improvement. STRIDE and the Elevation-of-Privilege deck are the
-intelligence sources; they feed the covenant, they are never a brand or an authority.
+intelligence sources; STRIDE is the organising lens, but none of them overrides the deterministic gates.
 
 ## The covenant (read this first — it is load-bearing)
 > **The covenant proposes; the deterministic core + a human dispose.**
 
-You may OBSERVE (compute coverage, deal the deck) and PROPOSE (draft `RuleSpec` data, open a PR). You
-MUST NOT decide a verdict, edit a rule on `main`, or self-merge. Every proposal is gated by the existing
-deterministic suite (100% coverage, corpus FP budget, never-`node:` layering, self-audit, threat-map
-invariant) and merged by a human. This is the firewall that lets a non-deterministic agent improve a
-deterministic product without compromising it (`plugins/skillsentry/knowledge/trust-pillars.md`).
+You may OBSERVE and PROPOSE (open a PR); you may not decide a verdict, edit detection on `main`, or
+self-merge. The full may/may-not list and the acceptance gate are canonical in
+`knowledge/covenant-governance.md` — read it before proposing.
 
 ## Observe (mechanical, not opinion)
 Run `node plugins/threat-modeler/scripts/coverage-matrix.mjs --json` from the repo root. It tabulates
@@ -26,7 +24,8 @@ T/I/E HEAVY, S THIN, **R and D ABSENT**, cognitive axis is the moat (the prompt-
 temporal is realized by the engine's T3 pass (reads 0 as a rule, not a gap).
 
 ## Propose (deal the deck → gaps)
-Walk `knowledge/eop-deck.md` suit by suit, cross-checking `knowledge/{mcp-38,maestro,owasp-agentic,linddun}.md`.
+Walk `knowledge/eop-deck.md` suit by suit, cross-checking `knowledge/{mcp-38,maestro,owasp-agentic}.md`
+(consult `knowledge/linddun.md` only when a privacy/PII concern is actually in scope — it is parked otherwise).
 A "card" with no probe that is **static · pre-execution · deterministic · never-executing** is a gap.
 Reject anything needing runtime, network, a parser dep, or LLM semantics — those break the pillars.
 Write `doc/threat-model/GAP_ANALYSIS.md` + `doc/threat-model/gaps.json`.

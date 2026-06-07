@@ -16,8 +16,10 @@ tool, while the pure auditor's guarantees stay unqualified.
   zero-dependency, never-executing, deterministic, and offline regardless of this plugin.
 - Semgrep's results are presented **alongside** skillsentry's verdict, never folded into it. The
   deterministic PASS/REVIEW/BLOCK is still produced solely by the pure CLI.
+- **`semgrep --config auto` fetches its rules over the network** from the Semgrep registry — another
+  reason its trust model is separate from skillsentry's offline scan path.
 
 ## The honest caveat
 Enabling this plugin means "skillsentry's deterministic verdict **plus** Semgrep's analysis" — two
-tools, two trust models. Do not conflate them. If you need the unqualified zero-dependency,
-air-gapped guarantee, use skillsentry alone.
+tools, two trust models. Do not conflate them. If you need the unqualified zero-npm-dependency,
+offline-scan guarantee, use skillsentry alone.

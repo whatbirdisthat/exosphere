@@ -23,7 +23,7 @@ Note: the `temporal` axis reads 0 because the T3 rug-pull is the engine's tempor
 ## 2 — deal the deck
 Read `knowledge/eop-deck.md` and `knowledge/stride-portals.md`. For each Elevation-of-Privilege "card"
 (an "an attacker can …" prompt) in each suit, decide whether an existing probe catches it. Cross-check
-against `knowledge/mcp-38.md`, `knowledge/maestro.md`, `knowledge/owasp-agentic.md`, `knowledge/linddun.md`.
+against `knowledge/mcp-38.md`, `knowledge/maestro.md`, `knowledge/owasp-agentic.md` (and `knowledge/linddun.md` only for privacy/PII concerns — parked otherwise).
 A card with no probe — that is **static, pre-execution, deterministic, and never-executing** — is a gap.
 Reject anything that would need runtime, network, a parser dependency, or LLM semantics (those break the
 auditor's pillars and belong out of scope).

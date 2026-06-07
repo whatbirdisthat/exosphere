@@ -1,9 +1,9 @@
 # STRIDE — six conceptual portals (just another threat-intelligence source)
 
 STRIDE is a checklist of six threat categories. We use it as *one* intelligence source feeding the
-covenant — peer to OWASP ASI/LLM, MITRE ATLAS, MAESTRO, MCP-38 and LINDDUN — never as a brand and never
-as an authority that bypasses the deterministic gates. Its real value here is **negative space**: it
-mechanically reveals the cells our probe set does NOT cover.
+covenant — peer to OWASP ASI/LLM, MITRE ATLAS, MAESTRO, MCP-38 and LINDDUN — never as an authority that
+bypasses the deterministic gates. Its real value here is **negative space**: it mechanically reveals the
+cells our probe set does NOT cover.
 
 | Portal | Property violated | Reads as, for an agent skill |
 |---|---|---|
@@ -23,4 +23,6 @@ mechanically reveals the cells our probe set does NOT cover.
   prompt-injection family). STRIDE assumes deterministic data/control boundaries; instruction-following
   is probabilistic.
 
-Branding line for the platform: **"STRIDE + 2 agentic axes (temporal, cognitive)."**
+STRIDE is the platform's **organising lens** — the one framework we name in the UI and use to structure
+the gap ritual: **"STRIDE + 2 agentic axes (temporal, cognitive)."** It organises; it does not override
+the gates, and OWASP/ATLAS/MAESTRO/MCP-38/LINDDUN feed the same covenant alongside it.

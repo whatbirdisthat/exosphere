@@ -66,12 +66,34 @@ framework (**OWASP** Agentic/MCP/LLM Top 10 + **MITRE ATLAS**) so it fits how se
 | `prompt-injection` | T0 | hidden/coercive instructions, zero-width unicode, homoglyphs, encoded & ANSI "line-jumping" payloads |
 | `over-broad-perms` | T0 | `"Bash(*)"` allow-all, network-reaching hooks, MCP servers fusing filesystem + network + secrets |
 | `committed-secrets` | T0 | API keys, tokens, private keys committed into the skill |
-| `description-poisoning` | T0 | malicious instructions hidden in tool/skill **descriptions** the model reads but you don't |
+| `tool-description-poisoning` | T0 | malicious instructions hidden in tool/skill **descriptions** the model reads but you don't |
+| `resource-exhaustion` | T0 | destructive `rm -rf` of a root path, fork bombs, and raw-disk wipes (`dd`/`mkfs`/`shred`) — denial of service |
+| `audit-evasion` | T0 | clearing shell history or tampering with `/var/log` to erase the trail |
 | `dataflow-taint` | T1 | multi-line / cross-file shell payloads where a tainted source reaches a dangerous sink |
-| `version-drift` | T3 | the **rug-pull** — a skill that gained dangerous capability *after* you approved it |
+
+…plus a temporal pass (not a ruleset detector): **`version-drift` (T3)** — the **rug-pull**, a skill that
+gained dangerous capability *after* you approved it (raised by diffing against a `.skillsentry.lock`
+baseline, not by a per-file rule).
 
 What it **doesn't** catch matters too — it's a pre-run static check, not a sandbox or a proof of safety.
 The [threat model](./doc/guide/threat-model.md) is explicit about the limits.
+
+## Beyond the CLI — the `threat-stack` platform
+
+`npx skillsentry` is the trust anchor, but the repo also ships as a **Claude Code plugin marketplace**
+called **threat-stack** (`AUDIT ▸ MODEL ▸ EXTEND`):
+
+- **`skillsentry`** (AUDIT) — the pure auditor as an in-editor command (`/skillsentry:audit`), running
+  the same deterministic CLI bundled in-repo (no npm install needed).
+- **`threat-modeler`** (MODEL) — maps the probe set onto STRIDE + agentic axes, runs the
+  Elevation-of-Privilege gap ritual, and proposes new rules via PR (never self-merge).
+- **`supersize-semgrep`** (EXTEND) — an opt-in, separate-trust-model Semgrep SAST extension that never
+  touches the auditor's zero-dependency core.
+
+Install: `/plugin marketplace add whatbirdisthat/skillsentry` then `/plugin install skillsentry@threat-stack`.
+
+> **Naming:** the git repo is `exosphere`; the trust-anchor CLI/package is **`skillsentry`**; the plugin
+> marketplace that wraps it is **`threat-stack`**.
 
 ## Why you can trust it
 
@@ -83,7 +105,9 @@ A security tool you can't trust is worse than none, so skillsentry is built to b
   dangerous, and its OWASP/ATLAS IDs. No opaque "risk score."
 - 👁️ **Nothing is hidden silently.** `.skillsentryignore` can narrow a scan, but the report still discloses
   every excluded file and pattern — an ignore file (or lockfile) can never quietly bury a finding.
-- 📦 **Zero runtime dependencies.** The thing that audits your supply chain has no supply chain of its own.
+- 📦 **Zero npm/runtime-package dependencies.** The thing that audits your supply chain adds no package
+  supply chain of its own. (Auditing a *git-URL* target uses the host's `git` to clone it first; a
+  local-dir audit needs nothing but Node.)
 - 🎯 **Deterministic & offline.** Same input → same verdict. No network in the scan path, no LLM in the
   loop, nothing to phone home.
 - ✅ **100% test coverage**, proven against a labelled corpus of real malicious + benign skills.

@@ -1,6 +1,6 @@
 ---
 name: propose-rule
-description: Draft a new deterministic skillsentry detection rule from a gap and open a PR for human review. Use after the gap ritual when the user wants to actually CLOSE a coverage gap — "add a rule for X", "propose the next rule", "close the publisher-spoofing gap", "implement the DoS detection". Authors RuleSpec data + fixtures + corpus, runs every gate, and opens a PR. It NEVER self-merges and NEVER weakens a test — the covenant proposes, the deterministic core + a human dispose.
+description: Draft a new deterministic skillsentry detection rule from a gap and open a PR for human review. Use when the user wants to CLOSE a coverage gap — "add a rule for X", "propose the next rule", "close the publisher-spoofing gap". Authors rule modules + fixtures + corpus, runs every gate, opens a PR — never self-merges, never weakens a test.
 ---
 
 # propose-rule — the covenant's act step

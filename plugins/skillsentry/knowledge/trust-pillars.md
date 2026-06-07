@@ -8,10 +8,14 @@ designed so that adding agentic, non-deterministic capability around the auditor
 1. **Never executes audited content.** It reads files as text and matches patterns. It never runs a
    target's code and never feeds target content to an LLM to "judge" it. Enforced structurally by the
    pure-core / adapters layering (ADR-001) and a build-time test.
-2. **Zero runtime dependencies.** The auditor of a supply chain has no supply chain of its own.
-3. **Deterministic + offline.** Same input → same verdict, everywhere, with no network and no model in
-   the scan path. A verdict is reproducible and reviewable.
-4. **100% test coverage.** Every line, branch, and function is pinned.
+2. **Zero npm/runtime-package dependencies.** The npm `dependencies` map is empty, so the auditor adds no
+   third-party package supply chain. (Auditing a *git-URL* target additionally requires a `git` binary on
+   the host to clone it — an external tool, not a bundled dependency; a local-dir audit needs nothing.)
+3. **Deterministic + offline in the scan path.** Same input → same verdict, everywhere, with no network
+   and no model in the *scan* itself. (Acquiring a git-URL target first performs one `git clone`; the
+   subsequent scan is fully offline. A local-dir audit is offline end-to-end.) A verdict is reproducible.
+4. **100% enforced test coverage.** Every line, branch, and function is pinned, with a small number of
+   disclosed `v8 ignore` exclusions for unreachable defence-in-depth paths (e.g. in the adapters layer).
 5. **Transparency.** Every `.skillsentryignore` exclusion is counted and disclosed in the report — a
    suppression can never silently hide a finding.
 
@@ -22,15 +26,15 @@ separate plugins, never inside `src/`/`dist/`. The covenant is one-directional:
 > **The covenant proposes; the deterministic core + a human dispose.**
 
 - The agentic layer NEVER decides a verdict and NEVER ships a rule directly.
-- It only *writes a draft artifact* (a gap analysis) and *opens a PR* proposing new `RuleSpec` **data**.
-- That PR must pass the existing deterministic gates — 100% coverage, corpus false-positive budget,
-  the never-`node:` layering test, the self-audit, and the threat-map invariant — and be merged by a
-  human. It never self-merges.
+- On a branch it *authors rule modules and registers them* and *opens a PR* — never editing detection on
+  `main`, never self-merging. The PR must pass the deterministic gates before a human merges it.
 
-This is what lets a non-deterministic agent *improve* a deterministic product without ever being able
-to compromise its guarantees. STRIDE and the Elevation-of-Privilege deck are, in this frame, simply
-**another threat-intelligence source** feeding that covenant — never a brand, never an authority that
-bypasses the gates.
+The full governance — what the agent may/may-not do and the acceptance gate it must pass — is canonical
+in `threat-modeler/knowledge/covenant-governance.md` (the single source of truth; not restated here). The
+core's guarantees are *enforced by CI gates the agentic layer cannot bypass*, which is what lets a
+non-deterministic agent *improve* a deterministic product without ever being able to compromise it. STRIDE and the Elevation-of-Privilege deck are, in this frame, simply
+**another threat-intelligence source** feeding that covenant — the organising lens, never an authority
+that bypasses the gates.
 
 ## The opt-in pre-tool audit (off by default)
 A pre-tool audit hook ships **disabled** as `hooks/hooks.json.example`. Enabling the plugin never

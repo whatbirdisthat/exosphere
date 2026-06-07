@@ -1,15 +1,16 @@
 # The self-improvement covenant — governance
 
-This is how the threat-stack platform evolves toward greater threat intelligence **without ever** being
-able to compromise the deterministic auditor. It extends the repo's existing `.foundry/governance.md`
-(`merge-mode: pr-approval` — never self-merge to main) to the threat-modeler.
+This is how the threat-modeler adds detection coverage **without ever** being able to compromise the
+deterministic auditor. It extends the repo's existing `.foundry/governance.md` (`merge-mode:
+pr-approval` — never self-merge to main) to the threat-modeler.
 
 ## The one rule
 > **The covenant proposes; the deterministic core + a human dispose.**
 
 The threat-modeler (agent / gap-ritual / propose-rule) may:
 - **observe** — compute the coverage matrix, deal the EoP deck, read rule data;
-- **propose** — draft `RuleSpec` data + fixtures + corpus, on a branch, and open a PR.
+- **propose** — on a branch, author rule modules and register them (new `RuleSpec` data + fixtures +
+  corpus, plus the `DetectionClass` union and ruleset wiring) and open a PR.
 
 The threat-modeler may **never**:
 - decide an audit verdict;
