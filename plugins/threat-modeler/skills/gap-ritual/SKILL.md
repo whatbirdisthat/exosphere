@@ -24,7 +24,8 @@ T/I/E HEAVY, S THIN, **R and D ABSENT**, cognitive axis is the moat (the prompt-
 temporal is realized by the engine's T3 pass (reads 0 as a rule, not a gap).
 
 ## Propose (deal the deck → gaps)
-Walk `knowledge/eop-deck.md` suit by suit, cross-checking `knowledge/{mcp-38,maestro,owasp-agentic,linddun}.md`.
+Walk `knowledge/eop-deck.md` suit by suit, cross-checking `knowledge/{mcp-38,maestro,owasp-agentic}.md`
+(consult `knowledge/linddun.md` only when a privacy/PII concern is actually in scope — it is parked otherwise).
 A "card" with no probe that is **static · pre-execution · deterministic · never-executing** is a gap.
 Reject anything needing runtime, network, a parser dep, or LLM semantics — those break the pillars.
 Write `doc/threat-model/GAP_ANALYSIS.md` + `doc/threat-model/gaps.json`.

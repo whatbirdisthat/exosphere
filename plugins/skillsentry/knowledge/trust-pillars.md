@@ -14,7 +14,8 @@ designed so that adding agentic, non-deterministic capability around the auditor
 3. **Deterministic + offline in the scan path.** Same input → same verdict, everywhere, with no network
    and no model in the *scan* itself. (Acquiring a git-URL target first performs one `git clone`; the
    subsequent scan is fully offline. A local-dir audit is offline end-to-end.) A verdict is reproducible.
-4. **100% test coverage.** Every line, branch, and function is pinned.
+4. **100% enforced test coverage.** Every line, branch, and function is pinned, with a small number of
+   disclosed `v8 ignore` exclusions for unreachable defence-in-depth paths (e.g. in the adapters layer).
 5. **Transparency.** Every `.skillsentryignore` exclusion is counted and disclosed in the report — a
    suppression can never silently hide a finding.
 

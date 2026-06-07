@@ -152,16 +152,16 @@ and `node plugins/threat-modeler/scripts/coverage-matrix.mjs` after each change;
 
 ## LOW / SUGGESTION
 
-- [ ] **U32 · nagging/noise (C-L1)** — the opt-in `hooks.json.example` re-audits the whole repo on **every**
+- [x] **U32 · nagging/noise (C-L1)** — the opt-in `hooks.json.example` re-audits the whole repo on **every**
   Bash call and swallows output (`2>/dev/null || true`), so a BLOCK is invisible. **Fix:** if advisory,
   surface stderr; if gating, drop `|| true`; reconsider per-Bash whole-repo re-scan.
 - [x] **U33 · classification smell (C-L2)** — `set +o history` lives in `log-tampering` but belongs in
   `history-clearing`. Cosmetic (both are audit-evasion). **Fix:** move it.
-- [ ] **U34 · over-engineering (D-L1)** — `linddun.md` is PARKED yet read by 4 files every gap ritual; the
+- [x] **U34 · over-engineering (D-L1)** — `linddun.md` is PARKED yet read by 4 files every gap ritual; the
   ritual cross-checks 4 framework docs (maestro/mcp-38/owasp-agentic/linddun) each run. **Fix for v1:**
   drop or de-list linddun until there's corpus evidence; keep STRIDE/eop-deck + the OWASP id-mapping as
   load-bearing, demote the rest to optional references.
-- [ ] **U35 · honesty polish (A-L11, A-L12, A-S14)** — "verdict mapped to frameworks" (findings are);
+- [x] **U35 · honesty polish (A-L11, A-L12, A-S14)** — "verdict mapped to frameworks" (findings are);
   unexplained 26-vs-28 column sum; "100% coverage" alongside a `v8 ignore` pragma in `acquire.ts`. **Fix:**
   "findings tagged to …"; add the column-sum note; "100% enforced coverage, with disclosed v8-ignore
   exclusions."

@@ -3,7 +3,7 @@
   "name": "skillsentry",
   "displayName": "skillsentry — static supply-chain auditor",
   "version": "0.1.0",
-  "description": "Audit an AI-agent skill or plugin for supply-chain attacks BEFORE it runs. A thin in-editor wrapper over the pure, never-executing, zero-dependency skillsentry CLI (shipped self-contained in cli/). /skillsentry:audit <target> runs the deterministic auditor over this repo or ANY other repo you are working on and renders a PASS / REVIEW / BLOCK verdict mapped to OWASP, MITRE ATLAS and STRIDE. Detection stays inside the deterministic CLI — the plugin never reads-and-judges target files in the agent context, so auditing a hostile repo is safe. The trust anchor of the threat-stack platform.",
+  "description": "Audit an AI-agent skill or plugin for supply-chain attacks BEFORE it runs. A thin in-editor wrapper over the pure, never-executing, zero-dependency skillsentry CLI (shipped self-contained in cli/). /skillsentry:audit <target> runs the deterministic auditor over this repo or ANY other repo you are working on and renders a PASS / REVIEW / BLOCK verdict whose findings are tagged to OWASP, MITRE ATLAS and STRIDE. Detection stays inside the deterministic CLI — the plugin never reads-and-judges target files in the agent context, so auditing a hostile repo is safe. The trust anchor of the threat-stack platform.",
   "author": {
     "name": "whatbirdisthat",
     "email": "95787+whatbirdisthat@users.noreply.github.com",
