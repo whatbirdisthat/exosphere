@@ -25,7 +25,7 @@ self-improvement loop closing — re-run `/threat-modeler:gap-ritual` to regener
 ### EXTRA agentic axes (escape classic STRIDE)
 | Axis | Count | Note |
 |---|---|---|
-| **cognitive** | 9 | the prompt-injection family + description poisoning — the product's moat |
+| **cognitive** | 9 | the prompt-injection family + description poisoning (escapes classic STRIDE) |
 | **temporal** | 0 | realized by the engine's **T3 rug-pull pass**, not a `RuleSpec` — reads 0 in rule-tabulation but is **NOT a gap** |
 
 ## Did STRIDE earn its place? (the gate)

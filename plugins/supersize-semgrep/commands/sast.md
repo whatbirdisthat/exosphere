@@ -10,9 +10,19 @@ Add deeper, language-aware Semgrep static analysis ALONGSIDE skillsentry's deter
 `knowledge/trust-statement.md` first — this is a separate product that shells to an external tool.
 
 ## 1 — the deterministic verdict still comes from the pure auditor
+The skillsentry CLI is a SEPARATE plugin; resolve it robustly (don't assume a sibling path — plugins
+install as isolated subtrees). Try, in order: a `skillsentry` on PATH, then the sibling vendored CLI.
+If NEITHER resolves, say so LOUDLY and tell the user to run `/skillsentry:audit` themselves — do not
+bury the miss in a JSON note (U12).
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/../skillsentry/cli/bin.js" "${1:-.}" --format json 2>/dev/null || \
-  echo '{"note":"skillsentry plugin not found alongside; run /skillsentry:audit separately"}'
+TARGET="${1:-.}"
+if command -v skillsentry >/dev/null 2>&1; then
+  skillsentry "$TARGET" --format json
+elif [ -f "${CLAUDE_PLUGIN_ROOT}/../skillsentry/cli/bin.js" ]; then
+  node "${CLAUDE_PLUGIN_ROOT}/../skillsentry/cli/bin.js" "$TARGET" --format json
+else
+  echo "⚠️  skillsentry CLI not found — run /skillsentry:audit $TARGET separately for the deterministic verdict; this command will run only the Semgrep pass below." >&2
+fi
 ```
 
 ## 2 — supersize with Semgrep IF it is installed

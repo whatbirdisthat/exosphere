@@ -6,11 +6,25 @@ All notable changes to skillsentry are documented here. The format follows
 
 ## [Unreleased]
 
-The `0.1.0` line below is built and merged to `main` but not yet published to npm.
+The `0.1.0` npm line is not published; the product now also ships in-repo as the **`threat-stack`**
+Claude Code plugin marketplace, so the package version (`0.1.0`) and the rule-content version
+(`RULESET_VERSION`, now `0.7.0`) advance on independent axes — see `src/core/ruleset.ts`.
+
+### Added
+- **threat-stack marketplace** — the repo is now a Claude Code plugin marketplace: `skillsentry` (the
+  pure auditor as an in-editor command, running a vendored copy of the CLI), `threat-modeler` (STRIDE/EoP
+  gap ritual + self-improvement covenant), a `threat-stack` front door, and an opt-in `supersize-semgrep`
+  extension. A 🧱 CI "wall" job keeps the pure auditor zero-dependency while the platform grows around it.
+- **Detection — two new T0 classes** (ruleset 0.7.0): `resource-exhaustion` (STRIDE D — destructive
+  `rm -rf`, fork bombs, raw-disk wipes) and `audit-evasion` (STRIDE R — history clearing, `/var/log`
+  tampering). Surfaced by the gap ritual filling the previously-ABSENT Repudiation and DoS cells.
+- **Threat-map metadata** — every rule now also carries its STRIDE portal / agentic axis
+  (`framework.stride` / `framework.axis`), tabulated mechanically by the gap ritual.
 
 ### Documentation
 - An educational guide set under [`doc/guide/`](./doc/guide/) — architecture, how-detection-works, threat
   model + how to read a report, and a glossary — with seven diagrams (source + rendered SVG).
+- A threat-model gap analysis under [`doc/threat-model/`](./doc/threat-model/) (STRIDE coverage matrix + gaps).
 - README retoned toward a how-and-why voice; `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md` added.
 
 ## [0.1.0] — 2026-06-07

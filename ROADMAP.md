@@ -11,8 +11,8 @@
 - **STACK:** TypeScript / Node → `handler-js`. Distributed as `npx skillsentry`.
 - **OBJECTIVE:** A FOSS CLI `npx skillsentry <git-url | local-dir>` that fetches the source
   **read-only** (shallow clone to a temp dir; **never** runs build/install/post-install hooks),
-  statically scans it across **four detection classes**, and emits an explained **PASS / REVIEW / BLOCK**
-  verdict (markdown + JSON; **non-zero exit on BLOCK** for CI).
+  statically scans it across **four detection classes** _(original v1 scope; now eight — see CHANGELOG)_,
+  and emits an explained **PASS / REVIEW / BLOCK** verdict (markdown + JSON; **non-zero exit on BLOCK** for CI).
 - **DETECTION CLASSES (v1):**
   1. `dangerous-bash` — exfiltration / RCE patterns (`curl … | sh`, `/dev/tcp` reverse shells,
      `cat ~/.aws` & secret reads, base64-piped payloads, writes outside the tree).

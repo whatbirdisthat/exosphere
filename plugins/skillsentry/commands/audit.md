@@ -33,7 +33,8 @@ From the JSON, present:
   (`owasp`, `atlas`, and the `stride` portal / agentic `axis` when present);
 - the **disclosed exclusions** (skillsentry never hides what `.skillsentryignore` removed) and, if a
   `.skillsentry.lock` baseline was present, the **drift** summary (the T3 rug-pull check);
-- one-line next step: PASS → safe to proceed; REVIEW → read the flagged lines; BLOCK → do not run it.
+- one-line next step: PASS → no rule matched (not a safety proof; proceed with normal judgement);
+  REVIEW → read the flagged lines and decide; BLOCK → do not run it.
 
 Auditing **another repo you are working on** is the same call with its path:
 `node "${CLAUDE_PLUGIN_ROOT}/cli/bin.js" /path/to/other-repo --format json`. Because the CLI never
