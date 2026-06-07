@@ -27,10 +27,13 @@ src/core/matchers/**
 doc/**
 ROADMAP.md
 
-# The README showcases real attack patterns (curl|sh, "ignore previous instructions", Bash(*)) as
-# selling points — what the tool catches. It's documentation, not an executable artefact; excluded
-# and disclosed like the other docs. `--no-ignore` re-scans it.
+# Reader-facing documentation that QUOTES real attack patterns (curl|sh, "ignore previous
+# instructions", Bash(*), fixture payloads) to teach what the tool catches. These are documentation,
+# not executable artefacts; excluded and disclosed like the other docs. `--no-ignore` re-scans them.
 README.md
+CONTRIBUTING.md
+SECURITY.md
+CHANGELOG.md
 
 # Build output (compiled copies of the rule sources).
 dist/**
