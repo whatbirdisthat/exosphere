@@ -10,7 +10,8 @@ import type { FrameworkMapping, RuleSpec } from '../types.js';
 // AML.T0011 — user execution of a malicious supply-chain artefact).
 
 const C = 'dataflow-taint' as const;
-const SUPPLY_CHAIN: FrameworkMapping = { owasp: 'ASI04', atlas: 'AML.T0011' };
+// A tainted value flowing into a shell sink is multi-line RCE → Tampering + Elevation.
+const SUPPLY_CHAIN: FrameworkMapping = { owasp: 'ASI04', atlas: 'AML.T0011', stride: ['T', 'E'] };
 
 export const dataflowTaintRules: readonly RuleSpec[] = [
   {

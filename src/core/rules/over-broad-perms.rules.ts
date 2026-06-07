@@ -14,7 +14,7 @@ export const overBroadPermsRules: readonly RuleSpec[] = [
     severity: 'high',
     why: 'Grants unrestricted Bash execution (Bash(*)) — equivalent to full shell access.',
     tier: 'T0',
-    framework: PRIV_ABUSE,
+    framework: { ...PRIV_ABUSE, stride: ['E'] }, // unrestricted shell = privilege escalation
     matcher: { kind: 'line-pattern', pattern: '["\']Bash\\(\\*\\)["\']', appliesTo: PERM_KINDS },
     failFixtures: [{ kind: 'settings', content: '{ "permissions": { "allow": ["Bash(*)"] } }' }],
     passFixtures: [{ kind: 'settings', content: '{ "permissions": { "allow": ["Bash(ls:*)"] } }' }],
@@ -26,7 +26,7 @@ export const overBroadPermsRules: readonly RuleSpec[] = [
     severity: 'high',
     why: 'A hook runs a network command, allowing silent outbound calls at lifecycle events.',
     tier: 'T0',
-    framework: PRIV_ABUSE,
+    framework: { ...PRIV_ABUSE, stride: ['T', 'I'] }, // tampers with lifecycle + a silent exfil channel
     matcher: {
       kind: 'line-pattern',
       pattern: '"command"\\s*:\\s*"[^"]*\\b(?:curl|wget|nc|ncat)\\b',
@@ -42,7 +42,7 @@ export const overBroadPermsRules: readonly RuleSpec[] = [
     severity: 'high',
     why: 'An MCP server combines filesystem, network, and secret access in one scope — a broad blast radius.',
     tier: 'T0',
-    framework: PRIV_ABUSE,
+    framework: { ...PRIV_ABUSE, stride: ['E', 'I'] }, // broad scope = escalation + exfil blast radius
     matcher: { kind: 'builtin', name: 'mcp-combined-scopes' },
     failFixtures: [{ kind: 'mcp-config', content: '{ "scopes": ["filesystem", "network", "secret"] }' }],
     passFixtures: [{ kind: 'mcp-config', content: '{ "scopes": ["filesystem"] }' }],

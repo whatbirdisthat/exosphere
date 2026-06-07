@@ -34,15 +34,42 @@ export type DetectionClass =
 export type RuleTier = 'T0' | 'T1' | 'T3';
 
 /**
+ * A STRIDE "conceptual portal" — one of the six classic threat categories used here as JUST ANOTHER
+ * threat-intelligence source (peer to OWASP/ATLAS), never as a brand. Tagging every probe with the
+ * portal(s) it covers turns coverage of the threat map into data the gap ritual can reason over
+ * MECHANICALLY (which portals are HEAVY, THIN, ABSENT) — see `doc/threat-model/`.
+ *   S Spoofing · T Tampering · R Repudiation · I Information disclosure · D Denial of service · E Elevation of privilege
+ */
+export type StridePortal = 'S' | 'T' | 'R' | 'I' | 'D' | 'E';
+
+/**
+ * An EXTRA agentic axis — a threat dimension that classic STRIDE was never designed to name, carried
+ * by the probes that are this product's differentiators:
+ *   • `temporal`  — trust changing ACROSS TIME (the T3 rug-pull: trustworthy-then, hostile-now). STRIDE
+ *     models one system at one instant; it has no time axis.
+ *   • `cognitive` — the attack target is the LLM's COGNITION (the prompt-injection family), not a
+ *     deterministic software trust boundary. STRIDE assumes deterministic data/control boundaries.
+ * A probe escapes STRIDE iff it is tagged with an `axis` (it may ALSO carry a loose `stride`).
+ */
+export type AgenticAxis = 'temporal' | 'cognitive';
+
+/**
  * Framework mapping carried by every rule (ADR-004 / R9a). Anchors each detection to a recognised
- * standard so a finding cites an ID a security team already tracks. Both ids are required — a rule
- * that omits a mapping does not compile, making framework coverage a compile-time invariant.
+ * standard so a finding cites an ID a security team already tracks. `owasp` + `atlas` are required — a
+ * rule that omits them does not compile, making framework coverage a compile-time invariant. `stride`
+ * and `axis` are OPTIONAL on the type (so the existing invariant is preserved and no rule breaks), but
+ * are made DE-FACTO REQUIRED by a test (`__tests__/threat-map.test.ts`): every rule must declare a
+ * `stride` portal OR an `axis` — so the threat-map classification cannot silently rot.
  */
 export interface FrameworkMapping {
   /** OWASP ASI / MCP / LLM Top-10 identifier, e.g. "ASI04", "MCP-T01", "LLM01". */
   readonly owasp: string;
   /** MITRE ATLAS technique id, e.g. "AML.T0051". */
   readonly atlas: string;
+  /** STRIDE portal(s) this probe covers — "just another intel source". Empty/omitted iff `axis` is set. */
+  readonly stride?: readonly StridePortal[];
+  /** EXTRA agentic axis(es) for probes that ESCAPE classic STRIDE (temporal / cognitive). */
+  readonly axis?: readonly AgenticAxis[];
 }
 
 export type Verdict = 'PASS' | 'REVIEW' | 'BLOCK';

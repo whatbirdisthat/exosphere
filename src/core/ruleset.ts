@@ -16,12 +16,13 @@ export const RULESET_SCHEMA_VERSION = '1.0.0';
 
 /**
  * The version of the curated rule CONTENT (EARS-054). R4 externalised the rules into declarative data
- * (0.3.0); R9b added the T1 intra-file `dataflow-taint` rule (0.4.0); R9b.1 adds the T1 CROSS-FILE
- * `dataflow-taint` rule (new detection content), so the content version steps to `0.5.0`. The SCHEMA
- * version is unchanged — the matcher vocabulary additions (a new builtin name, the optional
- * `Rule.detectCrossFile` channel) are backward-compatible extensions, not breaking changes (ADR-007).
+ * (0.3.0); R9b added the T1 intra-file `dataflow-taint` rule (0.4.0); R9b.1 added the T1 CROSS-FILE
+ * `dataflow-taint` rule (0.5.0); the threat-map slice annotates every rule with its STRIDE portal /
+ * agentic axis (new metadata content, no new detections), so the content version steps to `0.6.0`. The
+ * SCHEMA version is unchanged — `framework.stride` / `framework.axis` are OPTIONAL backward-compatible
+ * additions to `FrameworkMapping`, not a breaking change to the `RuleSpec` contract (ADR-005).
  */
-export const RULESET_VERSION = '0.5.0';
+export const RULESET_VERSION = '0.6.0';
 
 /**
  * The SCHEMA version of the `.skillsentry.lock` approval baseline (R9d / ADR-008). Bumped only on a

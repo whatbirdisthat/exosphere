@@ -4,7 +4,8 @@ import type { FrameworkMapping, RuleSpec } from '../types.js';
 // preserved verbatim from R9a. Precision-first: each pattern matches a concrete credential shape.
 
 const C = 'committed-secrets' as const;
-const CREDS: FrameworkMapping = { owasp: 'ASI04', atlas: 'AML.T0055' };
+// A committed credential is a leaked secret → Information disclosure.
+const CREDS: FrameworkMapping = { owasp: 'ASI04', atlas: 'AML.T0055', stride: ['I'] };
 
 export const committedSecretsRules: readonly RuleSpec[] = [
   {
